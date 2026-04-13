@@ -9,10 +9,8 @@ public class TestRepo : MonoBehaviour
     private void Start()
     {
         RepositoryFactory.Instance.Register<IMainGameRepository, MainGameRepository>();
+        
         mainGameRepository = RepositoryFactory.Instance.Get<IMainGameRepository>();
-
-
-        mainGameRepository.PostMainGameModel(1, 1);
+        var a = mainGameRepository.PostMainGameModel(1, 1);
     }
-    
 }
