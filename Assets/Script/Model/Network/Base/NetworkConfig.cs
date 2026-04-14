@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// </summary>
 public class NetworkConfig
 {
-    public string BaseUrl { get; set; } = "http://localhost:8080";
+    public string BaseUrl { get; set; } = "http://ajou-mse-sss.zikbakguri.com:8080/";
     public int TimeoutSeconds { get; set; } = 30;
     public string AuthToken { get; set; }
     public Dictionary<string, string> DefaultHeaders { get; private set; }
