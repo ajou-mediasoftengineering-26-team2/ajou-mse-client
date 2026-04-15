@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "404682369116",
+    "firebase_url": "https://ajou-mse-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ajou-mse",
+    "storage_bucket": "ajou-mse.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404682369116:android:3a21d2f2a5e00ddb65de99",
+        "android_client_info": {
+          "package_name": "com.UnityTechnologies.com.unity.template.urpblank"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPwDSP2ERqDtlQ94mqqztHMK2uuhiq72o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404682369116:android:8d2a9660e3c44d4965de99",
+        "android_client_info": {
+          "package_name": "kr.ac.ajou.mse.team2.server"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPwDSP2ERqDtlQ94mqqztHMK2uuhiq72o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
