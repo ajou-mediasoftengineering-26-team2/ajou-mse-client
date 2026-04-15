@@ -23,7 +23,7 @@ public class BattleUIController : MonoBehaviour
     //손 속성
     private VisualElement elementalHand;
     
-    void Start()
+    void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
         //HP바
