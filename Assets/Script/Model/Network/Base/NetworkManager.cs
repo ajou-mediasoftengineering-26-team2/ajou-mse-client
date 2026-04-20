@@ -40,7 +40,7 @@ public class NetworkManager : MonoBehaviour
     }
 
 
-    public async Task<T> Get<T>(string endpoint, Dictionary<string, string> queryParams = null)
+    public async Task<ApiResponse<T>> Get<T>(string endpoint, Dictionary<string, string> queryParams = null)
     {
         string url = BuildUrl(endpoint, queryParams);
         
@@ -58,7 +58,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public async Task<T> Post<T>(string endpoint, object body)
+    public async Task<ApiResponse<T>> Post<T>(string endpoint, object body)
     {
         string url = BuildUrl(endpoint);
         string jsonBody = JsonUtility.ToJson(body);
@@ -82,7 +82,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public async Task<T> Put<T>(string endpoint, object body)
+    public async Task<ApiResponse<T>> Put<T>(string endpoint, object body)
     {
         string url = BuildUrl(endpoint);
         string jsonBody = JsonUtility.ToJson(body);
@@ -162,7 +162,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    private T HandleResponse<T>(UnityWebRequest request)
+    private ApiResponse<T> HandleResponse<T>(UnityWebRequest request)
     {
         if (request.result != UnityWebRequest.Result.Success)
         {
@@ -175,7 +175,7 @@ public class NetworkManager : MonoBehaviour
         
         try
         {
-            return JsonUtility.FromJson<T>(responseText);
+            return JsonUtility.FromJson<ApiResponse<T>>(responseText);
         }
         catch (Exception ex)
         {

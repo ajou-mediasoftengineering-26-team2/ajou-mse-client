@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using Object = System.Object;
 
 public class TestViewModel : ViewModelBase
 {
@@ -8,7 +9,7 @@ public class TestViewModel : ViewModelBase
 
     public Observable<string> FirebaseMessage { get; } = new Observable<string>("");
     public Observable<string> RepoData { get; } = new Observable<string>("");
-
+    
     public TestViewModel()
     {
         RepositoryFactory.Instance.Register<ITestRepository, TestRepository>();
@@ -40,6 +41,7 @@ public class TestViewModel : ViewModelBase
     private async Task LoadTestData()
     {
         var data = await _repository.getTest();
-        RepoData.Value = $"{data.response} {data.time}";
+        RepoData.Value = $"{data.data.response} {data.data.time} {data.isSuccess}";
     }
+
 }
