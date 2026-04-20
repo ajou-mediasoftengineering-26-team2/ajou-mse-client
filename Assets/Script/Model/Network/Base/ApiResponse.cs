@@ -7,8 +7,7 @@ using System;
 [Serializable]
 public class ApiResponse<T>
 {
-    public bool Success;
-    public string Message;
-    public T Data;
-    public int Code;
+    public bool isSuccess;
+    public string error;
+    public T data;
 }
