@@ -1,17 +1,17 @@
 using System;
 
 [Serializable]
-public class IDRequestBody
+public class PostLoginRequest
 {
     public string userID;
-    public IDRequestBody()
+    public PostLoginRequest()
     {
         userID = "";
     }
 }
 
 [Serializable]
-public class IDResponse
+public class PostLoginResponse
 {
     public string userUID;
 }
