@@ -1,0 +1,20 @@
+using System.Threading.Tasks;
+
+public interface IMainBattleRepository
+{
+    Task<ApiResponse<RoomInfoModel>> PostHandAction(string playerId, int moveType);
+}
+
+public class MainBattleRepository : BaseRepository, IMainBattleRepository
+{
+    protected override string EndpointBase => "main";
+
+    public async Task<ApiResponse<RoomInfoModel>> PostHandAction(string playerId, int moveType)
+    {
+        PostHandActionRequest body = new PostHandActionRequest();
+        body.playerId = playerId;
+        body.moveType = moveType;
+        var response = await networkManager.Post<ApiResponse<RoomInfoModel>>(EndpointBase, body);
+        return response.data;
+    }
+}

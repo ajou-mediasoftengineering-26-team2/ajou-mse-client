@@ -1,15 +1,16 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
-using Object = System.Object;
+using Object = UnityEngine.Object;
 
 public class IDViewModel : ViewModelBase
 {
     private readonly IIDRepository _repository;
     
-    public Observable<String> UserUID { get; } = new Observable<String>();
+    public Observable<string> PlayerId { get; } = new Observable<string>();
+    public Observable<string> LobbyId { get; } = new Observable<string>();
     public Observable<bool> IsSuccess { get; } = new Observable<bool>();
-    public Observable<String> ErrorMsg { get; } =  new Observable<string>();
+    public Observable<string> ErrorMsg { get; } =  new Observable<string>();
 
     public IDViewModel()
     {
@@ -17,15 +18,16 @@ public class IDViewModel : ViewModelBase
         _repository = RepositoryFactory.Instance.Get<IIDRepository>();
     }
 
-    public async void OnSubminID(String userID)
+    public async void OnSubmitID(string playerName)
     {
         try
         {
-            var response = await _repository.PostUserID(userID);
+            var response = await _repository.PostUserID(playerName);
 
             if (response.isSuccess)
             {
-                UserUID.Value = userID;
+                PlayerId.Value = response.data.playerId;
+                LobbyId.Value = response.data.lobbyId;
                 IsSuccess.Value = true;
             }
             else

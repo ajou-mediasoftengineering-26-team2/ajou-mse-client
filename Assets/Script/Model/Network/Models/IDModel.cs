@@ -3,15 +3,12 @@ using System;
 [Serializable]
 public class PostLoginRequest
 {
-    public string userID;
-    public PostLoginRequest()
-    {
-        userID = "";
-    }
+    public string playerName;
 }
 
 [Serializable]
 public class PostLoginResponse
 {
-    public string userUID;
+    public string playerId;
+    public string lobbyId;
 }

@@ -3,17 +3,17 @@ using System.Threading.Tasks;
 
 public interface IIDRepository
 {
-    Task<ApiResponse<PostLoginResponse>> PostUserID(string UserID);
+    Task<ApiResponse<PostLoginResponse>> PostUserID(string playerName);
 }
 
 public class IDRepository : BaseRepository, IIDRepository 
 {
-    protected override string EndpointBase => "test";// 아직 엔드포인트 없어서 test로 진행했습니다
+    protected override string EndpointBase => "auth/player"; // 플레이어 엔드 포인트
 
-    public async Task<ApiResponse<PostLoginResponse>> PostUserID(string userID)
+    public async Task<ApiResponse<PostLoginResponse>> PostUserID(string playerName)
     {
         PostLoginRequest body = new PostLoginRequest();
-        body.userID = userID;
+        body.playerName = playerName;
         var response = await networkManager.Post<ApiResponse<PostLoginResponse>>(EndpointBase, body);
         return response.data;
     }
