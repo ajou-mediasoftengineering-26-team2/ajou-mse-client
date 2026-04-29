@@ -11,6 +11,7 @@ public class IDViewModel : ViewModelBase
     public Observable<string> LobbyId { get; } = new Observable<string>();
     public Observable<bool> IsSuccess { get; } = new Observable<bool>();
     public Observable<string> ErrorMsg { get; } =  new Observable<string>();
+    public Observable<int> ErrorCode { get; } =  new Observable<int>();
 
     public IDViewModel()
     {
@@ -32,15 +33,21 @@ public class IDViewModel : ViewModelBase
             }
             else
             {
-                ErrorMsg.Value = response.error;
+                ErrorMsg.Value = response.error.message;
+                ErrorCode.Value = response.error.code;
             }
+        }
+        catch (NetworkException e)
+        {
+            ErrorMsg.Value = e.ErrorMessage;
+            ErrorCode.Value = (int)e.ResponseCode;
+            Debug.LogException(e);
         }
         catch (Exception e)
         {
             ErrorMsg.Value = e.Message;
+            ErrorCode.Value = -1;
             Debug.LogException(e);
         }
     }
-    
 }
-
