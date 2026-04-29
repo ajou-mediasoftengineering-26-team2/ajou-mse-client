@@ -5,9 +5,16 @@ using System;
 /// 성공/실패 상태와 데이터를 포함
 /// </summary>
 [Serializable]
+public class ApiError
+{
+    public int code;
+    public string message;
+}
+
+[Serializable]
 public class ApiResponse<T>
 {
     public bool isSuccess;
-    public string error;
     public T data;
+    public ApiError error;
 }
