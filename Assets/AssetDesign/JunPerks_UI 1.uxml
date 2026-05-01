@@ -1,22 +1,37 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement name="PerkMain" style="flex-grow: 1;">
-        <ui:VisualElement name="PerkTitle" style="flex-grow: 1; width: 100%; height: 20%; align-self: center; align-items: center; justify-content: center;">
-            <ui:Label text="Select Perk" name="SelectPerk" style="width: 60%; height: 60%; align-items: flex-end; justify-content: flex-start; align-self: center; align-content: flex-end; -unity-text-align: middle-center; font-size: 80px; -unity-font-style: bold;"/>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="PerkMain" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.9); padding: 40px; justify-content: space-between;">
+        <ui:VisualElement name="Header" style="height: 15%; justify-content: center; align-items: center;">
+            <ui:Label text="SELECT YOUR PERK" style="font-size: 50px; color: white; -unity-font-style: bold;"/>
         </ui:VisualElement>
-        <ui:VisualElement name="ChoosePerks" style="flex-grow: 1; width: 100%; height: 70%; align-items: center; justify-content: space-evenly; flex-direction: row; align-self: center; align-content: center;">
-            <ui:Button text="" name="Perk1" style="width: 25%; height: 80%; justify-content: space-between;">
-                <ui:Label text="Perk1 Title" name="Perk1Title" style="font-size: 32px; -unity-text-align: middle-center; align-content: flex-end; justify-content: space-between; align-items: flex-start; top: 5%; width: 90%; align-self: center; height: 15%;"/>
-                <ui:Label text="Explain about perk1" name="Perk1Exp" style="bottom: 10%; width: 90%; align-self: center; height: 60%; -unity-text-align: upper-center; font-size: 24px;"/>
-            </ui:Button>
-            <ui:Button text="" name="Perk3" style="width: 25%; height: 80%; justify-content: space-between; align-content: flex-start; align-self: center; align-items: center;">
-                <ui:Label text="Perk2 Title" name="Perk3Title" style="font-size: 32px; height: 15%; width: 90%; top: 5%;"/>
-                <ui:Label text="Explain about perk2" name="Perk3Exp" style="bottom: 10%; align-self: center; width: 90%; height: 60%; -unity-text-align: upper-center; font-size: 24px;"/>
-            </ui:Button>
-            <ui:Button text="" name="Perk2" style="width: 25%; height: 80%; justify-content: space-between;">
-                <ui:Label text="Perk3 Title" name="Perk2Title" style="font-size: 32px; width: 90%; height: 15%; align-self: center; top: 5%;"/>
-                <ui:Label text="Explain about perk3" name="Perk2Exp" style="bottom: 10%; width: 90%; align-self: center; height: 60%; -unity-text-align: upper-center; font-size: 24px;"/>
-            </ui:Button>
+        <ui:VisualElement name="ChoosePerks" style="height: 65%; flex-direction: row; justify-content: center; align-items: center;">
+            <ui:VisualElement name="PerkCard1" style="width: 28%; height: 95%; margin: 0 10px; padding: 15px; border-radius: 15px; background-color: rgb(40, 40, 40); border-width: 2px; border-color: rgb(80, 80, 80);">
+                <ui:Button name="SelectBtn" style="position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0); border-width: 0;"/>
+                <ui:Label text="STRENGTH" style="height: 10%; font-size: 24px; color: rgb(255, 223, 44); -unity-font-style: bold; -unity-text-align: middle-center;"/>
+                <ui:VisualElement name="PerkImage" style="flex-grow: 1; width: 100%; background-color: rgb(60, 60, 60); margin: 5px 0; border-radius: 10px;">
+                    <ui:Image style="flex-grow: 1; -unity-background-scale-mode: scale-to-fit;"/>
+                </ui:VisualElement>
+                <ui:Label text="Increases physical damage." style="height: 15%; font-size: 16px; color: white; -unity-text-align: middle-center; white-space: normal;"/>
+                <ui:Button text="CHANGE" name="RerollBtn" style="height: 40px; width: 80%; align-self: center; background-color: rgb(68, 68, 68); color: rgb(170, 170, 170); border-radius: 5px; margin-top: 5px;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="PerkCard2" style="width: 28%; height: 95%; margin: 0 10px; padding: 15px; border-radius: 15px; background-color: rgb(40, 40, 40); border-width: 2px; border-color: rgb(80, 80, 80);">
+                <ui:Button name="SelectBtn" style="position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0); border-width: 0;"/>
+                <ui:Label text="STRENGTH" style="height: 10%; font-size: 24px; color: rgb(255, 223, 44); -unity-font-style: bold; -unity-text-align: middle-center;"/>
+                <ui:VisualElement name="PerkImage" style="flex-grow: 1; width: 100%; background-color: rgb(60, 60, 60); margin: 5px 0; border-radius: 10px;">
+                    <ui:Image style="flex-grow: 1; -unity-background-scale-mode: scale-to-fit;"/>
+                </ui:VisualElement>
+                <ui:Label text="Increases physical damage." style="height: 15%; font-size: 16px; color: white; -unity-text-align: middle-center; white-space: normal;"/>
+                <ui:Button text="CHANGE" name="RerollBtn" style="height: 40px; width: 80%; align-self: center; background-color: rgb(68, 68, 68); color: rgb(170, 170, 170); border-radius: 5px; margin-top: 5px;"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="PerkCard3" style="width: 28%; height: 95%; margin: 0 10px; padding: 15px; border-radius: 15px; background-color: rgb(40, 40, 40); border-width: 2px; border-color: rgb(80, 80, 80);">
+                <ui:Button name="SelectBtn" style="position: absolute; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0); border-width: 0;"/>
+                <ui:Label text="STRENGTH" style="height: 10%; font-size: 24px; color: rgb(255, 223, 44); -unity-font-style: bold; -unity-text-align: middle-center;"/>
+                <ui:VisualElement name="PerkImage" style="flex-grow: 1; width: 100%; background-color: rgb(60, 60, 60); margin: 5px 0; border-radius: 10px;">
+                    <ui:Image style="flex-grow: 1; -unity-background-scale-mode: scale-to-fit;"/>
+                </ui:VisualElement>
+                <ui:Label text="Increases physical damage." style="height: 15%; font-size: 16px; color: white; -unity-text-align: middle-center; white-space: normal;"/>
+                <ui:Button text="CHANGE" name="RerollBtn" style="height: 40px; width: 80%; align-self: center; background-color: rgb(68, 68, 68); color: rgb(170, 170, 170); border-radius: 5px; margin-top: 5px;"/>
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="EmptyBottom" style="flex-grow: 1; width: 100%; height: 10%;"/>
+        <ui:VisualElement name="Footer" style="height: 15%; justify-content: center; align-items: center;"/>
     </ui:VisualElement>
 </ui:UXML>
