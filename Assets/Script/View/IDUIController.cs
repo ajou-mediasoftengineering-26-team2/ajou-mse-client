@@ -20,7 +20,11 @@ public class IDUIController : MonoBehaviour
       _viewModel = ViewModelLocator.Instance.Get<IDViewModel>();
       
       //클릭시 로그인 리턴 값을 받아옴
-      _createButton.clicked += () => _viewModel.OnSubmitID(_LoginIDInput.value);
+      _createButton.clicked += () =>
+      {
+         EventBus.Publish(new ButtonEvent());
+         _viewModel.OnSubmitID(_LoginIDInput.value);
+      };
       
       // 옵저버 구독 후 받아온 값에 대해서 성공 실패 여부를 묻고  성공시 로그인 성공, 아니면 로그인 에러
       _viewModel.IsSuccess.Subscribe(OnLoginSuccess);

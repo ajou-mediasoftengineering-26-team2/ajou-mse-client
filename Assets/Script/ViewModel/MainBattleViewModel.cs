@@ -82,6 +82,7 @@ public class MainBattleViewModel : ViewModelBase
         try
         {
             await _repository.PostHandAction(_playerId, moveType);
+            EventBus.Publish(new AttackStartedEvent(isPlayer: true));
         }
         catch (Exception e)
         {
