@@ -1,0 +1,48 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="Main" style="flex-grow: 1; width: 100%; height: 100%; background-color: rgb(30, 30, 30); padding: 20px;">
+        
+        <ui:VisualElement name="Top" style="height: 120px; width: 100%; flex-direction: row; justify-content: space-between; margin-bottom: 20px;">
+            <ui:VisualElement style="width: 20%;" /> <ui:VisualElement name="Sign" style="width: 50%; background-color: rgba(185, 191, 50, 0.9); border-width: 5px; border-color: rgb(50, 29, 124); justify-content: center;">
+                <ui:Label text="S H O P" style="font-size: 80px; -unity-text-align: middle-center; color: rgb(35, 30, 66); -unity-font-style: bold;"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="Info" style="width: 25%; justify-content: center; padding-left: 10px;">
+                <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 5px;">
+                    <ui:VisualElement name="RoundIcon" style="width: 20px; height: 20px; background-color: black; margin-right: 10px;"/>
+                    <ui:Label text="Round 1" style="font-size: 20px; color: white;"/>
+                </ui:VisualElement>
+                <ui:VisualElement style="flex-direction: row; align-items: center;">
+                    <ui:VisualElement name="MoneyIcon" style="width: 20px; height: 20px; background-color: gold; margin-right: 10px;"/>
+                    <ui:Label text="1,000 G" style="font-size: 20px; color: white;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="Middle" style="flex-grow: 1; width: 100%; justify-content: center;">
+            <ui:VisualElement name="MainShop" style="width: 80%; height: 80%; align-self: center; flex-direction: row; background-color: rgb(76, 116, 163); border-radius: 20px; padding: 20px;">
+                
+                <ui:VisualElement name="Left" style="width: 40%; justify-content: center; align-items: center;">
+                    <ui:VisualElement name="HandImg" style="width: 80%; aspect-ratio: 1; background-color: #7D8D95; border-radius: 15px; margin-bottom: 20px;"/>
+                    <ui:VisualElement style="flex-direction: row; align-items: center;">
+                        <ui:VisualElement style="width: 20px; height: 20px; background-color: gold; margin-right: 10px;"/>
+                        <ui:Label text="500" style="font-size: 36px; color: white;"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="Right" style="width: 60%; justify-content: space-around; padding: 20px;">
+                    <ui:Button text="UPGRADE" style="height: 80px; font-size: 40px; -unity-font-style: bold; border-radius: 10px;"/>
+                    
+                    <ui:VisualElement name="StatCompare" style="flex-direction: row; justify-content: center; align-items: center;">
+                        <ui:Label text="10" style="font-size: 32px; color: #ff6666;"/>
+                        <ui:Label text="▶" style="margin: 0 20px; color: white;"/>
+                        <ui:Label text="25" style="font-size: 32px; color: #66ff66;"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="Bottom" style="height: 10%;" />
+
+    </ui:VisualElement>
+</ui:UXML>
