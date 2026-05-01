@@ -1590,7 +1590,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   sfxSource: {fileID: 642354682}
-  buttonClickClip: {fileID: 0}
+  buttonClickClip: {fileID: 8300000, guid: 70b776858259c1349b0b4b8a41de9b66, type: 3}
   playerAttackClip: {fileID: 0}
   enemyAttackClip: {fileID: 0}
   playerRoundWinClip: {fileID: 0}
