@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+//202322158 이준상
 public static class EventBus
 {
     private static readonly Dictionary<Type, Delegate> _handlers =

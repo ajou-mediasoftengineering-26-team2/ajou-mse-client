@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-
+//202322158 이준상
 [System.Serializable]
 public class HandActionData
 {

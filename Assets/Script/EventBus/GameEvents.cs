@@ -1,4 +1,6 @@
-﻿public enum SfxType
+﻿//202322158 이준상
+
+public enum SfxType
 {
     ButtonClick,
     PlayerAttack,

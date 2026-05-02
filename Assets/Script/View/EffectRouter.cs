@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+//202322158 이준상
 public class EffectRouter : MonoBehaviour
 {
     [SerializeField] private Animator fxAnimator;

@@ -1,4 +1,7 @@
-﻿public static class HandActionExtensions
+﻿
+//202322158 이준상
+public static class HandActionExtensions
+
 {
     public static int GetDamage(this HandActionType action)
     {
