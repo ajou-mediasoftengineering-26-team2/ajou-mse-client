@@ -20,10 +20,20 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<int[]> StatusEffects { get; } = new Observable<int[]>();
     public Observable<int> Money { get; } = new Observable<int>();
 
-    public MainBattleViewModel(string playerId, string lobbyId)
+    //절대로! 커스텀 생성자를 만드시면 안됩니다
+    // public MainBattleViewModel(string playerId, string lobbyId)
+    // {
+    //     // _playerId = playerId;
+    //     // _lobbyId = lobbyId;
+    //     
+    //     RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
+    //     _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
+    // }
+    
+    public MainBattleViewModel()
     {
-        _playerId = playerId;
-        _lobbyId = lobbyId;
+        // _playerId = playerId;
+        // _lobbyId = lobbyId;
         
         RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
@@ -37,6 +47,7 @@ public class MainBattleViewModel : ViewModelBase
             bool initialized = await FirebaseInitializer.EnsureInitializedAsync();
             if (!initialized) return;
 
+            _lobbyId = "asdf";
             // RoomInfo 구독
             await FirebaseClient.Instance.SubscribeAsync<RoomInfoModel>(
                 $"rooms/{_lobbyId}",
@@ -88,5 +99,11 @@ public class MainBattleViewModel : ViewModelBase
         {
             Debug.LogException(e);
         }
+    }
+
+    public void changeValue()
+    {
+        LeftRoundWin.Value = 2;
+        Debug.Log(LeftRoundWin.Value + "Teststest");
     }
 }
