@@ -26,11 +26,14 @@ public class IDUIController : MonoBehaviour
          _viewModel.OnSubmitID(_LoginIDInput.value);
       };
       
+      
       // 옵저버 구독 후 받아온 값에 대해서 성공 실패 여부를 묻고  성공시 로그인 성공, 아니면 로그인 에러
       _viewModel.IsSuccess.Subscribe(OnLoginSuccess);
       _viewModel.ErrorMsg.Subscribe(msg =>
       {
-         if(!string.IsNullOrEmpty(msg)) Debug.LogError(msg + ": 로그인 에러");
+         if (string.IsNullOrEmpty(msg)) return;
+         Toast.Show(msg);
+         Debug.LogError(msg + ": 로그인 에러");
       });
    }
 

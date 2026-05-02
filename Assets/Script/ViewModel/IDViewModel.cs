@@ -21,6 +21,9 @@ public class IDViewModel : ViewModelBase
 
     public async void OnSubmitID(string playerName)
     {
+        // 같은 에러 메시지가 연속으로 와도 구독자가 다시 반응하도록 제출 시점에 초기화
+        ErrorMsg.Value = null;
+
         try
         {
             var response = await _repository.PostUserID(playerName);
