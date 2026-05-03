@@ -16,7 +16,6 @@ public class MainGameRepository : BaseRepository, IMainGameRepository
         MainGameModelBody body = new MainGameModelBody();
         body.playerNumber = playerId;
         body.selectMoveType =  moveType;
-        var response = await networkManager.Post<ApiResponse<Test>>(EndpointBase, body);
-        return response.data;
+        return await networkManager.Post<Test>(EndpointBase, body);
     }
 }

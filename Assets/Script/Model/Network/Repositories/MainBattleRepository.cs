@@ -14,7 +14,6 @@ public class MainBattleRepository : BaseRepository, IMainBattleRepository
         PostHandActionRequest body = new PostHandActionRequest();
         body.playerId = playerId;
         body.moveType = moveType;
-        var response = await networkManager.Post<ApiResponse<RoomInfoModel>>(EndpointBase, body);
-        return response.data;
+        return await networkManager.Post<RoomInfoModel>(EndpointBase, body);
     }
 }

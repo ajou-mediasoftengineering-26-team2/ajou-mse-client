@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -43,8 +44,17 @@ public class IDUIController : MonoBehaviour
       
       string lobbyId = _viewModel.LobbyId.Value;
       string playerId = _viewModel.PlayerId.Value;
-      
-      Debug.Log($"로그인 성공! playerId: {playerId}, lobbyId: {lobbyId}");// 씬 혹은 ui 바꾸기
+      Debug.Log($"{GameSetting.LOGINSUCCESS}! playerId: {playerId}, lobbyId: {lobbyId}");// 씬 혹은 ui 바꾸기
+      GameObject.Find("LoginUI").GetComponent<UIDocument>().rootVisualElement.style.display = DisplayStyle.None;
+      StartDelayedAction();  
+   }
+   
+   public async void StartDelayedAction()
+   {
+      await Task.Delay(1000); // 밀리초 단위 (1000ms = 1s)
+      // 실행할 코드 (메인 스레드에서 실행되도록 주의가 필요할 수 있음)
+      Toast.Show(GameSetting.LOGINSUCCESS);
+      Debug.Log("1초 지남!");
    }
    
    // 메모리 누수 방지를 위해 할당 해제

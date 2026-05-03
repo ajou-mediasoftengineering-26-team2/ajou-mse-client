@@ -4,12 +4,22 @@ public class NetworkException : Exception
 {
     public long ResponseCode { get; private set; }
     public string ErrorMessage { get; private set; }
+    public int? ApiErrorCode { get; private set; }
 
     public NetworkException(long responseCode, string errorMessage) 
         : base($"Network Error [{responseCode}]: {errorMessage}")
     {
         ResponseCode = responseCode;
         ErrorMessage = errorMessage;
+        ApiErrorCode = null;
+    }
+
+    public NetworkException(long responseCode, string errorMessage, int? apiErrorCode)
+        : base($"Network Error [{responseCode}] (API: {(apiErrorCode.HasValue ? apiErrorCode.Value.ToString() : "-")}): {errorMessage}")
+    {
+        ResponseCode = responseCode;
+        ErrorMessage = errorMessage;
+        ApiErrorCode = apiErrorCode;
     }
 
     public bool IsClientError => ResponseCode >= 400 && ResponseCode < 500;

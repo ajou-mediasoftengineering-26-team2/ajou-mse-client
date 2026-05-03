@@ -18,3 +18,10 @@ public class ApiResponse<T>
     public T data;
     public ApiError error;
 }
+
+[Serializable]
+public class ApiErrorResponse
+{
+    public bool isSuccess;
+    public ApiError error;
+}

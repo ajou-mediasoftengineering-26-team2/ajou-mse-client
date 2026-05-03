@@ -4,9 +4,45 @@ using System.Collections.Generic;
 //202322158 이준상
 public class Toast : MonoBehaviour
 {
+    private static Toast _instance;
     private static VisualElement _root;
     private static VisualElement _toastLayer;
     
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize()
+    {
+        // Resources/GlobalToast 프리팹을 로드해서 생성
+        GameObject prefab = Resources.Load<GameObject>("ToastManager");
+        if (prefab != null)
+        {
+            Instantiate(prefab);
+            Debug.Log("글로벌 토스트 시스템 로드 완료");
+        }
+    }
+    
+    void Awake()
+    {
+        // 1. 싱글톤 설정: 중복 생성을 방지하고 어디서든 접근 가능하게 함
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject); // 씬이 바뀌어도 파괴 안 됨
+            
+            // 2. 내 몸에 붙은 UIDocument를 바로 바인딩
+            var uiDoc = GetComponent<UIDocument>();
+            if (uiDoc != null)
+            {
+                _root = uiDoc.rootVisualElement;
+                // 토스트 전용 UIDocument이므로 여기서 pickingMode를 Ignore로 해서 
+                // 다른 UI 클릭을 방해하지 않게 설정
+                _root.pickingMode = PickingMode.Ignore; 
+            }
+        }
+        else
+        {
+            Destroy(gameObject); // 이미 존재하면 새로 만들어진 건 삭제
+        }
+    }
     void OnEnable()
     {
         TryBindRoot(GetComponent<UIDocument>());
@@ -15,7 +51,6 @@ public class Toast : MonoBehaviour
     public static void Show(string message, float duration = 2.0f)
     {
         if (string.IsNullOrEmpty(message)) return;
-        EnsureRoot();
         if (_root == null) return;
         EnsureToastLayer();
 

@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 //202322158 이준상
 public class GameSetting
 {
     public static readonly int ROUNDWINING = 3;
     public static readonly int ATTACK = 5;
     public static readonly int DEFANSE = 5;
-    
+    public static string LOGINSUCCESS = "로그인에 성공하셨습니다.";
+    public static string LOGINERROR = "로그인에 실패하셧습니다.";
 }
 
 

@@ -43,7 +43,7 @@ public class IDViewModel : ViewModelBase
         catch (NetworkException e)
         {
             ErrorMsg.Value = e.ErrorMessage;
-            ErrorCode.Value = (int)e.ResponseCode;
+            ErrorCode.Value = e.ApiErrorCode ?? (int)e.ResponseCode;
             Debug.LogException(e);
         }
         catch (Exception e)
