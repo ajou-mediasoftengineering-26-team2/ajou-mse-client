@@ -1,0 +1,54 @@
+/* 전체 배경: 검정색 전광판 */
+.display-container {
+    flex-direction: row;
+    background-color: rgb(20, 20, 20);
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    border-width: 2px;
+    border-color: rgb(50, 50, 50);
+}
+
+.text-section {
+    flex-grow: 2;
+    justify-content: center;
+}
+
+.row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+/* 글자색 설정 */
+.label-yellow {
+    color: rgb(255, 200, 0); /* 이번역, 내리실문 */
+    font-size: 30px;
+    -unity-font-style: bold;
+    margin-right: 15px;
+}
+
+.label-orange {
+    color: rgb(255, 100, 0); /* 신설동 (강조) */
+    font-size: 40px;
+    -unity-font-style: bold;
+}
+
+/* 화살표 영역 */
+.arrow-section {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.arrow-icon {
+    width: 60px;
+    height: 60px;
+    /* 배경색을 투명하게 변경 */
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url('project:/Assets/Design/left_arrow.png');
+    /* 이미지가 잘리지 않고 영역에 맞게 들어가도록 설정 */
+    -unity-background-scale-mode: scale-to-fit;
+    /* 이전 코드에서 넣었던 rotate가 있다면 제거해야 화살표 방향이 제대로 보입니다 */
+    rotate: 0deg;
+}

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
+
+//202322158 이준상
 public class NetworkManager : MonoBehaviour
 {
     private static NetworkManager _instance;
@@ -46,7 +48,7 @@ public class NetworkManager : MonoBehaviour
         
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
-            SetupRequest(request);
+            //SetupRequest(request);
             
             var operation = request.SendWebRequest();
             while (!operation.isDone)
@@ -69,7 +71,7 @@ public class NetworkManager : MonoBehaviour
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             
-            SetupRequest(request);
+            //SetupRequest(request);
             request.SetRequestHeader("Content-Type", "application/json");
             
             var operation = request.SendWebRequest();
@@ -93,7 +95,7 @@ public class NetworkManager : MonoBehaviour
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             
-            SetupRequest(request);
+            //SetupRequest(request);
             request.SetRequestHeader("Content-Type", "application/json");
             
             var operation = request.SendWebRequest();
@@ -113,7 +115,7 @@ public class NetworkManager : MonoBehaviour
         
         using (UnityWebRequest request = UnityWebRequest.Delete(url))
         {
-            SetupRequest(request);
+            //SetupRequest(request);
             
             var operation = request.SendWebRequest();
             while (!operation.isDone)

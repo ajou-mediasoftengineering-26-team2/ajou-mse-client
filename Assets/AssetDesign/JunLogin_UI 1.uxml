@@ -1,21 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="LoginMain" style="flex-grow: 1; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.5);">
-        
-        <ui:VisualElement name="LoginCard" style="width: 350px; padding: 30px; background-color: rgb(234, 230, 255); border-radius: 20px;">
-            
+    <ui:VisualElement name="LoginMain" style="flex-grow: 1; width: 100%; height: 100%; align-items: center; justify-content: center; background-color: rgba(10, 10, 10, 0.9);">
+        <ui:VisualElement name="LoginCard" style="width: 380px; padding: 30px; background-color: rgb(30, 30, 30); border-radius: 15px; border-width: 3px; border-color: rgb(60, 60, 60);">
             <ui:VisualElement name="Header" style="align-items: center; margin-bottom: 40px;">
-                <ui:Label text="SSS" style="font-size: 42px; -unity-font-style: bold;"/>
-                <ui:Label text="Subway Super Smash" style="font-size: 18px; -unity-font-style: bold-and-italic; opacity: 0.8;"/>
+                <ui:Label text="SSS" style="font-size: 50px; -unity-font-style: bold; color: rgb(255, 120, 0); text-shadow: 1px 1px 5px rgba(255, 120, 0, 0.5); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); height: 57px; width: 88px;"/>
+                <ui:Label text="Subway Super Smash" style="font-size: 16px; -unity-font-style: bold; color: rgb(255, 200, 0); opacity: 0.9; -unity-font-definition: url(&quot;project://database/Assets/Font/Moris.ttf?fileID=12800000&amp;guid=2d7379ed362a9074981d6328ba09312b&amp;type=3#Moris&quot;);"/>
             </ui:VisualElement>
-
             <ui:VisualElement name="InputGroup" style="align-items: center;">
-                <ui:TextField placeholder-text="Create ID" name="LoginID" max-length="10" 
-                              style="width: 100%; height: 45px; font-size: 20px; margin-bottom: 20px; -unity-text-align: middle-center;"/>
-                
-                <ui:Button text="Create" name="Create" 
-                           style="width: 150px; height: 50px; font-size: 20px; background-color: rgb(100, 100, 255); color: white; border-radius: 10px;"/>
+                <ui:TextField placeholder-text="Enter ID" name="LoginID" max-length="10" style="width: 100%; height: 50px; font-size: 20px; margin-bottom: 25px; -unity-text-align: middle-center; background-color: rgb(0, 0, 0); color: rgb(0, 0, 0); border-width: 1px; border-color: rgb(255, 200, 0); -unity-font-definition: url(&quot;project://database/Assets/Font/Moris.ttf?fileID=12800000&amp;guid=2d7379ed362a9074981d6328ba09312b&amp;type=3#Moris&quot;);"/>
+                <ui:Button text="CREATE" name="Create" style="width: 180px; height: 55px; font-size: 22px; font-weight: bold; background-color: rgb(20, 20, 20); color: rgb(255, 120, 0); border-radius: 8px; border-width: 2px; border-color: rgb(255, 120, 0); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); -unity-font-style: bold;"/>
             </ui:VisualElement>
-
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

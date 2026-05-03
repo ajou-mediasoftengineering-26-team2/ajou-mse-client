@@ -1,5 +1,7 @@
 using System;
 
+
+//202322158 이준상
 public class NetworkException : Exception
 {
     public long ResponseCode { get; private set; }
