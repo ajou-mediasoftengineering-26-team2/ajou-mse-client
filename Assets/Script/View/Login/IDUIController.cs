@@ -9,15 +9,33 @@ public class IDUIController : MonoBehaviour
    //UXML ID창, 생성 버튼
    private TextField _LoginIDInput;
    private Button _createButton;
+   
+   private Label _stationUILabel;
+   private Label _nickNameLabel;
 
+   private VisualElement loginUIRoot;
+   private VisualElement stationUIRoot;
+   private VisualElement lobbyWaitingUIRoot;
+   
+   
+   [SerializeField]
+   public SubwayDisplayController displayController;
    private void OnEnable()
    {
-      var root = GetComponent<UIDocument>().rootVisualElement;
-      
-      _LoginIDInput = root.Q<TextField>("LoginID");
-      _createButton = root.Q<Button>("Create");
       
       _viewModel = ViewModelLocator.Instance.Get<IDViewModel>();
+      
+      
+      loginUIRoot = GameObject.Find("LoginUI").GetComponent<UIDocument>().rootVisualElement;
+      stationUIRoot = GameObject.Find("StationUI").GetComponent<UIDocument>().rootVisualElement;
+      lobbyWaitingUIRoot = GameObject.Find("LobbyWaitingUI").GetComponent<UIDocument>().rootVisualElement;
+      
+      lobbyWaitingUIRoot.style.display = DisplayStyle.None;
+      
+      _LoginIDInput = loginUIRoot.Q<TextField>("LoginID");
+      _createButton = loginUIRoot.Q<Button>("Create");
+      _stationUILabel = stationUIRoot.Q<Label>("StationName");
+      _nickNameLabel = lobbyWaitingUIRoot.Q<Label>("NicknameLabel");
       
       _createButton.clicked += () =>
       {
@@ -30,9 +48,14 @@ public class IDUIController : MonoBehaviour
       _viewModel.IsSuccess.Subscribe(OnLoginSuccess);
       _viewModel.ErrorMsg.Subscribe(msg =>
       {
+         Debug.LogError(msg  +" test");
          if (string.IsNullOrEmpty(msg)) return;
          Toast.Show(msg);
          Debug.LogError(msg + ": 로그인 에러");
+      });
+      _viewModel.SubwayStation.Subscribe(station =>
+      {
+         _stationUILabel.text = station;
       });
    }
 
@@ -43,8 +66,11 @@ public class IDUIController : MonoBehaviour
       string lobbyId = _viewModel.LobbyId.Value;
       string playerId = _viewModel.PlayerId.Value;
       Debug.Log($"{GameSetting.LOGINSUCCESS}! playerId: {playerId}, lobbyId: {lobbyId}");// 씬 혹은 ui 바꾸기
-      GameObject.Find("LoginUI").GetComponent<UIDocument>().rootVisualElement.style.display = DisplayStyle.None;
+      loginUIRoot.style.display = DisplayStyle.None;
+      lobbyWaitingUIRoot.style.display = DisplayStyle.Flex;
       Toast.Show(GameSetting.LOGINSUCCESS);
+      _nickNameLabel.text = _LoginIDInput.value;
+      displayController.StartDisplay();
    }
    
    

@@ -4,7 +4,7 @@
         <ui:VisualElement class="text-section">
             <ui:VisualElement class="row">
                 <ui:Label text="THIS STOP" class="label-yellow" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
-                <ui:Label text="SINSEOL-DONG" name="StationName" class="label-orange" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
+                <ui:Label text="Hongik Univ." name="StationName" class="label-orange" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
             </ui:VisualElement>
             <ui:VisualElement class="row">
                 <ui:Label text="DOORS ON LEFT" name="ExitInfo" class="label-yellow" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); -unity-font-style: normal;"/>

@@ -54,6 +54,7 @@ public class Toast : MonoBehaviour
         if (_root == null) return;
         EnsureToastLayer();
 
+        Debug.Log(message);
         Label toast = new Label(message);
         toast.style.unityTextAlign = TextAnchor.MiddleCenter;
         toast.style.backgroundColor = new Color(0, 0, 0, 0.7f); // 반투명 검정

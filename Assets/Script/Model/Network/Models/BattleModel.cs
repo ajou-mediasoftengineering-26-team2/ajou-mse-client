@@ -32,3 +32,10 @@ public class PostHandActionRequest
     public string playerId;
     public int moveType;
 }
+
+
+[Serializable]
+public class FBStationModel
+{
+    public string currentStation;
+}
