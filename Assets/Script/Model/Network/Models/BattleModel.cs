@@ -38,4 +38,15 @@ public class PutChoiceRequest
 
 // PUT turn/choice 응답 data (서버가 null로 내려보냄)
 [Serializable]
-public class PutChoiceResponse { }
+public class PostHandActionRequest
+{
+    public string playerId;
+    public int moveType;
+}
+
+
+[Serializable]
+public class FBStationModel
+{
+    public string currentStation;
+}

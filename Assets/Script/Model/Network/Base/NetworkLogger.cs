@@ -1,5 +1,6 @@
 using UnityEngine;
 
+//202322158 이준상
 public static class NetworkLogger
 {
     public static bool EnableLogging { get; set; } = true;

@@ -4,6 +4,7 @@ using Firebase;
 using Firebase.Database;
 using UnityEngine;
 
+//202322158 이준상
 public class FirebaseInitializer : MonoBehaviour
 {
     private static Task<bool> _initializeTask;

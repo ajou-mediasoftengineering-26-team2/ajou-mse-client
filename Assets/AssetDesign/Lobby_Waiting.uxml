@@ -1,0 +1,11 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="Container" style="flex-grow: 1; justify-content: flex-end;">
+        <ui:VisualElement name="InfoPanel" style="width: 250px; padding: 15px; background-color: rgba(0, 0, 0, 0.8); border-top-right-radius: 20px; border-width: 2px; border-color: rgb(255, 165, 0); margin-left: 10px; margin-bottom: 10px;">
+            <ui:Label name="NicknameLabel" text="NickName" style="color: rgb(255, 255, 255); font-size: 18px; -webkit-unity-font-style: bold; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
+            <ui:Label name="WaitTimeLabel" text="Waiting Time : 0second" style="color: rgb(255, 200, 0); font-size: 16px; margin-top: 5px; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
+            <ui:VisualElement name="LoadingContainer" style="flex-direction: row; align-items: center; margin-top: 10px;">
+                <ui:VisualElement name="Spinner" style="width: 30px; height: 30px; border-width: 4px; border-color: rgb(255, 165, 0); border-radius: 15px; border-top-color: rgb(255, 255, 255);"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

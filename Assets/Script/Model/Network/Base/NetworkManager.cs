@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
+
+//202322158 이준상
 public class NetworkManager : MonoBehaviour
 {
     private static NetworkManager _instance;
@@ -46,7 +48,7 @@ public class NetworkManager : MonoBehaviour
         
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
-            SetupRequest(request);
+            //SetupRequest(request);
             
             var operation = request.SendWebRequest();
             while (!operation.isDone)
@@ -69,7 +71,7 @@ public class NetworkManager : MonoBehaviour
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             
-            SetupRequest(request);
+            //SetupRequest(request);
             request.SetRequestHeader("Content-Type", "application/json");
             
             var operation = request.SendWebRequest();
@@ -93,7 +95,7 @@ public class NetworkManager : MonoBehaviour
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
             
-            SetupRequest(request);
+            //SetupRequest(request);
             request.SetRequestHeader("Content-Type", "application/json");
             
             var operation = request.SendWebRequest();
@@ -113,7 +115,7 @@ public class NetworkManager : MonoBehaviour
         
         using (UnityWebRequest request = UnityWebRequest.Delete(url))
         {
-            SetupRequest(request);
+            //SetupRequest(request);
             
             var operation = request.SendWebRequest();
             while (!operation.isDone)
@@ -123,7 +125,9 @@ public class NetworkManager : MonoBehaviour
             
             if (request.result != UnityWebRequest.Result.Success)
             {
-                throw new NetworkException(request.responseCode, request.error);
+                ApiErrorResponse errorResponse = TryParseErrorResponse(request.downloadHandler?.text);
+                string errorMessage = GetErrorMessage(request.error, errorResponse);
+                throw new NetworkException(request.responseCode, errorMessage, errorResponse?.error?.code);
             }
             
             return request.responseCode >= 200 && request.responseCode < 300;
@@ -164,23 +168,80 @@ public class NetworkManager : MonoBehaviour
 
     private ApiResponse<T> HandleResponse<T>(UnityWebRequest request)
     {
+        string responseText = request.downloadHandler?.text ?? string.Empty;
+        NetworkLogger.Log($"Response: {responseText}");
+
         if (request.result != UnityWebRequest.Result.Success)
         {
-            NetworkLogger.LogError($"Request failed: {request.error}");
-            throw new NetworkException(request.responseCode, request.error);
+            ApiErrorResponse errorResponse = TryParseErrorResponse(responseText);
+            string errorMessage = GetErrorMessage(request.error, errorResponse);
+
+            NetworkLogger.LogError($"Request failed: {errorMessage}");
+            throw new NetworkException(request.responseCode, errorMessage, errorResponse?.error?.code);
         }
-        
-        string responseText = request.downloadHandler.text;
-        NetworkLogger.Log($"Response: {responseText}");
-        
+
         try
         {
-            return JsonUtility.FromJson<ApiResponse<T>>(responseText);
+            ApiResponse<T> response = JsonUtility.FromJson<ApiResponse<T>>(responseText);
+            if (response == null)
+            {
+                throw new NetworkException(request.responseCode, "Empty response body");
+            }
+
+            if (!response.isSuccess)
+            {
+                string errorMessage = GetErrorMessage("Request failed", response.error);
+                throw new NetworkException(request.responseCode, errorMessage, response.error?.code);
+            }
+
+            return response;
         }
+        catch (NetworkException)
+        {
+            throw;
+        }   
         catch (Exception ex)
         {
             NetworkLogger.LogError($"JSON parsing failed: {ex.Message}");
             throw new NetworkException(request.responseCode, $"Failed to parse JSON: {ex.Message}");
         }
+    }
+
+    private ApiErrorResponse TryParseErrorResponse(string responseText)
+    {
+        if (string.IsNullOrWhiteSpace(responseText))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonUtility.FromJson<ApiErrorResponse>(responseText);
+        }
+        catch (Exception ex)
+        {
+            NetworkLogger.LogError($"Error response parsing failed: {ex.Message}");
+            return null;
+        }
+    }
+
+    private string GetErrorMessage(string fallback, ApiErrorResponse errorResponse)
+    {
+        if (errorResponse?.error == null)
+        {
+            return fallback;
+        }
+
+        return GetErrorMessage(fallback, errorResponse.error);
+    }
+
+    private string GetErrorMessage(string fallback, ApiError error)
+    {
+        if (error == null || string.IsNullOrWhiteSpace(error.message))
+        {
+            return fallback;
+        }
+
+        return error.message;
     }
 }

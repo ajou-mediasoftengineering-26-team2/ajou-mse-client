@@ -55,11 +55,21 @@ public class MainBattleViewModel : ViewModelBase
     // ── 돈 ──────────────────────────────────────────────────────────
     public Observable<int> Money { get; } = new Observable<int>();
 
-    public MainBattleViewModel(string playerId, string lobbyId)
+    //절대로! 커스텀 생성자를 만드시면 안됩니다
+    // public MainBattleViewModel(string playerId, string lobbyId)
+    // {
+    //     // _playerId = playerId;
+    //     // _lobbyId = lobbyId;
+    //     
+    //     RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
+    //     _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
+    // }
+    
+    public MainBattleViewModel()
     {
-        _playerId = playerId;
-        _lobbyId  = lobbyId;
-
+        // _playerId = playerId;
+        // _lobbyId = lobbyId;
+        
         RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
     }
@@ -164,7 +174,8 @@ public class MainBattleViewModel : ViewModelBase
     {
         try
         {
-            await _repository.PutChoice(_playerId, choice);
+            await _repository.PostHandAction(_playerId, moveType);
+            EventBus.Publish(new AttackStartedEvent(isPlayer: true));
         }
         catch (Exception e)
         {
@@ -172,6 +183,12 @@ public class MainBattleViewModel : ViewModelBase
         }
     }
 
+    public void changeValue()
+    {
+        LeftRoundWin.Value = 2;
+        Debug.Log(LeftRoundWin.Value + "Teststest");
+    }
+    
     public override void Dispose()
     {
         _countdownCts?.Cancel();

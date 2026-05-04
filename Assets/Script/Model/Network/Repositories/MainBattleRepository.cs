@@ -11,11 +11,9 @@ public class MainBattleRepository : BaseRepository, IMainBattleRepository
 
     public async Task<ApiResponse<PutChoiceResponse>> PutChoice(string playerId, string choice)
     {
-        PutChoiceRequest body = new PutChoiceRequest
-        {
-            id = playerId,
-            choice = choice
-        };
-        return await networkManager.Put<PutChoiceResponse>(EndpointBase, body);
+        PostHandActionRequest body = new PostHandActionRequest();
+        body.playerId = playerId;
+        body.moveType = moveType;
+        return await networkManager.Post<RoomInfoModel>(EndpointBase, body);
     }
 }

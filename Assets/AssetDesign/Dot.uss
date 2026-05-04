@@ -1,0 +1,14 @@
+.round-dot {
+    width: 24px;
+    height: 24px;
+    background-color: #444; /* 꺼진 상태 */
+    border-radius: 12px;
+    transition-duration: 0.2s;
+}
+
+/* 데이터가 '승리' 또는 '활성화'일 때 붙여줄 클래스 */
+.round-dot--active {
+    background-color: #00FF41;
+    scale: 1.2;
+    box-shadow: 0 0 10px #00FF41;
+}
