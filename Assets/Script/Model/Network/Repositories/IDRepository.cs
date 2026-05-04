@@ -12,10 +12,8 @@ public class IDRepository : BaseRepository, IIDRepository
 
     public async Task<ApiResponse<PostLoginResponse>> PostUserID(string playerName)
     {
-        PostLoginRequest body = new PostLoginRequest();
-        body.playerName = playerName;
-        var response = await networkManager.Post<ApiResponse<PostLoginResponse>>(EndpointBase, body);
-        return response.data;
+        PostLoginRequest body = new PostLoginRequest { playerName = playerName };
+        return await networkManager.Post<PostLoginResponse>(EndpointBase, body);
     }
     
 }
