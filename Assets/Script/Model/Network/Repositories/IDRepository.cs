@@ -14,6 +14,7 @@ public class IDRepository : BaseRepository, IIDRepository
     {
         PostLoginRequest body = new PostLoginRequest();
         body.playerName = playerName;
+        //PostLoginRequest body = new PostLoginRequest { playerName = playerName };
         return await networkManager.Post<PostLoginResponse>(EndpointBase, body);
     }
     
