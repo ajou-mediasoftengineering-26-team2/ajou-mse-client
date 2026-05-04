@@ -2,19 +2,20 @@ using System.Threading.Tasks;
 
 public interface IMainBattleRepository
 {
-    Task<ApiResponse<RoomInfoModel>> PostHandAction(string playerId, int moveType);
+    Task<ApiResponse<PutChoiceResponse>> PutChoice(string playerId, string choice);
 }
 
 public class MainBattleRepository : BaseRepository, IMainBattleRepository
 {
-    protected override string EndpointBase => "main";
+    protected override string EndpointBase => "turn/choice";
 
-    public async Task<ApiResponse<RoomInfoModel>> PostHandAction(string playerId, int moveType)
+    public async Task<ApiResponse<PutChoiceResponse>> PutChoice(string playerId, string choice)
     {
-        PostHandActionRequest body = new PostHandActionRequest();
-        body.playerId = playerId;
-        body.moveType = moveType;
-        var response = await networkManager.Post<ApiResponse<RoomInfoModel>>(EndpointBase, body);
-        return response.data;
+        PutChoiceRequest body = new PutChoiceRequest
+        {
+            id = playerId,
+            choice = choice
+        };
+        return await networkManager.Put<PutChoiceResponse>(EndpointBase, body);
     }
 }
