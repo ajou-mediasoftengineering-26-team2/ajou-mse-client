@@ -21,6 +21,10 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<bool> RightWin1 { get; } = new Observable<bool>();
     public Observable<bool> RightWin2 { get; } = new Observable<bool>();
     public Observable<bool> RightWin3 { get; } = new Observable<bool>();
+    
+    public Observable<int> LeftRoundWin { get; } = new Observable<int>();
+    public Observable<int> RightRoundWin { get; } = new Observable<int>();
+    
 
     // ── 타이머 ──────────────────────────────────────────────────────
     public Observable<int> RemainingSeconds { get; } = new Observable<int>();
@@ -92,7 +96,7 @@ public class MainBattleViewModel : ViewModelBase
                     MatchState.Value      = match.state;
                     CurrentRound.Value    = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
-                    StartCountdown(match.countdownStartTime, match.countdownSec);
+                    //StartCountdown(match.countdownStartTime, match.countdownSec);
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -148,7 +152,7 @@ public class MainBattleViewModel : ViewModelBase
         }
     }
 
-    private async void StartCountdown(string startTime, int countdownSec)
+    /*private async void StartCountdown(string startTime, int countdownSec)
     {
         _countdownCts?.Cancel();
         _countdownCts = new CancellationTokenSource();
@@ -168,13 +172,13 @@ public class MainBattleViewModel : ViewModelBase
             }
         }
         catch (OperationCanceledException) { }
-    }
+    }*/
 
     public async void OnHandAction(string choice)
     {
         try
         {
-            await _repository.PostHandAction(_playerId, moveType);
+            //await _repository.PostHandAction(_playerId, moveType);
             EventBus.Publish(new AttackStartedEvent(isPlayer: true));
         }
         catch (Exception e)

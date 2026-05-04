@@ -68,7 +68,7 @@ public class BattleUIController : MonoBehaviour
 
         // ── ViewModel 생성 ───────────────────────────────────────────
         var idViewModel = ViewModelLocator.Instance.Get<IDViewModel>();
-        _viewModel = new MainBattleViewModel(idViewModel.PlayerId.Value, idViewModel.LobbyId.Value);
+        //_viewModel = new MainBattleViewModel(idViewModel.PlayerId.Value, idViewModel.LobbyId.Value);
         _viewModel.Initialize();
 
         // ── Observable 구독 ──────────────────────────────────────────

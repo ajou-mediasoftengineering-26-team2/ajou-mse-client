@@ -29,12 +29,6 @@ public class MatchInfoModel
 }
 
 // PUT turn/choice 요청 바디
-[Serializable]
-public class PutChoiceRequest
-{
-    public string id;
-    public string choice;
-}
 
 // PUT turn/choice 응답 data (서버가 null로 내려보냄)
 [Serializable]
@@ -50,3 +44,23 @@ public class FBStationModel
 {
     public string currentStation;
 }
+
+[Serializable]
+public class PutChoiceRequest
+{
+    public string id;
+    public string choice;
+}
+
+[Serializable]
+public class RoomInfoModel
+{
+    public PlayerInfoModel player1Info;
+    public PlayerInfoModel player2Info;
+    public string attackingPlayer;
+    public long timeEnd;
+}
+
+// PUT turn/choice 응답 data (서버가 null로 내려보냄)
+[Serializable]
+public class PutChoiceResponse { }

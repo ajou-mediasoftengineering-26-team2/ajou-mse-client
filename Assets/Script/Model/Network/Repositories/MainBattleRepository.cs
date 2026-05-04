@@ -1,19 +1,19 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 public interface IMainBattleRepository
 {
-    Task<ApiResponse<PutChoiceResponse>> PutChoice(string playerId, string choice);
+    Task<ApiResponse<RoomInfoModel>> PutChoice(string playerId, int choice);
 }
 
 public class MainBattleRepository : BaseRepository, IMainBattleRepository
 {
     protected override string EndpointBase => "turn/choice";
 
-    public async Task<ApiResponse<PutChoiceResponse>> PutChoice(string playerId, string choice)
+    public async Task<ApiResponse<RoomInfoModel>> PutChoice(string playerId, int choice)
     {
         PostHandActionRequest body = new PostHandActionRequest();
         body.playerId = playerId;
-        body.moveType = moveType;
+        body.moveType = choice;
         return await networkManager.Post<RoomInfoModel>(EndpointBase, body);
     }
 }

@@ -52,10 +52,6 @@ public class MainBattleView : MonoBehaviour
     
     public async void UpdateRoundWithDelay()
     {
-        // 1초 대기 (1000ms)
-        await Task.Delay(1000);
-        // 1초 뒤 실행될 로직
-        _viewModel.changeValue();
         await Task.Delay(1000);
         ChooseAction(actionElement, _actionElements);
     }
