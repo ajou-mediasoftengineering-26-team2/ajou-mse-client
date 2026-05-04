@@ -8,7 +8,7 @@
             </ui:VisualElement>
             <ui:VisualElement class="row">
                 <ui:Label text="DOORS ON LEFT" name="ExitInfo" class="label-yellow" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); -unity-font-style: normal;"/>
-                <ui:VisualElement name="Arrow" class="arrow-icon" style="flex-grow: 1;"/>
+                <ui:VisualElement name="Arrow" class="arrow-icon" style="flex-grow: 1; margin-right: 60px;"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
