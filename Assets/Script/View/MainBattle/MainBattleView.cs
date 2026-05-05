@@ -12,6 +12,8 @@ using UnityEngine.SceneManagement;
 //202322158 이준상
 public class MainBattleView : MonoBehaviour
 {
+    private const int ActionScaleAnimationMs = 300;
+    private bool _isActionAnimatingOut;
     private MainBattleViewModel _viewModel;
     //뷰모델 참조
     private VisualElement myRoundWining;
@@ -43,6 +45,11 @@ public class MainBattleView : MonoBehaviour
     
         InitializeDots(myRoundWining, _myDotElements);
         InitializeDots(enemyRoundWining, _enemyDotElements);
+        viewModelSetting();
+    }
+
+    private void viewModelSetting()
+    {
         _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
     
         _viewModel.setPlayerAndMatchId(SceneDataBridge.playerId,  SceneDataBridge.MatchId, SceneDataBridge.enemyId);
@@ -51,19 +58,38 @@ public class MainBattleView : MonoBehaviour
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
         _viewModel.mySelecting.Subscribe(val =>
         {
+            
             var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
             var label = mainBattleRoot.Q<Label>("TurnText");
 
             // 텍스트는 어쩔 수 없이 삼항 연산자! (혹은 ViewModel에서 가져오기)
             label.text = val ? "YOUR TURN" : "ENEMY TURN";
-
+            
             // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
             indicator.EnableInClassList("my-turn", val);
             indicator.EnableInClassList("enemy-turn", !val);
+            
+            System.Action action = val ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
+            action();
         });
-        UpdateRoundWithDelay();
+        
+        _viewModel.LeftHp.Subscribe(myHp =>
+        {
+            var hpFill = mainBattleRoot.Q<VisualElement>("MyHPFill");
+            float targetRatio = Mathf.Clamp01((float)myHp / GameSetting.maxHP);
+            // width를 %로 직접 꽂아줌 (애니메이션 없이 즉시 반영)
+            hpFill.style.width = new Length(targetRatio * 100, LengthUnit.Percent);
+        });
+
+        _viewModel.RightHp.Subscribe(enemyHp =>
+        {
+            var hpFill = mainBattleRoot.Q<VisualElement>("EnemyHPFill");
+            float targetRatio = Mathf.Clamp01((float)enemyHp / GameSetting.maxHP);
+            // width를 %로 직접 꽂아줌
+            hpFill.style.width = new Length(targetRatio * 100, LengthUnit.Percent);
+        });
     }
-    
+
     public async void UpdateRoundWithDelay()
     {
         await Task.Delay(1000);
@@ -99,6 +125,7 @@ public class MainBattleView : MonoBehaviour
     
         container.Clear();
         cacheList.Clear();
+        _isActionAnimatingOut = false;
 
         List<HandActionData> handActionDatas =
             _viewModel.IsAttacker.Value ? ActionDatabase.AttackActions : ActionDatabase.DefendActions;
@@ -119,7 +146,7 @@ public class MainBattleView : MonoBehaviour
     
             // 어떤 속성을(scale), 얼마동안(0.3s), 어떻게(EaseOut) 바꿀지 세트로 설정
             item.style.transitionProperty = new StyleList<StylePropertyName>(new List<StylePropertyName> { "scale" });
-            item.style.transitionDuration = new StyleList<TimeValue>(new List<TimeValue> { 0.3f });
+            item.style.transitionDuration = new StyleList<TimeValue>(new List<TimeValue> { ActionScaleAnimationMs / 1000f });
             item.style.transitionTimingFunction = new StyleList<EasingFunction>(new List<EasingFunction> { new EasingFunction(EasingMode.EaseOut) });
     
             container.Add(item);
@@ -135,7 +162,6 @@ public class MainBattleView : MonoBehaviour
             var text = item.Q<Label>("ItemName");
             if (text != null)
             {
-                bool isAttacker = _viewModel != null && _viewModel.IsAttacker.Value;
                 text.text = actionData.actionName;
             }
     
@@ -145,8 +171,7 @@ public class MainBattleView : MonoBehaviour
                 iconImage.style.backgroundImage = new StyleBackground(ActionDatabase.GetActionSprite(actionData.imagePath));
             }
     
-            var dot = item.Q<VisualElement>("Action");
-            if (dot != null) cacheList.Add(dot);
+            cacheList.Add(item);
             //추가된 직후 스케일을 1로 변경 (애니메이션 시작) -
             // container에 추가된 후, 유니티가 UI를 다시 그리는 다음 프레임에 실행되도록 스케줄러를 씁니다.
             // 이 한 줄로 스케일이 0에서 1로 부드럽게 커집니다.
@@ -166,10 +191,23 @@ public class MainBattleView : MonoBehaviour
     
     private void OnActionClicked(HandActionType actionIndex)
     {
+        if (_isActionAnimatingOut) return;
+        _isActionAnimatingOut = true;
+
+        HideAllActionOptions(_actionElements);
         Debug.Log($"Action clicked: {actionIndex}");
         // 여기서 ViewModel 호출 / 서버 전송 / EventBus 발행
-        //_viewModel.OnHandAction((int)actionIndex);
+        _viewModel.OnHandAction(actionIndex);
         EventBus.Publish(new ActionSelectedEvent(actionIndex));
+    }
+
+    private static void HideAllActionOptions(IEnumerable<VisualElement> options)
+    {
+        foreach (VisualElement option in options)
+        {
+            option.pickingMode = PickingMode.Ignore;
+            option.style.scale = new StyleScale(Vector3.zero);
+        }
     }
     
     private void RefreshDots(List<VisualElement> dots, int currentWins)

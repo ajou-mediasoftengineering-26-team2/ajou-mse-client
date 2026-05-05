@@ -8,6 +8,7 @@ public class GameSetting
     public static readonly int DEFANSE = 5;
     public static string LOGINSUCCESS = "Login successful.";
     public static string LOGINERROR = "Login failed.";
+    public static readonly float maxHP = 10;
 }
 
 

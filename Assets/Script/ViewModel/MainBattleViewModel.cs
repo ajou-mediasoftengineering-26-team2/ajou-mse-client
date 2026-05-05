@@ -75,12 +75,25 @@ public class MainBattleViewModel : ViewModelBase
         base.Initialize();
         TryStartFirebaseSubscriptions();
     }
-    public async void OnHandAction(string choice)
+    public async void OnHandAction(HandActionType choice)
     {
         try
         {
-            //await _repository.PostHandAction(_playerId, moveType);
+            if (string.IsNullOrWhiteSpace(_playerId))
+            {
+                Debug.LogError("PutChoice skipped: playerId is empty.");
+                return;
+            }
+
+            string choiceValue = choice.ToString();
+            Debug.Log($"PutChoice request -> id={_playerId}, choice={choiceValue}");
+            await _repository.PutChoice(_playerId, choiceValue);
             EventBus.Publish(new AttackStartedEvent(isPlayer: true));
+        }
+        catch (NetworkException e)
+        {
+            Debug.LogError($"PutChoice failed: http={e.ResponseCode}, apiCode={e.ApiErrorCode}, msg={e.ErrorMessage}");
+            Debug.LogException(e);
         }
         catch (Exception e)
         {
@@ -102,13 +115,7 @@ public class MainBattleViewModel : ViewModelBase
         TryStartFirebaseSubscriptions();
     }
     
-    public override void Dispose()
-    {
-        _countdownCts?.Cancel();
-        _countdownCts?.Dispose();
-        _firebaseSubscribed = false;
-        base.Dispose();
-    }
+    
 
     private async Task firebaseSetting()
     {
@@ -146,7 +153,7 @@ public class MainBattleViewModel : ViewModelBase
                     LeftHp.Value     = player.hp;
                     IsAttacker.Value = player.attacking;
                     mySelecting.Value = player.selecting;
-                    Debug.Log(player.hp + " " + player.username + "Player(ME)");
+                    Debug.Log(player.hp + " " + player.username  + player.hp+ "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -160,7 +167,7 @@ public class MainBattleViewModel : ViewModelBase
                     if (player == null) return;
                     RightHp.Value   = player.hp;
                     enemySelecting.Value = player.selecting;
-                    Debug.Log(player.hp + " " + player.username + player.attacking + "Enemy");
+                    Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -182,5 +189,13 @@ public class MainBattleViewModel : ViewModelBase
 
         _firebaseSubscribed = true;
         _ = firebaseSetting();
+    }
+    
+    public override void Dispose()
+    {
+        _countdownCts?.Cancel();
+        _countdownCts?.Dispose();
+        _firebaseSubscribed = false;
+        base.Dispose();
     }
 }

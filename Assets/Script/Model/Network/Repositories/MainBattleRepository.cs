@@ -2,18 +2,20 @@
 
 public interface IMainBattleRepository
 {
-    Task<ApiResponse<RoomInfoModel>> PutChoice(string playerId, int choice);
+    Task<ApiResponse<RoomInfoModel>> PutChoice(string playerId, string choice);
 }
 
 public class MainBattleRepository : BaseRepository, IMainBattleRepository
 {
     protected override string EndpointBase => "turn/choice";
 
-    public async Task<ApiResponse<RoomInfoModel>> PutChoice(string playerId, int choice)
+    public async Task<ApiResponse<RoomInfoModel>> PutChoice(string playerId, string choice)
     {
-        PostHandActionRequest body = new PostHandActionRequest();
-        body.playerId = playerId;
-        body.moveType = choice;
-        return await networkManager.Post<RoomInfoModel>(EndpointBase, body);
+        PutChoiceRequest body = new PutChoiceRequest
+        {
+            id = playerId,
+            choice = choice
+        };
+        return await networkManager.Put<RoomInfoModel>(EndpointBase, body);
     }
 }

@@ -6,5 +6,5 @@ using System;
 public class PostHandActionRequest
 {
     public string playerId;
-    public int moveType;
+    public string moveType;
 }
