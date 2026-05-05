@@ -10,6 +10,7 @@ public class MainBattleViewModel : ViewModelBase
     private string _lobbyId;
     private string _enemyId;
     private CancellationTokenSource _countdownCts;
+    private bool _firebaseSubscribed;
 
     // ── HP ──────────────────────────────────────────────────────────
     public Observable<int> LeftHp  { get; } = new Observable<int>();
@@ -34,6 +35,11 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<string> MatchState      { get; } = new Observable<string>();
     public Observable<int>    CurrentRound    { get; } = new Observable<int>();
     public Observable<int>    WinnerPlayerIdx { get; } = new Observable<int>(-1);
+    
+    
+    //  ── 게임 상태 ───────────────────────────────────────────────────
+    public Observable<bool> mySelecting { get; } = new Observable<bool>();
+    public Observable<bool> enemySelecting { get; } = new Observable<bool>();
 
     // ── 아이템 슬롯 활성 여부 ────────────────────────────────────────
     public Observable<bool> Item1Active { get; } = new Observable<bool>();
@@ -63,10 +69,11 @@ public class MainBattleViewModel : ViewModelBase
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
     }
 
-    public void Initialize()
+    public override void Initialize()
     {
+        if (IsInitialized) return;
         base.Initialize();
-        _ = firebaseSetting();
+        TryStartFirebaseSubscriptions();
     }
     public async void OnHandAction(string choice)
     {
@@ -92,12 +99,14 @@ public class MainBattleViewModel : ViewModelBase
         _playerId = playerId;
         _lobbyId = matchId;
         _enemyId = enemyId;
+        TryStartFirebaseSubscriptions();
     }
     
     public override void Dispose()
     {
         _countdownCts?.Cancel();
         _countdownCts?.Dispose();
+        _firebaseSubscribed = false;
         base.Dispose();
     }
 
@@ -106,7 +115,11 @@ public class MainBattleViewModel : ViewModelBase
         try
         {
             bool initialized = await FirebaseInitializer.EnsureInitializedAsync();
-            if (!initialized) return;
+            if (!initialized)
+            {
+                _firebaseSubscribed = false;
+                return;
+            }
 
             // matches/{lobbyId} 구독
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
@@ -132,7 +145,8 @@ public class MainBattleViewModel : ViewModelBase
 
                     LeftHp.Value     = player.hp;
                     IsAttacker.Value = player.attacking;
-                    Debug.Log(player.hp + " " + player.attacking + "Player(ME)");
+                    mySelecting.Value = player.selecting;
+                    Debug.Log(player.hp + " " + player.username + "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -145,14 +159,28 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     if (player == null) return;
                     RightHp.Value   = player.hp;
-                    Debug.Log(player.hp + " " + player.attacking + "Enemy");
+                    enemySelecting.Value = player.selecting;
+                    Debug.Log(player.hp + " " + player.username + player.attacking + "Enemy");
                 },
                 onError: (error) => Debug.LogError(error)
             );
         }
         catch (Exception e)
         {
+            _firebaseSubscribed = false;
             Debug.LogException(e);
         }
+    }
+
+    private void TryStartFirebaseSubscriptions()
+    {
+        if (!IsInitialized || _firebaseSubscribed) return;
+        if (string.IsNullOrWhiteSpace(_playerId) ||
+            string.IsNullOrWhiteSpace(_lobbyId) ||
+            string.IsNullOrWhiteSpace(_enemyId))
+            return;
+
+        _firebaseSubscribed = true;
+        _ = firebaseSetting();
     }
 }

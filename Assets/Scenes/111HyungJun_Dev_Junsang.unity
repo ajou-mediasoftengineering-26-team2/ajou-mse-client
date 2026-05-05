@@ -1422,7 +1422,7 @@ MonoBehaviour:
   roundItemTemplate: {fileID: 9197481963319205126, guid: 0257cd09acd014c4eba4dc406a03d648, type: 3}
   actionItemSelect: {fileID: 9197481963319205126, guid: 303b5869cc70c9a4cb388c6ffa7013b0, type: 3}
   attackActionData: {fileID: 11400000, guid: 6d47449d16ec41740acc327e5937ce7d, type: 2}
-  defendActionData: {fileID: 0}
+  actionDatabase: {fileID: 11400000, guid: b999cb057ed896248bdec78035fb3542, type: 2}
 --- !u!1 &1853724354
 GameObject:
   m_ObjectHideFlags: 0

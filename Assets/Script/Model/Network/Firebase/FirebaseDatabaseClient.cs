@@ -57,6 +57,44 @@ public class FirebaseDatabaseClient
         return id;
     }
 
+    public async Task<string> SubscribeChildKeysAsync(string path, Action<List<string>> onKeysChanged, Action<string> onError = null)
+    {
+        await FirebaseInitializer.EnsureInitializedAsync();
+        DatabaseReference reference = _database.GetReference(path.Trim('/'));
+        string id = Guid.NewGuid().ToString("N");
+
+        EventHandler<ValueChangedEventArgs> handler = (sender, args) =>
+        {
+            if (args.DatabaseError != null)
+            {
+                onError?.Invoke($"[{args.DatabaseError.Code}] {args.DatabaseError.Message}");
+                return;
+            }
+
+            try
+            {
+                var keys = new List<string>();
+                if (args.Snapshot != null && args.Snapshot.Exists)
+                {
+                    foreach (DataSnapshot child in args.Snapshot.Children)
+                    {
+                        keys.Add(child.Key);
+                    }
+                }
+
+                onKeysChanged?.Invoke(keys);
+            }
+            catch (Exception ex)
+            {
+                onError?.Invoke(ex.Message);
+            }
+        };
+
+        reference.ValueChanged += handler;
+        _subs[id] = (reference, handler);
+        return id;
+    }
+
     public void Unsubscribe(string id)
     {
         if (_subs.TryGetValue(id, out var item))

@@ -86,3 +86,57 @@
 .grid-row {
     flex-direction: row;
 }
+
+/* 기본 상태 */
+.turn-indicator {
+    border-width: 2px;
+    border-radius: 20px;
+}
+
+/* 내 턴 스타일 */
+.turn-indicator.my-turn {
+    border-color: #FFDF2C;
+    background-color: rgba(255, 223, 44, 0.2);
+}
+.turn-indicator.my-turn #TurnDot {
+    background-color: #FFDF2C;
+}
+
+/* 적 턴 스타일 */
+.turn-indicator.enemy-turn {
+    border-color: #FF4B4B;
+    background-color: rgba(255, 75, 75, 0.2);
+}
+.turn-indicator.enemy-turn #TurnDot {
+    background-color: #FF4B4B;
+}
+
+CSS
+    /* HP바 공통 효과 */
+#MyHPFill, #EnemyHPFill {
+    background-color: #FF3232; /* 기본 빨간색 */
+
+    /* 윗부분에 밝은 선을 넣어 광택 효과 */
+    border-top-width: 4px;
+    border-top-color: rgba(255, 255, 255, 0.4);
+
+    /* 아랫부분에 어두운 선을 넣어 그림자 효과 */
+    border-bottom-width: 4px;
+    border-bottom-color: rgba(0, 0, 0, 0.3);
+
+    /* 부드러운 애니메이션 */
+    transition-property: none;
+    transition-duration: 0.4s;
+}
+
+/* 데미지를 입었을 때 흔들리는 효과(C#에서 클래스 추가) */
+.hp-shake {
+    animation: shake 0.2s ease-in-out;
+}
+
+@keyframes shake {
+    0% { translate: 0 0; }
+    25% { translate: -2px 0; }
+    50% { translate: 2px 0; }
+    100% { translate: 0 0; }
+}

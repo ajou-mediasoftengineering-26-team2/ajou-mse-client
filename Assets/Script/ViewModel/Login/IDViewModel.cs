@@ -8,7 +8,9 @@ public class IDViewModel : ViewModelBase
     private readonly IIDRepository _repository;
     private string _stationSubscriptionId;
     private string _matchSubscriptionId;
+    private string _playersSubscriptionId;
     private string _subscribedLobbyId;
+    private string _matchState = LobbyState.LOBBY_WAITING;
     
     public Observable<string> PlayerId { get; } = new Observable<string>();
     public Observable<string> LobbyId { get; } = new Observable<string>();
@@ -56,10 +58,12 @@ public class IDViewModel : ViewModelBase
             if (response.isSuccess)
             {
                 PlayerId.Value = response.data.playerId;
-                LobbyId.Value = response.data.lobbyId;
+                LobbyId.Value = response.data.matchId;
                 IsSuccess.Value = true;
+                IsMatchStarted.Value = false;
 
-                await EnsureMatchSubscriptionAsync(response.data.lobbyId);
+                Debug.Log(response.data.matchId + "????????");
+                await EnsureMatchSubscriptionAsync(response.data.matchId);
             }
             else
             {
@@ -98,7 +102,14 @@ public class IDViewModel : ViewModelBase
             _matchSubscriptionId = null;
         }
 
+        if (!string.IsNullOrEmpty(_playersSubscriptionId))
+        {
+            FirebaseClient.Instance.Unsubscribe(_playersSubscriptionId);
+            _playersSubscriptionId = null;
+        }
+
         _subscribedLobbyId = null;
+        _matchState = LobbyState.LOBBY_WAITING;
         base.Dispose();
     }
 
@@ -106,7 +117,9 @@ public class IDViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(lobbyId)) return;
 
-        if (_subscribedLobbyId == lobbyId && !string.IsNullOrEmpty(_matchSubscriptionId))
+        if (_subscribedLobbyId == lobbyId &&
+            !string.IsNullOrEmpty(_matchSubscriptionId) &&
+            !string.IsNullOrEmpty(_playersSubscriptionId))
             return;
 
         if (!string.IsNullOrEmpty(_matchSubscriptionId))
@@ -115,28 +128,57 @@ public class IDViewModel : ViewModelBase
             _matchSubscriptionId = null;
         }
 
+        if (!string.IsNullOrEmpty(_playersSubscriptionId))
+        {
+            FirebaseClient.Instance.Unsubscribe(_playersSubscriptionId);
+            _playersSubscriptionId = null;
+        }
+
         _subscribedLobbyId = lobbyId;
+        _matchState = LobbyState.LOBBY_WAITING;
+        EnemyId.Value = null;
+        
         _matchSubscriptionId = await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
             $"matches/{lobbyId}",
             onValueChanged: match =>
             {
-                if (match == null || match.state == LobbyState.LOBBY_WAITING) return;
-                if (match.players == null || match.players.Count == 0) return;
+                if (match == null) return;
 
-                foreach (KeyValuePair<string, PlayerInfoModel> entry in match.players)
-                {
-                    string enemyPlayerId = entry.Key;
-                    if (enemyPlayerId == PlayerId.Value) continue;
-
-                    SceneDataBridge.MatchId = LobbyId.Value;
-                    SceneDataBridge.playerId = PlayerId.Value;
-                    SceneDataBridge.enemyId = enemyPlayerId;
-                    EnemyId.Value = enemyPlayerId;
-                    IsMatchStarted.Value = true;
-                    return;
-                }
+                _matchState = match.state;
+                TryMoveToBattleIfReady();
             },
             onError: error => Debug.LogError(error)
         );
+
+        _playersSubscriptionId = await FirebaseClient.Instance.SubscribeChildKeysAsync(
+            $"matches/{lobbyId}/players",
+            onKeysChanged: playerIds =>
+            {
+                if (playerIds == null || playerIds.Count == 0) return;
+
+                foreach (string candidate in playerIds)
+                {
+                    if (candidate == PlayerId.Value) continue;
+                    EnemyId.Value = candidate;
+                    Debug.Log(candidate + "EnemyID");
+                    break;
+                }
+
+                TryMoveToBattleIfReady();
+            },
+            onError: error => Debug.LogError(error)
+        );
+    }
+
+    private void TryMoveToBattleIfReady()
+    {
+        if (string.IsNullOrWhiteSpace(EnemyId.Value)) return;
+        if (string.IsNullOrWhiteSpace(_matchState) || _matchState == LobbyState.LOBBY_WAITING) return;
+        if (IsMatchStarted.Value) return;
+
+        SceneDataBridge.MatchId = LobbyId.Value;
+        SceneDataBridge.playerId = PlayerId.Value;
+        SceneDataBridge.enemyId = EnemyId.Value;
+        IsMatchStarted.Value = true;
     }
 }

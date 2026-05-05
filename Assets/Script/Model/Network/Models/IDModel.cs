@@ -10,5 +10,5 @@ public class PostLoginRequest
 public class PostLoginResponse
 {
     public string playerId;
-    public string lobbyId;
+    public string matchId;
 }

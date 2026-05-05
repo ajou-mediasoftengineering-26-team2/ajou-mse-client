@@ -1,5 +1,4 @@
-﻿//202322158
-
+﻿
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework.Constraints;
@@ -8,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 //202322158 이준상
 public class MainBattleView : MonoBehaviour
@@ -31,27 +31,36 @@ public class MainBattleView : MonoBehaviour
     public UIDocument perks;
     public VisualTreeAsset roundItemTemplate;
     public VisualTreeAsset actionItemSelect;
-    [FormerlySerializedAs("actionData")] public ActionDatabase attackActionData;
-    public ActionDatabase defendActionData;
-
     private void OnEnable()
     {
+        
         mainBattleRoot = mainBattle.rootVisualElement; 
         perksRoot = perks.rootVisualElement;
         
         myRoundWining = mainBattleRoot.Q<VisualElement>("MyRoundContainer");
         enemyRoundWining = mainBattleRoot.Q<VisualElement>("EnemyRoundContainer");
         actionElement = mainBattleRoot.Q<VisualElement>("ChooseAction");
-
+    
         InitializeDots(myRoundWining, _myDotElements);
         InitializeDots(enemyRoundWining, _enemyDotElements);
         _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
-
+    
         _viewModel.setPlayerAndMatchId(SceneDataBridge.playerId,  SceneDataBridge.MatchId, SceneDataBridge.enemyId);
         
         _viewModel.LeftRoundWin.Subscribe(val => RefreshDots(_myDotElements, val));
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
-     
+        _viewModel.mySelecting.Subscribe(val =>
+        {
+            var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
+            var label = mainBattleRoot.Q<Label>("TurnText");
+
+            // 텍스트는 어쩔 수 없이 삼항 연산자! (혹은 ViewModel에서 가져오기)
+            label.text = val ? "YOUR TURN" : "ENEMY TURN";
+
+            // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
+            indicator.EnableInClassList("my-turn", val);
+            indicator.EnableInClassList("enemy-turn", !val);
+        });
         UpdateRoundWithDelay();
     }
     
@@ -60,13 +69,13 @@ public class MainBattleView : MonoBehaviour
         await Task.Delay(1000);
         ChooseAction(actionElement, _actionElements);
     }
-   
+    
     
     private void InitializeDots(VisualElement container, List<VisualElement> cacheList)
     {
         container.Clear();
         cacheList.Clear();
-
+    
         //원래 for문 쓰시면 안됩니다.
         for (int i = 0; i < GameSetting.ROUNDWINING; i++)
         {
@@ -74,7 +83,7 @@ public class MainBattleView : MonoBehaviour
             item.style.marginRight = 5;
             item.style.marginLeft = 5;
             container.Add(item);
-
+    
             var dot = item.Q<VisualElement>("Dot");
             if (dot != null) cacheList.Add(dot);
         }
@@ -82,13 +91,29 @@ public class MainBattleView : MonoBehaviour
     
     private void ChooseAction(VisualElement container, List<VisualElement> cacheList)
     {
+        if (container == null)
+        {
+            Debug.LogError("ChooseAction: container is null.");
+            return;
+        }
+    
         container.Clear();
         cacheList.Clear();
 
-        for (int i = 0; i < GameSetting.ATTACK; i++)
+        List<HandActionData> handActionDatas =
+            _viewModel.IsAttacker.Value ? ActionDatabase.AttackActions : ActionDatabase.DefendActions;
+    
+        if (actionItemSelect == null)
+        {
+            Debug.LogError("ChooseAction: actionItemSelect is not assigned.");
+            return;
+        }
+    
+        int actionCount = Mathf.Min(GameSetting.ATTACK, handActionDatas.Count);
+        for (int i = 0; i < actionCount; i++)
         {
             var item = actionItemSelect.Instantiate();
-
+    
             // 1. 초기화: 애니메이션 속성부터 먼저 정의
             item.style.scale = new StyleScale(Vector3.zero); // 시작은 0
     
@@ -96,15 +121,30 @@ public class MainBattleView : MonoBehaviour
             item.style.transitionProperty = new StyleList<StylePropertyName>(new List<StylePropertyName> { "scale" });
             item.style.transitionDuration = new StyleList<TimeValue>(new List<TimeValue> { 0.3f });
             item.style.transitionTimingFunction = new StyleList<EasingFunction>(new List<EasingFunction> { new EasingFunction(EasingMode.EaseOut) });
-
+    
             container.Add(item);
-
+    
             //아이템 세팅코드
+            HandActionData actionData = handActionDatas[i];
+            if (actionData == null)
+            {
+                Debug.LogWarning($"ChooseAction: action data is null at index {i}.");
+                continue;
+            }
+    
             var text = item.Q<Label>("ItemName");
-            text.text = HandActionExtensions.GetName(attackActionData.actions[i].actionCode, _viewModel.IsAttacker.Value);
+            if (text != null)
+            {
+                bool isAttacker = _viewModel != null && _viewModel.IsAttacker.Value;
+                text.text = actionData.actionName;
+            }
+    
             VisualElement iconImage = item.Q<VisualElement>("IconImage");
-            Sprite targetSprite = attackActionData.actions[i].actionImage;
-            iconImage.style.backgroundImage = new StyleBackground(targetSprite);
+            if (iconImage != null)
+            {
+                iconImage.style.backgroundImage = new StyleBackground(ActionDatabase.GetActionSprite(actionData.imagePath));
+            }
+    
             var dot = item.Q<VisualElement>("Action");
             if (dot != null) cacheList.Add(dot);
             //추가된 직후 스케일을 1로 변경 (애니메이션 시작) -
@@ -113,7 +153,7 @@ public class MainBattleView : MonoBehaviour
             var card = item.Q<VisualElement>("CardContainer");
             if (card != null)
             {
-                HandActionType actionCode = attackActionData.actions[i].actionCode; 
+                HandActionType actionCode = actionData.actionCode; 
                 card.RegisterCallback<ClickEvent>(_ =>
                     OnActionClicked(actionCode));
             }
