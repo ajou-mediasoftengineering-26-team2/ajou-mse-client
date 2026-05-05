@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class MainBattleViewModel : ViewModelBase
@@ -32,7 +33,7 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<string> StationName { get; } = new Observable<string>();
 
     // ── 게임 상태 ───────────────────────────────────────────────────
-    public Observable<string> MatchState      { get; } = new Observable<string>();
+    public Observable<LobbyState> MatchState      { get; } = new Observable<LobbyState>();
     public Observable<int>    CurrentRound    { get; } = new Observable<int>();
     public Observable<int>    WinnerPlayerIdx { get; } = new Observable<int>(-1);
     
@@ -59,6 +60,9 @@ public class MainBattleViewModel : ViewModelBase
 
     // ── 돈 ──────────────────────────────────────────────────────────
     public Observable<int> Money { get; } = new Observable<int>();
+    
+    // 현재 라벨 상태
+    public Observable<string> labelState { get; } = new Observable<string>();
     
     public MainBattleViewModel()
     {
@@ -135,7 +139,12 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     if (match == null) return;
                     StationName.Value     = match.station;
-                    MatchState.Value      = match.state;
+                    if (Enum.TryParse(match.state, true, out LobbyState result))
+                    {
+                        MatchState.Value = result;
+                    }
+
+                    GetStatusText();
                     CurrentRound.Value    = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     //StartCountdown(match.countdownStartTime, match.countdownSec);
@@ -191,6 +200,31 @@ public class MainBattleViewModel : ViewModelBase
         _ = firebaseSetting();
     }
     
+    // ViewModel 안에서
+    private void GetStatusText()
+    {
+        Debug.Log(MatchState.Value + " : Match STate");
+        // 1순위: 대기 중일 때
+        if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        {
+            labelState.Value = "START SOON..";
+        }
+        else if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        {
+            labelState.Value = "GAME OVER!";
+        }
+        // 2순위: 내 턴일 때
+        else if (mySelecting.Value)
+        {
+            labelState.Value = "YOUR TURN";
+        }
+        // 3순위: 그 외 (적 턴일 때)
+        else
+        {
+            labelState.Value = "ENEMY TURN";
+        }
+    }
+    
     public override void Dispose()
     {
         _countdownCts?.Cancel();
@@ -198,4 +232,5 @@ public class MainBattleViewModel : ViewModelBase
         _firebaseSubscribed = false;
         base.Dispose();
     }
+    
 }

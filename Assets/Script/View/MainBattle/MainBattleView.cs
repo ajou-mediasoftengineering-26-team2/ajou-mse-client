@@ -58,12 +58,7 @@ public class MainBattleView : MonoBehaviour
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
         _viewModel.mySelecting.Subscribe(val =>
         {
-            
             var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
-            var label = mainBattleRoot.Q<Label>("TurnText");
-
-            // 텍스트는 어쩔 수 없이 삼항 연산자! (혹은 ViewModel에서 가져오기)
-            label.text = val ? "YOUR TURN" : "ENEMY TURN";
             
             // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
             indicator.EnableInClassList("my-turn", val);
@@ -71,6 +66,13 @@ public class MainBattleView : MonoBehaviour
             
             System.Action action = val ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
             action();
+        });
+        
+        _viewModel.labelState.Subscribe(labelText =>
+        {
+            var label = mainBattleRoot.Q<Label>("TurnText");
+
+            label.text = _viewModel.labelState.Value;
         });
         
         _viewModel.LeftHp.Subscribe(myHp =>
@@ -106,6 +108,7 @@ public class MainBattleView : MonoBehaviour
         for (int i = 0; i < GameSetting.ROUNDWINING; i++)
         {
             var item = roundItemTemplate.Instantiate();
+            item.style.flexDirection = FlexDirection.Row;
             item.style.marginRight = 5;
             item.style.marginLeft = 5;
             container.Add(item);

@@ -10,7 +10,7 @@ public class IDViewModel : ViewModelBase
     private string _matchSubscriptionId;
     private string _playersSubscriptionId;
     private string _subscribedLobbyId;
-    private string _matchState = LobbyState.LOBBY_WAITING;
+    private LobbyState _matchState = LobbyState.LOBBY_WAITING;
     
     public Observable<string> PlayerId { get; } = new Observable<string>();
     public Observable<string> LobbyId { get; } = new Observable<string>();
@@ -144,7 +144,10 @@ public class IDViewModel : ViewModelBase
             {
                 if (match == null) return;
 
-                _matchState = match.state;
+                if (Enum.TryParse(match.state, true, out LobbyState result))
+                {
+                    _matchState = result;
+                }
                 TryMoveToBattleIfReady();
             },
             onError: error => Debug.LogError(error)
@@ -173,7 +176,7 @@ public class IDViewModel : ViewModelBase
     private void TryMoveToBattleIfReady()
     {
         if (string.IsNullOrWhiteSpace(EnemyId.Value)) return;
-        if (string.IsNullOrWhiteSpace(_matchState) || _matchState == LobbyState.LOBBY_WAITING) return;
+        if (_matchState == null || _matchState == LobbyState.LOBBY_WAITING) return;
         if (IsMatchStarted.Value) return;
 
         SceneDataBridge.MatchId = LobbyId.Value;
