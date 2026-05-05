@@ -14,6 +14,7 @@ public class IDViewModel : ViewModelBase
     public Observable<int> ErrorCode { get; } =  new Observable<int>();
     
     public Observable<string> SubwayStation { get; } =  new Observable<string>();
+    public Observable<bool> IsMatchStarted { get; } = new Observable<bool>();
 
     public IDViewModel()
     {
@@ -49,6 +50,17 @@ public class IDViewModel : ViewModelBase
                 PlayerId.Value = response.data.playerId;
                 LobbyId.Value = response.data.lobbyId;
                 IsSuccess.Value = true;
+                await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
+                    $"matches/{response.data.lobbyId}",
+                    onValueChanged: (match) =>
+                    {
+                        if (match == null) return;
+                        if (match.state != LobbyState.LOBBY_WAITING)
+                            IsMatchStarted.Value = true;
+                    },
+                    onError: (error) => Debug.LogError(error)
+                );
+                
             }
             else
             {
