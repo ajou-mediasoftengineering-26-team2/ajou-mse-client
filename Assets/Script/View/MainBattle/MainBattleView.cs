@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using NUnit.Framework.Constraints;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
+//202322158 이준상
 public class MainBattleView : MonoBehaviour
 {
     private MainBattleViewModel _viewModel;
@@ -29,7 +31,8 @@ public class MainBattleView : MonoBehaviour
     public UIDocument perks;
     public VisualTreeAsset roundItemTemplate;
     public VisualTreeAsset actionItemSelect;
-    public ActionDatabase actionData;
+    [FormerlySerializedAs("actionData")] public ActionDatabase attackActionData;
+    public ActionDatabase defendActionData;
 
     private void OnEnable()
     {
@@ -44,6 +47,8 @@ public class MainBattleView : MonoBehaviour
         InitializeDots(enemyRoundWining, _enemyDotElements);
         _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
 
+        _viewModel.setPlayerAndMatchId(SceneDataBridge.playerId,  SceneDataBridge.MatchId, SceneDataBridge.enemyId);
+        
         _viewModel.LeftRoundWin.Subscribe(val => RefreshDots(_myDotElements, val));
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
      
@@ -96,9 +101,9 @@ public class MainBattleView : MonoBehaviour
 
             //아이템 세팅코드
             var text = item.Q<Label>("ItemName");
-            text.text = HandActionExtensions.GetName(actionData.actions[i].actionCode);
+            text.text = HandActionExtensions.GetName(attackActionData.actions[i].actionCode, _viewModel.IsAttacker.Value);
             VisualElement iconImage = item.Q<VisualElement>("IconImage");
-            Sprite targetSprite = actionData.actions[i].actionImage;
+            Sprite targetSprite = attackActionData.actions[i].actionImage;
             iconImage.style.backgroundImage = new StyleBackground(targetSprite);
             var dot = item.Q<VisualElement>("Action");
             if (dot != null) cacheList.Add(dot);
@@ -108,7 +113,7 @@ public class MainBattleView : MonoBehaviour
             var card = item.Q<VisualElement>("CardContainer");
             if (card != null)
             {
-                HandActionType actionCode = actionData.actions[i].actionCode; 
+                HandActionType actionCode = attackActionData.actions[i].actionCode; 
                 card.RegisterCallback<ClickEvent>(_ =>
                     OnActionClicked(actionCode));
             }

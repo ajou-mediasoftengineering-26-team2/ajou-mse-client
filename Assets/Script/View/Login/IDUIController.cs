@@ -63,7 +63,7 @@ public class IDUIController : MonoBehaviour
       {
          if (!started) return;
          displayController.StopDisplay();
-         SceneManager.LoadScene("222HyungJun_Dev_Junsang 1");//여기 부분을 그 다음에 battle씬으로 가게 하면 될 것 같습니다
+         SceneManager.LoadScene("111HyungJun_Dev_Junsang");//여기 부분을 그 다음에 battle씬으로 가게 하면 될 것 같습니다
       });
    }
 

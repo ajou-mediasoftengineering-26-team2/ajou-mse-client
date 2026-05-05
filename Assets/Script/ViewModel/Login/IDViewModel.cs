@@ -1,14 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 public class IDViewModel : ViewModelBase
 {
     private readonly IIDRepository _repository;
+    private string _stationSubscriptionId;
+    private string _matchSubscriptionId;
+    private string _subscribedLobbyId;
     
     public Observable<string> PlayerId { get; } = new Observable<string>();
     public Observable<string> LobbyId { get; } = new Observable<string>();
+    
+    public Observable<string> EnemyId { get; } =  new Observable<string>();
     public Observable<bool> IsSuccess { get; } = new Observable<bool>();
     public Observable<string> ErrorMsg { get; } =  new Observable<string>();
     public Observable<int> ErrorCode { get; } =  new Observable<int>();
@@ -24,7 +29,10 @@ public class IDViewModel : ViewModelBase
 
     public override async void Initialize()
     {
-        await FirebaseClient.Instance.SubscribeAsync<FBStationModel>(
+        if (IsInitialized) return;
+        base.Initialize();
+
+        _stationSubscriptionId = await FirebaseClient.Instance.SubscribeAsync<FBStationModel>(
             "/testGame",
             onValueChanged: (station) =>
             {
@@ -50,17 +58,8 @@ public class IDViewModel : ViewModelBase
                 PlayerId.Value = response.data.playerId;
                 LobbyId.Value = response.data.lobbyId;
                 IsSuccess.Value = true;
-                await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
-                    $"matches/{response.data.lobbyId}",
-                    onValueChanged: (match) =>
-                    {
-                        if (match == null) return;
-                        if (match.state != LobbyState.LOBBY_WAITING)
-                            IsMatchStarted.Value = true;
-                    },
-                    onError: (error) => Debug.LogError(error)
-                );
-                
+
+                await EnsureMatchSubscriptionAsync(response.data.lobbyId);
             }
             else
             {
@@ -83,5 +82,61 @@ public class IDViewModel : ViewModelBase
             ErrorCode.Value = -1;
             Debug.LogException(e);
         }
+    }
+
+    public override void Dispose()
+    {
+        if (!string.IsNullOrEmpty(_stationSubscriptionId))
+        {
+            FirebaseClient.Instance.Unsubscribe(_stationSubscriptionId);
+            _stationSubscriptionId = null;
+        }
+
+        if (!string.IsNullOrEmpty(_matchSubscriptionId))
+        {
+            FirebaseClient.Instance.Unsubscribe(_matchSubscriptionId);
+            _matchSubscriptionId = null;
+        }
+
+        _subscribedLobbyId = null;
+        base.Dispose();
+    }
+
+    private async Task EnsureMatchSubscriptionAsync(string lobbyId)
+    {
+        if (string.IsNullOrWhiteSpace(lobbyId)) return;
+
+        if (_subscribedLobbyId == lobbyId && !string.IsNullOrEmpty(_matchSubscriptionId))
+            return;
+
+        if (!string.IsNullOrEmpty(_matchSubscriptionId))
+        {
+            FirebaseClient.Instance.Unsubscribe(_matchSubscriptionId);
+            _matchSubscriptionId = null;
+        }
+
+        _subscribedLobbyId = lobbyId;
+        _matchSubscriptionId = await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
+            $"matches/{lobbyId}",
+            onValueChanged: match =>
+            {
+                if (match == null || match.state == LobbyState.LOBBY_WAITING) return;
+                if (match.players == null || match.players.Count == 0) return;
+
+                foreach (KeyValuePair<string, PlayerInfoModel> entry in match.players)
+                {
+                    string enemyPlayerId = entry.Key;
+                    if (enemyPlayerId == PlayerId.Value) continue;
+
+                    SceneDataBridge.MatchId = LobbyId.Value;
+                    SceneDataBridge.playerId = PlayerId.Value;
+                    SceneDataBridge.enemyId = enemyPlayerId;
+                    EnemyId.Value = enemyPlayerId;
+                    IsMatchStarted.Value = true;
+                    return;
+                }
+            },
+            onError: error => Debug.LogError(error)
+        );
     }
 }
