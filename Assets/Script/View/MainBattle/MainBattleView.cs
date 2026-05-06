@@ -23,7 +23,7 @@ public class MainBattleView : MonoBehaviour
     
     private VisualElement mainBattleRoot;
     private VisualElement perksRoot;
-    
+    private Label timer;
     
     private readonly List<VisualElement> _myDotElements = new();
     private readonly List<VisualElement> _enemyDotElements = new();
@@ -42,7 +42,7 @@ public class MainBattleView : MonoBehaviour
         myRoundWining = mainBattleRoot.Q<VisualElement>("MyRoundContainer");
         enemyRoundWining = mainBattleRoot.Q<VisualElement>("EnemyRoundContainer");
         actionElement = mainBattleRoot.Q<VisualElement>("ChooseAction");
-    
+        timer = mainBattleRoot.Q<Label>("Time");
         InitializeDots(myRoundWining, _myDotElements);
         InitializeDots(enemyRoundWining, _enemyDotElements);
         viewModelSetting();
@@ -106,6 +106,11 @@ public class MainBattleView : MonoBehaviour
             float targetRatio = Mathf.Clamp01((float)enemyHp / GameSetting.maxHP);
             // width를 %로 직접 꽂아줌
             hpFill.style.width = new Length(targetRatio * 100, LengthUnit.Percent);
+        });
+        
+        _viewModel.countDown.Subscribe(time =>
+        {
+            timer.text = time;
         });
     }
 

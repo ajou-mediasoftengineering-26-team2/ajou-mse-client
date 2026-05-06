@@ -1,15 +1,19 @@
 using System;
+using System.Collections;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 
+//202322158 이준상
 public class MainBattleViewModel : ViewModelBase
 {
     private readonly IMainBattleRepository _repository;
     private string _playerId;
     private string _lobbyId;
     private string _enemyId;
+    private bool _isTimerRunning = false;
     private CancellationTokenSource _countdownCts;
     private bool _firebaseSubscribed;
 
@@ -66,15 +70,13 @@ public class MainBattleViewModel : ViewModelBase
     
     // current Turn
     public Observable<int> currentTurn { get; } = new Observable<int>();
-    
+    public Observable<string> countDown { get; } = new Observable<string>();
     public MainBattleViewModel()
     {
         // _playerId = playerId;
         // _lobbyId = lobbyId;
-        
         RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
-        
     }
 
     public override void Initialize()
@@ -152,7 +154,8 @@ public class MainBattleViewModel : ViewModelBase
                     CurrentRound.Value    = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     currentTurn.Value = match.currentTurn;
-                    //StartCountdown(match.countdownStartTime, match.countdownSec);
+
+                    StartTimer(match.countdownStartTime, match.countdownSec);
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -190,6 +193,36 @@ public class MainBattleViewModel : ViewModelBase
         {
             _firebaseSubscribed = false;
             Debug.LogException(e);
+        }
+    }
+
+    public async void StartTimer(string startTimeStr, int durationSec)
+    {
+        string format = "yyyy-MM-dd'T'HH:mm:ss.fff";
+        if (!DateTime.TryParseExact(startTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime))
+        {
+            return;
+        }
+
+        DateTime endTime = startTime.AddSeconds(durationSec);
+        _isTimerRunning = true;
+
+        while (_isTimerRunning)
+        {
+            TimeSpan remaining = endTime - DateTime.Now;
+
+            if (remaining.TotalSeconds <= 0)
+            {
+                countDown.Value = "00.00";
+                _isTimerRunning = false;
+                break;
+            }
+            //Debug.Log(remaining.Seconds + " *** seconds");
+            // UI에 보여줄 텍스트 갱신
+            countDown.Value = string.Format("{0:D2}.{1:D2}", remaining.Seconds, remaining.Milliseconds/10);
+            // 1초(1000ms) 동안 비동기로 대기
+            // 이 동안 메인 스레드는 멈추지 않고 게임은 계속 돌아갑니다.
+            await Task.Delay(10); 
         }
     }
 
