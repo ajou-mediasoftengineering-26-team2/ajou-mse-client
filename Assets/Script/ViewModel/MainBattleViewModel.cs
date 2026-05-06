@@ -74,6 +74,7 @@ public class MainBattleViewModel : ViewModelBase
         
         RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
+        
     }
 
     public override void Initialize()
