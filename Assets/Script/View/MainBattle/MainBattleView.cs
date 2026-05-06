@@ -56,7 +56,22 @@ public class MainBattleView : MonoBehaviour
         
         _viewModel.LeftRoundWin.Subscribe(val => RefreshDots(_myDotElements, val));
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
-        _viewModel.currentTurn.Subscribe(selecting =>
+        
+        _viewModel.mySelecting.Subscribe(selecting =>
+        {
+            var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
+            
+            // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
+            indicator.EnableInClassList("my-turn", _viewModel.mySelecting.Value);
+            indicator.EnableInClassList("enemy-turn", !_viewModel.mySelecting.Value);
+            
+            Debug.Log(selecting + " selecting value *********************");
+            
+            System.Action action = _viewModel.mySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
+            action();
+        });
+        
+        _viewModel.IsAttacker.Subscribe(selecting =>
         {
             var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
