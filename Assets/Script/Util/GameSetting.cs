@@ -8,15 +8,20 @@ public class GameSetting
     public static readonly int DEFANSE = 5;
     public static string LOGINSUCCESS = "Login successful.";
     public static string LOGINERROR = "Login failed.";
+    public static readonly float maxHP = 10;
 }
 
 
 public enum HandActionType
 {
-    None = 0,                // 미선택 시 자동 (가만히)
-    SingleHandFlipLeft = 1,  // 왼손 뒤집기
-    SingleHandFlipRight = 2, // 오른손 뒤집기
-    BothHandsFlip = 3,       // 양손 뒤집기
-    InsertBetweenHands = 4,  // 찌르기
-    ShakeOverHands = 5       // 손 위 흔들기
+    /** 왼손 뒤집기 */
+    SINGLE_HAND_FLIP_LEFT = 1,
+    /** 오른손 뒤집기 */
+    SINGLE_HAND_FLIP_RIGHT = 2,
+    /** 양손 뒤집기 */
+    BOTH_HANDS_FLIP = 3,
+    /** 찌르기 */
+    INSERT_BETWEEN_HANDS = 4,
+    /** 가만히 = 기본 */
+    SHAKE_OVER_HANDS = 5,
 }

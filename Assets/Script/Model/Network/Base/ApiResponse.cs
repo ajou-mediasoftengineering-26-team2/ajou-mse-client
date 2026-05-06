@@ -1,9 +1,5 @@
 using System;
-
-/// <summary>
-/// 표준 API 응답 래퍼
-/// 성공/실패 상태와 데이터를 포함
-/// </summary>
+//202322158 이준상
 [Serializable]
 public class ApiError
 {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 
+//2023322158 이준상
 /// <summary>
 /// 네트워크 설정 관리 클래스
 /// </summary>

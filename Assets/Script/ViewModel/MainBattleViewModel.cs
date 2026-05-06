@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class MainBattleViewModel : ViewModelBase
@@ -8,19 +9,15 @@ public class MainBattleViewModel : ViewModelBase
     private readonly IMainBattleRepository _repository;
     private string _playerId;
     private string _lobbyId;
+    private string _enemyId;
     private CancellationTokenSource _countdownCts;
+    private bool _firebaseSubscribed;
 
     // ── HP ──────────────────────────────────────────────────────────
     public Observable<int> LeftHp  { get; } = new Observable<int>();
     public Observable<int> RightHp { get; } = new Observable<int>();
 
     // ── 라운드 승리 마커 ─────────────────────────────────────────────
-    public Observable<bool> LeftWin1  { get; } = new Observable<bool>();
-    public Observable<bool> LeftWin2  { get; } = new Observable<bool>();
-    public Observable<bool> LeftWin3  { get; } = new Observable<bool>();
-    public Observable<bool> RightWin1 { get; } = new Observable<bool>();
-    public Observable<bool> RightWin2 { get; } = new Observable<bool>();
-    public Observable<bool> RightWin3 { get; } = new Observable<bool>();
     
     public Observable<int> LeftRoundWin { get; } = new Observable<int>();
     public Observable<int> RightRoundWin { get; } = new Observable<int>();
@@ -36,9 +33,14 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<string> StationName { get; } = new Observable<string>();
 
     // ── 게임 상태 ───────────────────────────────────────────────────
-    public Observable<string> MatchState      { get; } = new Observable<string>();
+    public Observable<LobbyState> MatchState      { get; } = new Observable<LobbyState>();
     public Observable<int>    CurrentRound    { get; } = new Observable<int>();
     public Observable<int>    WinnerPlayerIdx { get; } = new Observable<int>(-1);
+    
+    
+    //  ── 게임 상태 ───────────────────────────────────────────────────
+    public Observable<bool> mySelecting { get; } = new Observable<bool>();
+    public Observable<bool> enemySelecting { get; } = new Observable<bool>();
 
     // ── 아이템 슬롯 활성 여부 ────────────────────────────────────────
     public Observable<bool> Item1Active { get; } = new Observable<bool>();
@@ -58,16 +60,12 @@ public class MainBattleViewModel : ViewModelBase
 
     // ── 돈 ──────────────────────────────────────────────────────────
     public Observable<int> Money { get; } = new Observable<int>();
-
-    //절대로! 커스텀 생성자를 만드시면 안됩니다
-    // public MainBattleViewModel(string playerId, string lobbyId)
-    // {
-    //     // _playerId = playerId;
-    //     // _lobbyId = lobbyId;
-    //     
-    //     RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
-    //     _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
-    // }
+    
+    // 현재 라벨 상태
+    public Observable<string> labelState { get; } = new Observable<string>();
+    
+    // current Turn
+    public Observable<int> currentTurn { get; } = new Observable<int>();
     
     public MainBattleViewModel()
     {
@@ -76,15 +74,67 @@ public class MainBattleViewModel : ViewModelBase
         
         RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
+        
     }
 
-    public override async void Initialize()
+    public override void Initialize()
     {
+        if (IsInitialized) return;
         base.Initialize();
+        TryStartFirebaseSubscriptions();
+    }
+    public async void OnHandAction(HandActionType choice)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_playerId))
+            {
+                Debug.LogError("PutChoice skipped: playerId is empty.");
+                return;
+            }
+
+            string choiceValue = choice.ToString();
+            Debug.Log($"PutChoice request -> id={_playerId}, choice={choiceValue}");
+            await _repository.PutChoice(_playerId, choiceValue);
+            EventBus.Publish(new AttackStartedEvent(isPlayer: true));
+        }
+        catch (NetworkException e)
+        {
+            Debug.LogError($"PutChoice failed: http={e.ResponseCode}, apiCode={e.ApiErrorCode}, msg={e.ErrorMessage}");
+            Debug.LogException(e);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
+    public void changeValue()
+    {
+        LeftRoundWin.Value = 2;
+        Debug.Log(LeftRoundWin.Value + "Teststest");
+    }
+
+    public void setPlayerAndMatchId(string playerId, string matchId, string enemyId)
+    {
+        _playerId = playerId;
+        _lobbyId = matchId;
+        _enemyId = enemyId;
+        TryStartFirebaseSubscriptions();
+    }
+    
+    
+
+    private async Task firebaseSetting()
+    {
         try
         {
             bool initialized = await FirebaseInitializer.EnsureInitializedAsync();
-            if (!initialized) return;
+            if (!initialized)
+            {
+                _firebaseSubscribed = false;
+                return;
+            }
 
             // matches/{lobbyId} 구독
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
@@ -93,9 +143,15 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     if (match == null) return;
                     StationName.Value     = match.station;
-                    MatchState.Value      = match.state;
+                    if (Enum.TryParse(match.state, true, out LobbyState result))
+                    {
+                        MatchState.Value = result;
+                    }
+
+                    GetStatusText();
                     CurrentRound.Value    = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
+                    currentTurn.Value = match.currentTurn;
                     //StartCountdown(match.countdownStartTime, match.countdownSec);
                 },
                 onError: (error) => Debug.LogError(error)
@@ -110,93 +166,76 @@ public class MainBattleViewModel : ViewModelBase
 
                     LeftHp.Value     = player.hp;
                     IsAttacker.Value = player.attacking;
-
-                    LeftWin1.Value = player.wins >= 1;
-                    LeftWin2.Value = player.wins >= 2;
-                    LeftWin3.Value = player.wins >= 3;
-
-                    // TODO: Firebase에 items/perks/statusEffects/money 추가되면 연결
-                    // Item1Active.Value = player.items.Length > 0 && player.items[0] != 0;
-                    // Item2Active.Value = player.items.Length > 1 && player.items[1] != 0;
-                    // Item3Active.Value = player.items.Length > 2 && player.items[2] != 0;
-                    // Perk1Active.Value = player.perks.Length > 0 && player.perks[0] != 0;
-                    // Perk2Active.Value = player.perks.Length > 1 && player.perks[1] != 0;
-                    // Perk3Active.Value = player.perks.Length > 2 && player.perks[2] != 0;
-                    // Effect1Active.Value = player.statusEffects.Length > 0 && player.statusEffects[0] != 0;
-                    // Effect2Active.Value = player.statusEffects.Length > 1 && player.statusEffects[1] != 0;
-                    // Effect3Active.Value = player.statusEffects.Length > 2 && player.statusEffects[2] != 0;
-                    // Effect4Active.Value = player.statusEffects.Length > 3 && player.statusEffects[3] != 0;
-                    // Money.Value = player.money;
+                    mySelecting.Value = player.selecting;
+                    Debug.Log(player.hp + " " + player.username  + player.hp+ "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
             );
 
             // 상대방 구독 → Right
             // TODO: 상대방 playerId 확정 후 주석 해제
-            // await FirebaseClient.Instance.SubscribeAsync<PlayerInfoModel>(
-            //     $"matches/{_lobbyId}/players/{opponentId}",
-            //     onValueChanged: (player) =>
-            //     {
-            //         if (player == null) return;
-            //         RightHp.Value   = player.hp;
-            //         RightWin1.Value = player.wins >= 1;
-            //         RightWin2.Value = player.wins >= 2;
-            //         RightWin3.Value = player.wins >= 3;
-            //     },
-            //     onError: (error) => Debug.LogError(error)
-            // );
+            await FirebaseClient.Instance.SubscribeAsync<PlayerInfoModel>(
+                $"matches/{_lobbyId}/players/{_enemyId}",
+                onValueChanged: (player) =>
+                {
+                    if (player == null) return;
+                    RightHp.Value   = player.hp;
+                    enemySelecting.Value = player.selecting;
+                    Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
+                },
+                onError: (error) => Debug.LogError(error)
+            );
         }
         catch (Exception e)
         {
+            _firebaseSubscribed = false;
             Debug.LogException(e);
         }
     }
 
-    /*private async void StartCountdown(string startTime, int countdownSec)
+    private void TryStartFirebaseSubscriptions()
     {
-        _countdownCts?.Cancel();
-        _countdownCts = new CancellationTokenSource();
-        var token = _countdownCts.Token;
+        if (!IsInitialized || _firebaseSubscribed) return;
+        if (string.IsNullOrWhiteSpace(_playerId) ||
+            string.IsNullOrWhiteSpace(_lobbyId) ||
+            string.IsNullOrWhiteSpace(_enemyId))
+            return;
 
-        DateTime deadline = DateTime.Parse(startTime).AddSeconds(countdownSec);
-
-        try
-        {
-            while (!token.IsCancellationRequested)
-            {
-                int remainSec = Math.Max(0, (int)(deadline - DateTime.UtcNow).TotalSeconds);
-                RemainingSeconds.Value = remainSec;
-
-                if (remainSec <= 0) break;
-                await Task.Delay(1000, token);
-            }
-        }
-        catch (OperationCanceledException) { }
-    }*/
-
-    public async void OnHandAction(string choice)
-    {
-        try
-        {
-            //await _repository.PostHandAction(_playerId, moveType);
-            EventBus.Publish(new AttackStartedEvent(isPlayer: true));
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
+        _firebaseSubscribed = true;
+        _ = firebaseSetting();
     }
-
-    public void changeValue()
+    
+    // ViewModel 안에서
+    private void GetStatusText()
     {
-        LeftRoundWin.Value = 2;
-        Debug.Log(LeftRoundWin.Value + "Teststest");
+        Debug.Log(MatchState.Value + " : Match STate");
+        // 1순위: 대기 중일 때
+        if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        {
+            labelState.Value = "START SOON..";
+        }
+        else if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        {
+            labelState.Value = "GAME OVER!";
+        }
+        // 2순위: 내 턴일 때
+        else if (mySelecting.Value)
+        {
+            labelState.Value = "YOUR TURN";
+        }
+        // 3순위: 그 외 (적 턴일 때)
+        else
+        {
+            labelState.Value = "ENEMY TURN";
+        }
     }
     
     public override void Dispose()
     {
         _countdownCts?.Cancel();
         _countdownCts?.Dispose();
+        _firebaseSubscribed = false;
         base.Dispose();
     }
+    
 }

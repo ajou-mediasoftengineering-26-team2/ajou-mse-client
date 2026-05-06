@@ -18,6 +18,11 @@ public class FirebaseClient
         return await FirebaseDatabaseClient.Instance.SubscribeAsync(path, onValueChanged, onError);
     }
 
+    public async Task<string> SubscribeChildKeysAsync(string path, Action<System.Collections.Generic.List<string>> onKeysChanged, Action<string> onError = null)
+    {
+        return await FirebaseDatabaseClient.Instance.SubscribeChildKeysAsync(path, onKeysChanged, onError);
+    }
+
     public void Unsubscribe(string subscriptionId)
     {
         FirebaseDatabaseClient.Instance.Unsubscribe(subscriptionId);
