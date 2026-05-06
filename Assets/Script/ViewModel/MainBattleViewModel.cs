@@ -64,6 +64,9 @@ public class MainBattleViewModel : ViewModelBase
     // 현재 라벨 상태
     public Observable<string> labelState { get; } = new Observable<string>();
     
+    // current Turn
+    public Observable<int> currentTurn { get; } = new Observable<int>();
+    
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -147,6 +150,7 @@ public class MainBattleViewModel : ViewModelBase
                     GetStatusText();
                     CurrentRound.Value    = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
+                    currentTurn.Value = match.currentTurn;
                     //StartCountdown(match.countdownStartTime, match.countdownSec);
                 },
                 onError: (error) => Debug.LogError(error)

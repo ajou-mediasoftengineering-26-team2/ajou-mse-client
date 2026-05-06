@@ -56,15 +56,17 @@ public class MainBattleView : MonoBehaviour
         
         _viewModel.LeftRoundWin.Subscribe(val => RefreshDots(_myDotElements, val));
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
-        _viewModel.mySelecting.Subscribe(val =>
+        _viewModel.currentTurn.Subscribe(selecting =>
         {
             var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
             // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
-            indicator.EnableInClassList("my-turn", val);
-            indicator.EnableInClassList("enemy-turn", !val);
+            indicator.EnableInClassList("my-turn", _viewModel.mySelecting.Value);
+            indicator.EnableInClassList("enemy-turn", !_viewModel.mySelecting.Value);
             
-            System.Action action = val ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
+            Debug.Log(selecting + " selecting value *********************");
+            
+            System.Action action = _viewModel.mySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
             action();
         });
         
@@ -94,7 +96,6 @@ public class MainBattleView : MonoBehaviour
 
     public async void UpdateRoundWithDelay()
     {
-        await Task.Delay(1000);
         ChooseAction(actionElement, _actionElements);
     }
     
@@ -133,6 +134,7 @@ public class MainBattleView : MonoBehaviour
         List<HandActionData> handActionDatas =
             _viewModel.IsAttacker.Value ? ActionDatabase.AttackActions : ActionDatabase.DefendActions;
     
+        Debug.Log(handActionDatas[0].actionName + "when action ready &&&&&&&");
         if (actionItemSelect == null)
         {
             Debug.LogError("ChooseAction: actionItemSelect is not assigned.");
