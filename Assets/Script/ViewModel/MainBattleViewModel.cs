@@ -1,15 +1,19 @@
 using System;
+using System.Collections;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 
+//202322158 이준상
 public class MainBattleViewModel : ViewModelBase
 {
     private readonly IMainBattleRepository _repository;
     private string _playerId;
     private string _lobbyId;
     private string _enemyId;
+    private bool _isTimerRunning = false;
     private CancellationTokenSource _countdownCts;
     private bool _firebaseSubscribed;
 
@@ -39,42 +43,24 @@ public class MainBattleViewModel : ViewModelBase
     
     
     //  ── 게임 상태 ───────────────────────────────────────────────────
-    public Observable<bool> mySelecting { get; } = new Observable<bool>();
-    public Observable<bool> enemySelecting { get; } = new Observable<bool>();
-
-    // ── 아이템 슬롯 활성 여부 ────────────────────────────────────────
-    public Observable<bool> Item1Active { get; } = new Observable<bool>();
-    public Observable<bool> Item2Active { get; } = new Observable<bool>();
-    public Observable<bool> Item3Active { get; } = new Observable<bool>();
-
-    // ── 퍽 슬롯 활성 여부 ───────────────────────────────────────────
-    public Observable<bool> Perk1Active { get; } = new Observable<bool>();
-    public Observable<bool> Perk2Active { get; } = new Observable<bool>();
-    public Observable<bool> Perk3Active { get; } = new Observable<bool>();
-
-    // ── 상태이상 슬롯 활성 여부 ──────────────────────────────────────
-    public Observable<bool> Effect1Active { get; } = new Observable<bool>();
-    public Observable<bool> Effect2Active { get; } = new Observable<bool>();
-    public Observable<bool> Effect3Active { get; } = new Observable<bool>();
-    public Observable<bool> Effect4Active { get; } = new Observable<bool>();
+    public Observable<bool> MySelecting { get; } = new Observable<bool>();
+    public Observable<bool> EnemySelecting { get; } = new Observable<bool>();
+    
 
     // ── 돈 ──────────────────────────────────────────────────────────
     public Observable<int> Money { get; } = new Observable<int>();
     
     // 현재 라벨 상태
-    public Observable<string> labelState { get; } = new Observable<string>();
+    public Observable<string> LabelState { get; } = new Observable<string>();
     
     // current Turn
-    public Observable<int> currentTurn { get; } = new Observable<int>();
-    
+    public Observable<int> CurrentTurn { get; } = new Observable<int>();
+    public Observable<string> CountDown { get; } = new Observable<string>();
     public MainBattleViewModel()
     {
         // _playerId = playerId;
         // _lobbyId = lobbyId;
-        
-        RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
-        
     }
 
     public override void Initialize()
@@ -109,13 +95,13 @@ public class MainBattleViewModel : ViewModelBase
         }
     }
 
-    public void changeValue()
+    public void ChangeValue()
     {
         LeftRoundWin.Value = 2;
         Debug.Log(LeftRoundWin.Value + "Teststest");
     }
 
-    public void setPlayerAndMatchId(string playerId, string matchId, string enemyId)
+    public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId)
     {
         _playerId = playerId;
         _lobbyId = matchId;
@@ -125,7 +111,7 @@ public class MainBattleViewModel : ViewModelBase
     
     
 
-    private async Task firebaseSetting()
+    private async Task FirebaseSetting()
     {
         try
         {
@@ -151,8 +137,9 @@ public class MainBattleViewModel : ViewModelBase
                     GetStatusText();
                     CurrentRound.Value    = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
-                    currentTurn.Value = match.currentTurn;
-                    //StartCountdown(match.countdownStartTime, match.countdownSec);
+                    CurrentTurn.Value = match.currentTurn;
+
+                    StartTimer(match.countdownStartTime, match.countdownSec);
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -166,7 +153,7 @@ public class MainBattleViewModel : ViewModelBase
 
                     LeftHp.Value     = player.hp;
                     IsAttacker.Value = player.attacking;
-                    mySelecting.Value = player.selecting;
+                    MySelecting.Value = player.selecting;
                     Debug.Log(player.hp + " " + player.username  + player.hp+ "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
@@ -180,7 +167,7 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     if (player == null) return;
                     RightHp.Value   = player.hp;
-                    enemySelecting.Value = player.selecting;
+                    EnemySelecting.Value = player.selecting;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
                 onError: (error) => Debug.LogError(error)
@@ -193,6 +180,36 @@ public class MainBattleViewModel : ViewModelBase
         }
     }
 
+    private async void StartTimer(string startTimeStr, int durationSec)
+    {
+        string format = "yyyy-MM-dd'T'HH:mm:ss.fff";
+        if (!DateTime.TryParseExact(startTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime))
+        {
+            return;
+        }
+
+        DateTime endTime = startTime.AddSeconds(durationSec);
+        _isTimerRunning = true;
+
+        while (_isTimerRunning)
+        {
+            TimeSpan remaining = endTime - DateTime.Now;
+
+            if (remaining.TotalSeconds <= 0)
+            {
+                CountDown.Value = "00.00";
+                _isTimerRunning = false;
+                break;
+            }
+            //Debug.Log(remaining.Seconds + " *** seconds");
+            // UI에 보여줄 텍스트 갱신
+            CountDown.Value = string.Format("{0:D2}.{1:D2}", remaining.Seconds, remaining.Milliseconds/10);
+            // 1초(1000ms) 동안 비동기로 대기
+            // 이 동안 메인 스레드는 멈추지 않고 게임은 계속 돌아갑니다.
+            await Task.Delay(10); 
+        }
+    }
+
     private void TryStartFirebaseSubscriptions()
     {
         if (!IsInitialized || _firebaseSubscribed) return;
@@ -202,7 +219,7 @@ public class MainBattleViewModel : ViewModelBase
             return;
 
         _firebaseSubscribed = true;
-        _ = firebaseSetting();
+        _ = FirebaseSetting();
     }
     
     // ViewModel 안에서
@@ -212,21 +229,21 @@ public class MainBattleViewModel : ViewModelBase
         // 1순위: 대기 중일 때
         if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
         {
-            labelState.Value = "START SOON..";
+            LabelState.Value = "START SOON..";
         }
-        else if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        else if (MatchState.Value == LobbyState.END_RESULT)
         {
-            labelState.Value = "GAME OVER!";
+            LabelState.Value = "GAME OVER!";
         }
         // 2순위: 내 턴일 때
-        else if (mySelecting.Value)
+        else if (MySelecting.Value)
         {
-            labelState.Value = "YOUR TURN";
+            LabelState.Value = "YOUR TURN";
         }
         // 3순위: 그 외 (적 턴일 때)
         else
         {
-            labelState.Value = "ENEMY TURN";
+            LabelState.Value = "ENEMY TURN";
         }
     }
     
