@@ -18,16 +18,8 @@ public class Toast : MonoBehaviour
             Instantiate(prefab);
             Debug.Log("글로벌 토스트 시스템 로드 완료");
         }
-
-        RegisterRepo();
     }
-
-    private static void RegisterRepo()
-    {
-        RepositoryFactory.Instance.Register<IIDRepository, IDRepository>();
-        RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
-    }
-
+    
     void Awake()
     {
         // 1. 싱글톤 설정: 중복 생성을 방지하고 어디서든 접근 가능하게 함
