@@ -25,7 +25,6 @@ public class IDViewModel : ViewModelBase
 
     public IDViewModel()
     {
-        RepositoryFactory.Instance.Register<IIDRepository, IDRepository>();
         _repository = RepositoryFactory.Instance.Get<IIDRepository>();
     }
 
@@ -163,7 +162,7 @@ public class IDViewModel : ViewModelBase
                 {
                     if (candidate == PlayerId.Value) continue;
                     EnemyId.Value = candidate;
-                    Debug.Log(candidate + "EnemyID");
+                    //Debug.Log(candidate + "EnemyID");
                     break;
                 }
 
