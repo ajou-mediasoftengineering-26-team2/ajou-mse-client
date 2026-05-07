@@ -23,7 +23,7 @@ public class MainBattleView : MonoBehaviour
     
     private VisualElement mainBattleRoot;
     private VisualElement perksRoot;
-    
+    private Label timer;
     
     private readonly List<VisualElement> _myDotElements = new();
     private readonly List<VisualElement> _enemyDotElements = new();
@@ -42,7 +42,7 @@ public class MainBattleView : MonoBehaviour
         myRoundWining = mainBattleRoot.Q<VisualElement>("MyRoundContainer");
         enemyRoundWining = mainBattleRoot.Q<VisualElement>("EnemyRoundContainer");
         actionElement = mainBattleRoot.Q<VisualElement>("ChooseAction");
-    
+        timer = mainBattleRoot.Q<Label>("Time");
         InitializeDots(myRoundWining, _myDotElements);
         InitializeDots(enemyRoundWining, _enemyDotElements);
         viewModelSetting();
@@ -52,22 +52,22 @@ public class MainBattleView : MonoBehaviour
     {
         _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
     
-        _viewModel.setPlayerAndMatchId(SceneDataBridge.playerId,  SceneDataBridge.MatchId, SceneDataBridge.enemyId);
+        _viewModel.SetPlayerAndMatchId(SceneDataBridge.playerId,  SceneDataBridge.MatchId, SceneDataBridge.enemyId);
         
         _viewModel.LeftRoundWin.Subscribe(val => RefreshDots(_myDotElements, val));
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
         
-        _viewModel.mySelecting.Subscribe(selecting =>
+        _viewModel.MySelecting.Subscribe(selecting =>
         {
             var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
             // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
-            indicator.EnableInClassList("my-turn", _viewModel.mySelecting.Value);
-            indicator.EnableInClassList("enemy-turn", !_viewModel.mySelecting.Value);
+            indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
+            indicator.EnableInClassList("enemy-turn", !_viewModel.MySelecting.Value);
             
             Debug.Log(selecting + " selecting value *********************");
             
-            System.Action action = _viewModel.mySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
+            System.Action action = _viewModel.MySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
             action();
         });
         
@@ -76,20 +76,20 @@ public class MainBattleView : MonoBehaviour
             var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
             // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
-            indicator.EnableInClassList("my-turn", _viewModel.mySelecting.Value);
-            indicator.EnableInClassList("enemy-turn", !_viewModel.mySelecting.Value);
+            indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
+            indicator.EnableInClassList("enemy-turn", !_viewModel.MySelecting.Value);
             
             Debug.Log(selecting + " selecting value *********************");
             
-            System.Action action = _viewModel.mySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
+            System.Action action = _viewModel.MySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
             action();
         });
         
-        _viewModel.labelState.Subscribe(labelText =>
+        _viewModel.LabelState.Subscribe(labelText =>
         {
             var label = mainBattleRoot.Q<Label>("TurnText");
 
-            label.text = _viewModel.labelState.Value;
+            label.text = _viewModel.LabelState.Value;
         });
         
         _viewModel.LeftHp.Subscribe(myHp =>
@@ -106,6 +106,11 @@ public class MainBattleView : MonoBehaviour
             float targetRatio = Mathf.Clamp01((float)enemyHp / GameSetting.maxHP);
             // width를 %로 직접 꽂아줌
             hpFill.style.width = new Length(targetRatio * 100, LengthUnit.Percent);
+        });
+        
+        _viewModel.CountDown.Subscribe(time =>
+        {
+            timer.text = time;
         });
     }
 
