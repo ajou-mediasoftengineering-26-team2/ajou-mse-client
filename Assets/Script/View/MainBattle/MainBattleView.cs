@@ -16,14 +16,14 @@ public class MainBattleView : MonoBehaviour
     private bool _isActionAnimatingOut;
     private MainBattleViewModel _viewModel;
     //뷰모델 참조
-    private VisualElement myRoundWining;
-    private VisualElement enemyRoundWining;
+    private VisualElement _myRoundWining;
+    private VisualElement _enemyRoundWining;
 
-    private VisualElement actionElement;
+    private VisualElement _actionElement;
     
-    private VisualElement mainBattleRoot;
-    private VisualElement perksRoot;
-    private Label timer;
+    private VisualElement _mainBattleRoot;
+    private VisualElement _perksRoot;
+    private Label _timer;
     
     private readonly List<VisualElement> _myDotElements = new();
     private readonly List<VisualElement> _enemyDotElements = new();
@@ -36,16 +36,17 @@ public class MainBattleView : MonoBehaviour
     private void OnEnable()
     {
         
-        mainBattleRoot = mainBattle.rootVisualElement; 
-        perksRoot = perks.rootVisualElement;
+        _mainBattleRoot = mainBattle.rootVisualElement; 
+        _perksRoot = perks.rootVisualElement;
         
-        myRoundWining = mainBattleRoot.Q<VisualElement>("MyRoundContainer");
-        enemyRoundWining = mainBattleRoot.Q<VisualElement>("EnemyRoundContainer");
-        actionElement = mainBattleRoot.Q<VisualElement>("ChooseAction");
-        timer = mainBattleRoot.Q<Label>("Time");
-        InitializeDots(myRoundWining, _myDotElements);
-        InitializeDots(enemyRoundWining, _enemyDotElements);
+        _myRoundWining = _mainBattleRoot.Q<VisualElement>("MyRoundContainer");
+        _enemyRoundWining = _mainBattleRoot.Q<VisualElement>("EnemyRoundContainer");
+        _actionElement = _mainBattleRoot.Q<VisualElement>("ChooseAction");
+        _timer = _mainBattleRoot.Q<Label>("Time");
         viewModelSetting();
+        
+        InitializeDots(_myRoundWining, _myDotElements);
+        InitializeDots(_enemyRoundWining, _enemyDotElements);
     }
 
     private void viewModelSetting()
@@ -59,7 +60,7 @@ public class MainBattleView : MonoBehaviour
         
         _viewModel.MySelecting.Subscribe(selecting =>
         {
-            var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
+            var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
             // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
             indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
@@ -73,7 +74,7 @@ public class MainBattleView : MonoBehaviour
         
         _viewModel.IsAttacker.Subscribe(selecting =>
         {
-            var indicator = mainBattleRoot.Q<VisualElement>("TurnIndicator");
+            var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
             // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
             indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
@@ -87,14 +88,14 @@ public class MainBattleView : MonoBehaviour
         
         _viewModel.LabelState.Subscribe(labelText =>
         {
-            var label = mainBattleRoot.Q<Label>("TurnText");
+            var label = _mainBattleRoot.Q<Label>("TurnText");
 
             label.text = _viewModel.LabelState.Value;
         });
         
         _viewModel.LeftHp.Subscribe(myHp =>
         {
-            var hpFill = mainBattleRoot.Q<VisualElement>("MyHPFill");
+            var hpFill = _mainBattleRoot.Q<VisualElement>("MyHPFill");
             float targetRatio = Mathf.Clamp01((float)myHp / GameSetting.maxHP);
             // width를 %로 직접 꽂아줌 (애니메이션 없이 즉시 반영)
             hpFill.style.width = new Length(targetRatio * 100, LengthUnit.Percent);
@@ -102,7 +103,7 @@ public class MainBattleView : MonoBehaviour
 
         _viewModel.RightHp.Subscribe(enemyHp =>
         {
-            var hpFill = mainBattleRoot.Q<VisualElement>("EnemyHPFill");
+            var hpFill = _mainBattleRoot.Q<VisualElement>("EnemyHPFill");
             float targetRatio = Mathf.Clamp01((float)enemyHp / GameSetting.maxHP);
             // width를 %로 직접 꽂아줌
             hpFill.style.width = new Length(targetRatio * 100, LengthUnit.Percent);
@@ -110,13 +111,13 @@ public class MainBattleView : MonoBehaviour
         
         _viewModel.CountDown.Subscribe(time =>
         {
-            timer.text = time;
+            _timer.text = time;
         });
     }
 
     public async void UpdateRoundWithDelay()
     {
-        ChooseAction(actionElement, _actionElements);
+        ChooseAction(_actionElement, _actionElements);
     }
     
     
