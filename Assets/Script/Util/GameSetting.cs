@@ -9,7 +9,6 @@ public class GameSetting
     public static string LOGINSUCCESS = "Login successful.";
     public static string LOGINERROR = "Login failed.";
     public static readonly float maxHP = 10;
-    public static string format = "yyyy-MM-dd'T'HH:mm:ss.fff"; // SSS 대신 fff 사용
 }
 
 

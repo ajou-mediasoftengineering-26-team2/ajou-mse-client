@@ -8,10 +8,10 @@ using UnityEngine.UIElements;
 //202322158 이준상
 public class SubwayDisplayController : MonoBehaviour
 {
-    private Label _nicknameLabel;
-    private Label _waitTimeLabel;
-    private VisualElement _spinner;
-    private float _timer;
+    private Label nicknameLabel;
+    private Label waitTimeLabel;
+    private VisualElement spinner;
+    private float timer;
     
     private Coroutine _displayCoroutine;
 
@@ -19,19 +19,19 @@ public class SubwayDisplayController : MonoBehaviour
     {
         var root = GameObject.Find("LobbyWaitingUI").GetComponent<UIDocument>().rootVisualElement;
         
-        _waitTimeLabel = root.Q<Label>("WaitTimeLabel");
-        _spinner = root.Q<VisualElement>("Spinner");
+        waitTimeLabel = root.Q<Label>("WaitTimeLabel");
+        spinner = root.Q<VisualElement>("Spinner");
     }
 
     void Update()
     {
-        _timer += Time.deltaTime;
-        int seconds = Mathf.FloorToInt(_timer);
-        _waitTimeLabel.text = seconds.ToString("D2") + " SEC";
+        timer += Time.deltaTime;
+        int seconds = Mathf.FloorToInt(timer);
+        waitTimeLabel.text = seconds.ToString("D2") + " SEC";
 
-        if (_spinner != null)
+        if (spinner != null)
         {
-            _spinner.style.rotate = new Rotate(new Angle(Time.time * 500f));
+            spinner.style.rotate = new Rotate(new Angle(Time.time * 500f));
         }
     }
     public void StartDisplay()
@@ -60,11 +60,11 @@ public class SubwayDisplayController : MonoBehaviour
             timer += Time.deltaTime;
             int seconds = Mathf.FloorToInt(timer);
             
-            if (_waitTimeLabel != null)
-                _waitTimeLabel.text = seconds.ToString("D2") + " SEC";
+            if (waitTimeLabel != null)
+                waitTimeLabel.text = seconds.ToString("D2") + " SEC";
 
-            if (_spinner != null)
-                _spinner.style.rotate = new Rotate(new Angle(Time.time * 500f));
+            if (spinner != null)
+                spinner.style.rotate = new Rotate(new Angle(Time.time * 500f));
 
             // 다음 프레임까지 대기 (Update와 동일한 주기)
             yield return null; 
