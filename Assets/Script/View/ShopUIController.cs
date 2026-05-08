@@ -17,7 +17,7 @@ public class ShopUIController : MonoBehaviour
         var upgradeBtn = root.Q<Button>("UpgradeButton");
         // var handImg = root.Q<Image>("HandImg"); // TODO: 이미지 에셋 준비되면 연결
 
-        var idVm = ViewModelLocator.Instance.Get<IDViewModel>();
+        var idVm = ViewModelLocator.Instance.Get<LoginViewModel>();
         _viewModel = new ShopViewModel(idVm.PlayerId.Value, idVm.LobbyId.Value);
         _viewModel.Initialize();
 

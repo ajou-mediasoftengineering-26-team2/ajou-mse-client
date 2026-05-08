@@ -6,7 +6,7 @@ public interface IIDRepository
     Task<ApiResponse<PostLoginResponse>> PostUserID(string playerName);
 }
 
-public class IDRepository : BaseRepository, IIDRepository 
+public class LoginRepository : BaseRepository, IIDRepository 
 {
     protected override string EndpointBase => "auth/player"; // 플레이어 엔드 포인트
 

@@ -20,7 +20,7 @@ public class PerkUIController : MonoBehaviour
         var perk3Title = root.Q<Label>("Perk3Title");
         var perk3Exp   = root.Q<Label>("Perk3Exp");
 
-        var idVm = ViewModelLocator.Instance.Get<IDViewModel>();
+        var idVm = ViewModelLocator.Instance.Get<LoginViewModel>();
         _viewModel = new PerkViewModel(idVm.PlayerId.Value, idVm.LobbyId.Value);
         _viewModel.Initialize();
 
