@@ -23,9 +23,7 @@
 }
 
 /* 왼쪽 HP바 반전 (안드로이드의 scaleX: -1 같은 느낌) */
-.flip-x {
-    transform: scale(-1, 1);
-}
+
 
 .match-info {
     align-items: center;
