@@ -2,11 +2,12 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
-public class IDUIController : MonoBehaviour
+public class LoginView : MonoBehaviour
 {
    //뷰모델 참조
-   private IDViewModel _viewModel;
+   private LoginViewModel _viewModel;
    //UXML ID창, 생성 버튼
    private TextField _LoginIDInput;
    private Button _createButton;
@@ -19,12 +20,12 @@ public class IDUIController : MonoBehaviour
    private VisualElement lobbyWaitingUIRoot;
    
    
-   [SerializeField]
-   public SubwayDisplayController displayController;
+   [FormerlySerializedAs("displayController")] [SerializeField]
+   public SubwayDisplayView displayView;
    private void OnEnable()
    {
       
-      _viewModel = ViewModelLocator.Instance.Get<IDViewModel>();
+      _viewModel = ViewModelLocator.Instance.Get<LoginViewModel>();
       
       
       loginUIRoot = GameObject.Find("LoginUI").GetComponent<UIDocument>().rootVisualElement;
@@ -62,7 +63,7 @@ public class IDUIController : MonoBehaviour
       _viewModel.IsMatchStarted.Subscribe(started =>
       {
          if (!started) return;
-         displayController.StopDisplay();
+         displayView.StopDisplay();
          SceneManager.LoadScene("111HyungJun_Dev_Junsang");//여기 부분을 그 다음에 battle씬으로 가게 하면 될 것 같습니다
       });
    }
@@ -78,7 +79,7 @@ public class IDUIController : MonoBehaviour
       lobbyWaitingUIRoot.style.display = DisplayStyle.Flex;
       Toast.Show(GameSetting.LOGINSUCCESS);
       _nickNameLabel.text = _LoginIDInput.value;
-      displayController.StartDisplay();
+      displayView.StartDisplay();
    }
    
    

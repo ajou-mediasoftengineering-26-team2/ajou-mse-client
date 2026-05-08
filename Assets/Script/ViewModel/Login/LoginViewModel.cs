@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class IDViewModel : ViewModelBase
+public class LoginViewModel : ViewModelBase
 {
     private readonly IIDRepository _repository;
     private string _stationSubscriptionId;
@@ -23,7 +23,7 @@ public class IDViewModel : ViewModelBase
     public Observable<string> SubwayStation { get; } =  new Observable<string>();
     public Observable<bool> IsMatchStarted { get; } = new Observable<bool>();
 
-    public IDViewModel()
+    public LoginViewModel()
     {
         _repository = RepositoryFactory.Instance.Get<IIDRepository>();
     }

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 //202322158 이준상
-public class SubwayDisplayController : MonoBehaviour
+public class SubwayDisplayView : MonoBehaviour
 {
     private Label _nicknameLabel;
     private Label _waitTimeLabel;

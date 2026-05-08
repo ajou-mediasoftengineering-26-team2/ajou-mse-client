@@ -24,7 +24,7 @@ public class Toast : MonoBehaviour
 
     private static void RegisterRepo()
     {
-        RepositoryFactory.Instance.Register<IIDRepository, IDRepository>();
+        RepositoryFactory.Instance.Register<IIDRepository, LoginRepository>();
         RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
     }
 
