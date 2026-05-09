@@ -216,7 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ebf4aff117b85f4492542c7e0981d94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IDUIController
-  displayController: {fileID: 50689781}
+  displayView: {fileID: 50689781}
 --- !u!4 &145298127
 Transform:
   m_ObjectHideFlags: 0
@@ -1159,9 +1159,9 @@ SceneRoots:
   - {fileID: 1400917933}
   - {fileID: 1302541607}
   - {fileID: 1117261837}
+  - {fileID: 147752134}
   - {fileID: 219349678}
   - {fileID: 50689780}
   - {fileID: 145298127}
-  - {fileID: 147752134}
   - {fileID: 1889524622}
   - {fileID: 1438640390}

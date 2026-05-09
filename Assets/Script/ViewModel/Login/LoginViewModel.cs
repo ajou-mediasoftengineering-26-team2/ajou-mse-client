@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class LoginViewModel : ViewModelBase
 {
-    private readonly IIDRepository _repository;
+    private readonly ILoginRepository _repository;
     private string _stationSubscriptionId;
     private string _matchSubscriptionId;
     private string _playersSubscriptionId;
@@ -25,7 +25,7 @@ public class LoginViewModel : ViewModelBase
 
     public LoginViewModel()
     {
-        _repository = RepositoryFactory.Instance.Get<IIDRepository>();
+        _repository = RepositoryFactory.Instance.Get<ILoginRepository>();
     }
 
     public override async void Initialize()

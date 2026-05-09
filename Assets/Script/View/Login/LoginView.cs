@@ -64,7 +64,7 @@ public class LoginView : MonoBehaviour
       {
          if (!started) return;
          displayView.StopDisplay();
-         SceneManager.LoadScene("111HyungJun_Dev_Junsang");//여기 부분을 그 다음에 battle씬으로 가게 하면 될 것 같습니다
+         SceneManager.LoadScene("MainBattleScene");//여기 부분을 그 다음에 battle씬으로 가게 하면 될 것 같습니다
       });
    }
 
