@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-
-public class PerkUIController : MonoBehaviour
+// 202422170 주형준
+public class PerkUIView : MonoBehaviour
 {
     private PerkViewModel _viewModel;
 
@@ -23,14 +23,16 @@ public class PerkUIController : MonoBehaviour
         var idVm = ViewModelLocator.Instance.Get<LoginViewModel>();
         _viewModel = new PerkViewModel(idVm.PlayerId.Value, idVm.LobbyId.Value);
         _viewModel.Initialize();
-
+        
+        // Subscribe to ViewModel and update perk labels
         _viewModel.Perk1Title.Subscribe(title => perk1Title.text = title ?? "");
         _viewModel.Perk1Desc.Subscribe(desc   => perk1Exp.text   = desc  ?? "");
         _viewModel.Perk2Title.Subscribe(title => perk2Title.text = title ?? "");
         _viewModel.Perk2Desc.Subscribe(desc   => perk2Exp.text   = desc  ?? "");
         _viewModel.Perk3Title.Subscribe(title => perk3Title.text = title ?? "");
         _viewModel.Perk3Desc.Subscribe(desc   => perk3Exp.text   = desc  ?? "");
-
+        
+        // Enable or disable buttons based on selection availability
         _viewModel.CanSelect.Subscribe(can =>
         {
             perk1Btn.SetEnabled(can);
@@ -38,10 +40,12 @@ public class PerkUIController : MonoBehaviour
             perk3Btn.SetEnabled(can);
         });
 
+        // Register perk selection button events
         perk1Btn.clicked += () => _viewModel.OnSelectPerk(1);
         perk2Btn.clicked += () => _viewModel.OnSelectPerk(2);
         perk3Btn.clicked += () => _viewModel.OnSelectPerk(3);
     }
-
+    
+    // Dispose ViewModel to prevent memory leaks
     private void OnDestroy() => _viewModel?.Dispose();
 }

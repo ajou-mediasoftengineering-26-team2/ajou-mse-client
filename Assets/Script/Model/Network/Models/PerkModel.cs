@@ -1,6 +1,6 @@
 using System;
 
-// 개별 퍽 정보
+//202422170 주형준
 [Serializable]
 public class PerkOption
 {

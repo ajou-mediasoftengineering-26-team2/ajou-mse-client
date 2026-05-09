@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 
+//202422170 주형준
 public interface IPerkRepository
 {
     Task<ApiResponse<GetPerkChoicesResponse>> GetPerkChoices(string playerId);

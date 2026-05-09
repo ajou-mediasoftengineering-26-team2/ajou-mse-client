@@ -1,12 +1,14 @@
 using System;
 using UnityEngine;
 
+// 202422170 주형준
 public class PerkViewModel : ViewModelBase
 {
     private readonly IPerkRepository _repository;
     private readonly string _playerId;
     private readonly string _lobbyId;
 
+    // Observable properties for three perk options displayed in UI
     public Observable<string> Perk1Title { get; } = new Observable<string>();
     public Observable<string> Perk1Desc  { get; } = new Observable<string>();
     public Observable<string> Perk2Title { get; } = new Observable<string>();
@@ -16,8 +18,10 @@ public class PerkViewModel : ViewModelBase
     public Observable<bool>   CanSelect  { get; } = new Observable<bool>(true);
     public Observable<string> ErrorMsg   { get; } = new Observable<string>();
 
+    // Store perk IDs returned from server for selection
     private int _perk1Id, _perk2Id, _perk3Id;
 
+    // Register repository and initialize player/lobby info
     public PerkViewModel(string playerId, string lobbyId)
     {
         _playerId = playerId;
@@ -30,6 +34,8 @@ public class PerkViewModel : ViewModelBase
     public override async void Initialize()
     {
         base.Initialize();
+        
+        // Load perk choices from server on initialization
         try
         {
             await LoadPerkChoicesAsync();
@@ -50,7 +56,8 @@ public class PerkViewModel : ViewModelBase
         _perk1Id = response.data.perk1.id;
         _perk2Id = response.data.perk2.id;
         _perk3Id = response.data.perk3.id;
-
+        
+        // Map server response data to observable properties
         Perk1Title.Value = response.data.perk1.title;
         Perk1Desc.Value  = response.data.perk1.description;
         Perk2Title.Value = response.data.perk2.title;
@@ -61,6 +68,7 @@ public class PerkViewModel : ViewModelBase
         CanSelect.Value = true;
     }
 
+    // Send selected perk ID to server based on slot number
     public async void OnSelectPerk(int slot)
     {
         if (!CanSelect.Value) return;

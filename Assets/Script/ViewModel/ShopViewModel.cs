@@ -1,12 +1,14 @@
 ﻿using System;
 using UnityEngine;
 
+//202422170 주형준
 public class ShopViewModel : ViewModelBase
 {
     private readonly IShopRepository _repository;
     private readonly string _playerId;
     private readonly string _lobbyId;
 
+    // Observable properties for shop UI display
     public Observable<int>    CurrentRound { get; } = new Observable<int>();
     public Observable<int>    Money        { get; } = new Observable<int>();
     public Observable<int>    HandLevel    { get; } = new Observable<int>(1);
@@ -16,6 +18,7 @@ public class ShopViewModel : ViewModelBase
     public Observable<bool>   CanUpgrade   { get; } = new Observable<bool>();
     public Observable<string> ErrorMsg     { get; } = new Observable<string>();
 
+    // Register repository and initialize player/lobby info
     public ShopViewModel(string playerId, string lobbyId)
     {
         _playerId = playerId;
@@ -32,6 +35,7 @@ public class ShopViewModel : ViewModelBase
         {
             await FirebaseInitializer.EnsureInitializedAsync();
 
+            // Subscribe to Firebase for real-time round updates
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
                 $"matches/{_lobbyId}",
                 onValueChanged: match =>
@@ -42,6 +46,7 @@ public class ShopViewModel : ViewModelBase
                 onError: err => Debug.LogError(err)
             );
 
+            // Load initial shop info from server
             await LoadShopInfoAsync();
         }
         catch (Exception e) { Debug.LogException(e); }
@@ -59,7 +64,8 @@ public class ShopViewModel : ViewModelBase
 
         Refresh(response.data);
     }
-
+    
+    // Map server response to observable properties
     private void Refresh(GetShopInfoResponse data)
     {
         HandLevel.Value   = data.handLevel;
@@ -80,6 +86,7 @@ public class ShopViewModel : ViewModelBase
         CanUpgrade.Value  = data.money >= data.upgradeCost && data.handLevel < 5;
     }
 
+    // Send upgrade request to server and refresh shop info
     public async void OnUpgrade()
     {
         if (!CanUpgrade.Value) return;
