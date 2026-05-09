@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-public interface IIDRepository
+public interface ILoginRepository
 {
     Task<ApiResponse<PostLoginResponse>> PostUserID(string playerName);
 }
 
-public class LoginRepository : BaseRepository, IIDRepository 
+public class LoginRepository : BaseRepository, ILoginRepository 
 {
     protected override string EndpointBase => "auth/player"; // 플레이어 엔드 포인트
 

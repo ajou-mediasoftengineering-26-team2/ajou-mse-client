@@ -25,14 +25,7 @@ public class SubwayDisplayView : MonoBehaviour
 
     void Update()
     {
-        _timer += Time.deltaTime;
-        int seconds = Mathf.FloorToInt(_timer);
-        _waitTimeLabel.text = seconds.ToString("D2") + " SEC";
-
-        if (_spinner != null)
-        {
-            _spinner.style.rotate = new Rotate(new Angle(Time.time * 500f));
-        }
+        
     }
     public void StartDisplay()
     {
