@@ -14,8 +14,8 @@ public class MainBattleViewModel : ViewModelBase
     private string _lobbyId;
     private string _enemyId;
     private bool _isTimerRunning = false;
-    private CancellationTokenSource _countdownCts;
     private bool _firebaseSubscribed;
+    private CancellationTokenSource _timerCts;
 
     // ── HP ──────────────────────────────────────────────────────────
     public Observable<int> LeftHp  { get; } = new Observable<int>();
@@ -182,6 +182,11 @@ public class MainBattleViewModel : ViewModelBase
 
     private async void StartTimer(string startTimeStr, int durationSec)
     {
+        _timerCts?.Cancel();
+        _timerCts?.Dispose();
+        _timerCts = new CancellationTokenSource();
+        var token = _timerCts.Token;
+
         string format = "yyyy-MM-dd'T'HH:mm:ss.fff";
         if (!DateTime.TryParseExact(startTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime))
         {
@@ -189,24 +194,30 @@ public class MainBattleViewModel : ViewModelBase
         }
 
         DateTime endTime = startTime.AddSeconds(durationSec);
-        _isTimerRunning = true;
-
-        while (_isTimerRunning)
+    
+        try 
         {
-            TimeSpan remaining = endTime - DateTime.Now;
-
-            if (remaining.TotalSeconds <= 0)
+            while (!token.IsCancellationRequested)
             {
-                CountDown.Value = "00.00";
-                _isTimerRunning = false;
-                break;
+                TimeSpan remaining = endTime - DateTime.Now;
+                double totalSeconds = remaining.TotalSeconds;
+
+                if (totalSeconds <= 0)
+                {
+                    CountDown.Value = "00.00";
+                    break;
+                }
+
+                int sec = (int)totalSeconds;
+                int ms = (int)((totalSeconds - sec) * 100);
+                CountDown.Value = string.Format("{0:D2}.{1:D2}", sec, ms);
+
+                await Task.Delay(10, token);
             }
-            //Debug.Log(remaining.Seconds + " *** seconds");
-            // UI에 보여줄 텍스트 갱신
-            CountDown.Value = string.Format("{0:D2}.{1:D2}", remaining.Seconds, remaining.Milliseconds/10);
-            // 1초(1000ms) 동안 비동기로 대기
-            // 이 동안 메인 스레드는 멈추지 않고 게임은 계속 돌아갑니다.
-            await Task.Delay(10); 
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
         }
     }
 
@@ -249,8 +260,8 @@ public class MainBattleViewModel : ViewModelBase
     
     public override void Dispose()
     {
-        _countdownCts?.Cancel();
-        _countdownCts?.Dispose();
+        _timerCts?.Cancel();
+        _timerCts?.Dispose();
         _firebaseSubscribed = false;
         base.Dispose();
     }
