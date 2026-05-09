@@ -1,6 +1,10 @@
 using UnityEngine;
 
 //202322158 이준상
+
+/// <summary>
+/// Classes that view network logs
+/// </summary>
 public static class NetworkLogger
 {
     public static bool EnableLogging { get; set; } = true;

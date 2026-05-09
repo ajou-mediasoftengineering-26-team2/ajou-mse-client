@@ -1,5 +1,9 @@
 using UnityEngine;
+//202322158 이준상
 
+/// <summary>
+/// Module Test Scene
+/// </summary>
 public class SampleScene : MonoBehaviour
 {
     private TestViewModel _viewModel;

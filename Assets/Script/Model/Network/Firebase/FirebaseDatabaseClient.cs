@@ -9,30 +9,50 @@ using UnityEngine;
 public class FirebaseDatabaseClient
 {
     private static FirebaseDatabaseClient _instance;
+    // Singleton pattern: Provides global access and ensures only one instance exists.
     public static FirebaseDatabaseClient Instance => _instance ??= new FirebaseDatabaseClient();
 
     private readonly FirebaseDatabase _database;
+    // Manages active subscriptions to prevent memory leaks (ID, Reference, Handler).
     private readonly Dictionary<string, (DatabaseReference Ref, EventHandler<ValueChangedEventArgs> Handler)> _subs = new();
 
     private FirebaseDatabaseClient()
     {
+        // Initializes the default Firebase Database instance.
         _database = FirebaseDatabase.DefaultInstance;
     }
 
+    /// <summary>
+    /// Asynchronously retrieves data once from a specific path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public async Task<T> GetOnceAsync<T>(string path) where T : class, new()
     {
+        // Ensure initialization before any operation
         await FirebaseInitializer.EnsureInitializedAsync();
         DatabaseReference reference = _database.GetReference(path.Trim('/'));
         DataSnapshot snapshot = await reference.GetValueAsync();
         return Deserialize<T>(snapshot);
     }
 
+    /// <summary>
+    /// Asynchronously retrieves data once from a specific path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="onValueChanged"></param>
+    /// <param name="onError"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public async Task<string> SubscribeAsync<T>(string path, Action<T> onValueChanged, Action<string> onError = null) where T : class, new()
     {
         await FirebaseInitializer.EnsureInitializedAsync();
         DatabaseReference reference = _database.GetReference(path.Trim('/'));
+        // Generate a unique ID to identify this specific subscription
         string id = Guid.NewGuid().ToString("N");
 
+        // Define the handler to execute when data updates on the server
         EventHandler<ValueChangedEventArgs> handler = (sender, args) =>
         {
             if (args.DatabaseError != null)
@@ -52,11 +72,19 @@ public class FirebaseDatabaseClient
             }
         };
 
+        // Attach event and store it in the dictionary for later removal
         reference.ValueChanged += handler;
         _subs[id] = (reference, handler);
         return id;
     }
 
+    /// <summary>
+    /// Asynchronously retrieves data once from a specific path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="onKeysChanged"></param>
+    /// <param name="onError"></param>
+    /// <returns></returns>
     public async Task<string> SubscribeChildKeysAsync(string path, Action<List<string>> onKeysChanged, Action<string> onError = null)
     {
         await FirebaseInitializer.EnsureInitializedAsync();
@@ -81,7 +109,6 @@ public class FirebaseDatabaseClient
                         keys.Add(child.Key);
                     }
                 }
-
                 onKeysChanged?.Invoke(keys);
             }
             catch (Exception ex)
@@ -95,15 +122,23 @@ public class FirebaseDatabaseClient
         return id;
     }
 
+    /// <summary>
+    /// Asynchronously retrieves data once from a specific path.
+    /// </summary>
+    /// <param name="id"></param>
     public void Unsubscribe(string id)
     {
         if (_subs.TryGetValue(id, out var item))
         {
+            // Detach the handler from the reference to stop receiving updates
             item.Ref.ValueChanged -= item.Handler;
             _subs.Remove(id);
         }
     }
 
+    /// <summary>
+    /// Asynchronously retrieves data once from a specific path.
+    /// </summary>
     public void UnsubscribeAll()
     {
         foreach (var item in _subs.Values)
@@ -113,6 +148,12 @@ public class FirebaseDatabaseClient
         _subs.Clear();
     }
 
+    /// <summary>
+    /// Converts the DataSnapshot to JSON and deserializes it back into a C# object.
+    /// </summary>
+    /// <param name="snapshot"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     private static T Deserialize<T>(DataSnapshot snapshot) where T : class, new()
     {
         if (snapshot == null || !snapshot.Exists)
@@ -128,7 +169,7 @@ public class FirebaseDatabaseClient
         }
         catch (Exception ex)
         {
-            NetworkLogger.LogError($"Parse error: {ex.Message}");
+            NetworkLogger.LogError($"Parsing failed: {ex.Message}");
             return null;
         }
     }
