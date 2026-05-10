@@ -1,5 +1,7 @@
 using System;
 //202322158 이준상
+
+//DTO that defines the basic response of the api.
 [Serializable]
 public class ApiError
 {

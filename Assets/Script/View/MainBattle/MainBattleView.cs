@@ -10,12 +10,19 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 
 //202322158 이준상
+
+
+/// <summary>
+/// View class responsible for main battle UI visuals and data binding with the ViewModel.
+/// I don't mean to, but I know all too well that there's a situation where one class learns everything and that's why it's inconvenient to expand the code later on.
+/// So, I will be split the code into components.
+/// </summary>
 public class MainBattleView : MonoBehaviour
 {
     private const int ActionScaleAnimationMs = 300;
     private bool _isActionAnimatingOut;
     private MainBattleViewModel _viewModel;
-    //뷰모델 참조
+    
     private VisualElement _myRoundWining;
     private VisualElement _enemyRoundWining;
 
@@ -49,12 +56,16 @@ public class MainBattleView : MonoBehaviour
         InitializeDots(_enemyRoundWining, _enemyDotElements);
     }
 
+    /// <summary>
+    /// ViewModel, Observer setting
+    /// </summary>
     private void viewModelSetting()
     {
         _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
     
         _viewModel.SetPlayerAndMatchId(SceneDataBridge.playerId,  SceneDataBridge.MatchId, SceneDataBridge.enemyId);
         
+        //If round win, dot ui will be change
         _viewModel.LeftRoundWin.Subscribe(val => RefreshDots(_myDotElements, val));
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
         
@@ -62,12 +73,13 @@ public class MainBattleView : MonoBehaviour
         {
             var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
-            // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
+            // Class control: Add class if the second factor is true; remove if false
             indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
             indicator.EnableInClassList("enemy-turn", !_viewModel.MySelecting.Value);
             
             Debug.Log(selecting + " selecting value *********************");
             
+            //Only show action card when my turn.
             System.Action action = _viewModel.MySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
             action();
         });
@@ -76,16 +88,18 @@ public class MainBattleView : MonoBehaviour
         {
             var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
-            // 클래스 제어: 두 번째 인자가 true면 클래스 추가, false면 제거됨
+            // Class control: Add class if the second factor is true; remove if false
             indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
             indicator.EnableInClassList("enemy-turn", !_viewModel.MySelecting.Value);
             
             Debug.Log(selecting + " selecting value *********************");
             
+            //Only show action card when my turn.
             System.Action action = _viewModel.MySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
             action();
         });
         
+        //Setting current matchState ex) Your turn, Enemy turn...
         _viewModel.LabelState.Subscribe(labelText =>
         {
             var label = _mainBattleRoot.Q<Label>("TurnText");
@@ -93,19 +107,21 @@ public class MainBattleView : MonoBehaviour
             label.text = _viewModel.LabelState.Value;
         });
         
+        //My Hp
         _viewModel.LeftHp.Subscribe(myHp =>
         {
             var hpFill = _mainBattleRoot.Q<VisualElement>("MyHPFill");
             float targetRatio = Mathf.Clamp01((float)myHp / GameSetting.maxHP);
-            // width를 %로 직접 꽂아줌 (애니메이션 없이 즉시 반영)
+            // Use % operation
             hpFill.style.width = new Length(targetRatio * 100, LengthUnit.Percent);
         });
 
+        //Enemy Hp
         _viewModel.RightHp.Subscribe(enemyHp =>
         {
             var hpFill = _mainBattleRoot.Q<VisualElement>("EnemyHPFill");
             float targetRatio = Mathf.Clamp01((float)enemyHp / GameSetting.maxHP);
-            // width를 %로 직접 꽂아줌
+            // Use % operation
             hpFill.style.width = new Length(targetRatio * 100, LengthUnit.Percent);
         });
         
@@ -121,12 +137,16 @@ public class MainBattleView : MonoBehaviour
     }
     
     
+    /// <summary>
+    /// init dot UI
+    /// </summary>
+    /// <param name="container"></param>
+    /// <param name="cacheList"></param>
     private void InitializeDots(VisualElement container, List<VisualElement> cacheList)
     {
         container.Clear();
         cacheList.Clear();
     
-        //원래 for문 쓰시면 안됩니다.
         for (int i = 0; i < GameSetting.ROUNDWINING; i++)
         {
             var item = roundItemTemplate.Instantiate();
@@ -140,6 +160,11 @@ public class MainBattleView : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Show Action Card UI
+    /// </summary>
+    /// <param name="container"></param>
+    /// <param name="cacheList"></param>
     private void ChooseAction(VisualElement container, List<VisualElement> cacheList)
     {
         if (container == null)
@@ -148,10 +173,12 @@ public class MainBattleView : MonoBehaviour
             return;
         }
     
+        //clear Action element
         container.Clear();
         cacheList.Clear();
         _isActionAnimatingOut = false;
 
+        // Get Hand Action data
         List<HandActionData> handActionDatas =
             _viewModel.IsAttacker.Value ? ActionDatabase.AttackActions : ActionDatabase.DefendActions;
     
@@ -167,17 +194,17 @@ public class MainBattleView : MonoBehaviour
         {
             var item = actionItemSelect.Instantiate();
     
-            // 1. 초기화: 애니메이션 속성부터 먼저 정의
+            // init
             item.style.scale = new StyleScale(Vector3.zero); // 시작은 0
     
-            // 어떤 속성을(scale), 얼마동안(0.3s), 어떻게(EaseOut) 바꿀지 세트로 설정
+            // Animation Setting Code
             item.style.transitionProperty = new StyleList<StylePropertyName>(new List<StylePropertyName> { "scale" });
             item.style.transitionDuration = new StyleList<TimeValue>(new List<TimeValue> { ActionScaleAnimationMs / 1000f });
             item.style.transitionTimingFunction = new StyleList<EasingFunction>(new List<EasingFunction> { new EasingFunction(EasingMode.EaseOut) });
     
             container.Add(item);
     
-            //아이템 세팅코드
+            //Item Setting Code
             HandActionData actionData = handActionDatas[i];
             if (actionData == null)
             {
@@ -197,10 +224,8 @@ public class MainBattleView : MonoBehaviour
                 iconImage.style.backgroundImage = new StyleBackground(ActionDatabase.GetActionSprite(actionData.imagePath));
             }
     
+            //Add Element on Scene
             cacheList.Add(item);
-            //추가된 직후 스케일을 1로 변경 (애니메이션 시작) -
-            // container에 추가된 후, 유니티가 UI를 다시 그리는 다음 프레임에 실행되도록 스케줄러를 씁니다.
-            // 이 한 줄로 스케일이 0에서 1로 부드럽게 커집니다.
             var card = item.Q<VisualElement>("CardContainer");
             if (card != null)
             {
@@ -208,6 +233,7 @@ public class MainBattleView : MonoBehaviour
                 card.RegisterCallback<ClickEvent>(_ =>
                     OnActionClicked(actionCode));
             }
+            //animation Execute
             item.schedule.Execute(() =>
             {
                 item.style.scale = new StyleScale(Vector3.one);
@@ -215,6 +241,11 @@ public class MainBattleView : MonoBehaviour
         }
     }
     
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="actionIndex"></param>
     private void OnActionClicked(HandActionType actionIndex)
     {
         if (_isActionAnimatingOut) return;
@@ -238,14 +269,13 @@ public class MainBattleView : MonoBehaviour
     
     private void RefreshDots(List<VisualElement> dots, int currentWins)
     {
-        //여기도 삼항 연산자. 연산자만 view에서 허용합니다. for문은....list뷰를 써야되는데 도저히 방법을 못찾아서 일단 이 방법을 쓰겠습니다.
         Debug.Log(currentWins + "how?");
         for (int i = 0; i < dots.Count; i++)
         {
             dots[i].EnableInClassList("round-dot--active", i < currentWins);
         }
     }
-    // 메모리 누수 방지를 위해 할당 해제
+    // viewmodel dispose
     private void OnDestroy()
     {
         _viewModel?.Dispose();

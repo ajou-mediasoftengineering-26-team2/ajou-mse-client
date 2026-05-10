@@ -2,9 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+//202322158 이준상
 
+
+/// <summary>
+/// ViewModel that handles player login and matchmaking.
+/// Submits player ID to server, exposes observables for UI binding, and manages Firebase
+/// subscriptions for station, match info, and players. When two players are ready and match state
+/// indicates start, prepares SceneDataBridge and signals match start.
+/// </summary>
 public class LoginViewModel : ViewModelBase
 {
+    // Private state and Firebase subscription ids
     private readonly ILoginRepository _repository;
     private string _stationSubscriptionId;
     private string _matchSubscriptionId;
@@ -12,6 +21,7 @@ public class LoginViewModel : ViewModelBase
     private string _subscribedLobbyId;
     private LobbyState _matchState = LobbyState.LOBBY_WAITING;
     
+    // Public observables exposed to Views for data-binding
     public Observable<string> PlayerId { get; } = new Observable<string>();
     public Observable<string> LobbyId { get; } = new Observable<string>();
     
@@ -28,6 +38,10 @@ public class LoginViewModel : ViewModelBase
         _repository = RepositoryFactory.Instance.Get<ILoginRepository>();
     }
 
+    /// <summary>
+    /// Initialize this ViewModel and subscribe to station updates.
+    /// Subscriptions are started only once via IsInitialized guard.
+    /// </summary>
     public override async void Initialize()
     {
         if (IsInitialized) return;
@@ -46,9 +60,14 @@ public class LoginViewModel : ViewModelBase
         );
     }
 
+    /// <summary>
+    /// Sends a login/join request to server with the provided playerName.
+    /// On success updates PlayerId/LobbyId and ensures subscriptions to the match are active.
+    /// Errors are reported via ErrorMsg/ErrorCode observables.
+    /// </summary>
+    /// <param name="playerName"></param>
     public async void OnSubmitID(string playerName)
     {
-        // 같은 에러 메시지가 연속으로 와도 구독자가 다시 반응하도록 제출 시점에 초기화
 
         try
         {
@@ -62,6 +81,7 @@ public class LoginViewModel : ViewModelBase
                 IsMatchStarted.Value = false;
 
                 Debug.Log(response.data.matchId + "????????");
+                //if submit id success, firebase setting
                 await EnsureMatchSubscriptionAsync(response.data.matchId);
             }
             else
@@ -87,6 +107,10 @@ public class LoginViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Unsubscribe from any active Firebase subscriptions and clear local state.
+    /// Ensures resources are released and base.Dispose() is called.
+    /// </summary>
     public override void Dispose()
     {
         if (!string.IsNullOrEmpty(_stationSubscriptionId))
@@ -112,8 +136,14 @@ public class LoginViewModel : ViewModelBase
         base.Dispose();
     }
 
+    /// <summary>
+    /// Ensure subscriptions to the match node and its players are active for the given lobbyId.
+    /// If already subscribed to the same lobby, this is a match making! Updates EnemyId and match state.
+    /// </summary>
+    /// <param name="lobbyId"></param>
     private async Task EnsureMatchSubscriptionAsync(string lobbyId)
     {
+        //Null or Empty Check. AI give me advice for this.
         if (string.IsNullOrWhiteSpace(lobbyId)) return;
 
         if (_subscribedLobbyId == lobbyId &&
@@ -133,6 +163,7 @@ public class LoginViewModel : ViewModelBase
             _playersSubscriptionId = null;
         }
 
+        //Default Value
         _subscribedLobbyId = lobbyId;
         _matchState = LobbyState.LOBBY_WAITING;
         EnemyId.Value = null;
@@ -158,6 +189,7 @@ public class LoginViewModel : ViewModelBase
             {
                 if (playerIds == null || playerIds.Count == 0) return;
 
+                //Get enemy id. Because we will be using at MainBattleScene. 
                 foreach (string candidate in playerIds)
                 {
                     if (candidate == PlayerId.Value) continue;
@@ -172,6 +204,10 @@ public class LoginViewModel : ViewModelBase
         );
     }
 
+    /// <summary>
+    /// When both players are present and match state indicates the game should start,
+    /// populate SceneDataBridge with match/player IDs and mark IsMatchStarted to prevent reruns.
+    /// </summary>
     private void TryMoveToBattleIfReady()
     {
         if (string.IsNullOrWhiteSpace(EnemyId.Value)) return;

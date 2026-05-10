@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 //202322158 이준상
+/// <summary>
+/// Enum defining the various subway station types.
+/// </summary>
 public enum StationType
 {
     Unknown,
@@ -10,9 +13,12 @@ public enum StationType
     HongikUniv    // HONGIK_UNIV
 }
 
+/// <summary>
+/// Utility class responsible for converting between server strings, internal Enums, and UI display names.
+/// </summary>
 public static class StationConverter
 {
-    // 서버 문자열 -> Enum 매핑
+    // Mapping from raw server strings to their corresponding StationType Enums.
     private static readonly Dictionary<string, StationType> ServerToEnum = new Dictionary<string, StationType>
     {
         { "CITY_HALL", StationType.CityHall },
@@ -22,7 +28,7 @@ public static class StationConverter
         { "HONGIK_UNIV", StationType.HongikUniv }
     };
 
-    // Enum -> 표시용 텍스트 매핑
+    // Mapping from StationType Enums to user-friendly text for the UI.
     private static readonly Dictionary<StationType, string> EnumToDisplayName = new Dictionary<StationType, string>
     {
         { StationType.CityHall, "City Hall" },
@@ -32,16 +38,25 @@ public static class StationConverter
         { StationType.HongikUniv, "Hongik Univ." }
     };
 
-    // 서버 값으로부터 Enum 가져오기
+    /// <summary>
+    /// Converts a server-provided string value into the matching StationType Enum.
+    /// </summary>
+    /// <param name="serverValue">The raw string from the database/server (e.g., "GANGNAM")</param>
     public static StationType GetType(string serverValue)
     {
         if (string.IsNullOrEmpty(serverValue)) return StationType.Unknown;
+        
+        // Use ToUpper() for case-insensitive matching and return Unknown if not found.
         return ServerToEnum.TryGetValue(serverValue.ToUpper(), out var type) ? type : StationType.Unknown;
     }
 
-    // Enum으로부터 표시용 이름 가져오기 (Sillim, Hongik Univ 등)
+    /// <summary>
+    /// Retrieves the clean display name for a given StationType.
+    /// </summary>
+    /// <param name="type">The Enum value used in code</param>
     public static string GetDisplayName(StationType type)
     {
+        // Returns "Unknown" if the Enum is not registered in the dictionary.
         return EnumToDisplayName.TryGetValue(type, out var name) ? name : "Unknown";
     }
 }

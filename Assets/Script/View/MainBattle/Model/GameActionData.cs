@@ -1,6 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 //202322158 이준상
+
+
+/// <summary>
+/// HandData Action
+/// </summary>
 [System.Serializable]
 public class HandActionData
 {
@@ -17,6 +22,9 @@ public class HandActionData
 }
 
 
+/// <summary>
+/// Classe used to show your choices when it's your turn.
+/// </summary>
 public static class ActionDatabase
 {
     public static List<HandActionData> AttackActions { get; private set; }
@@ -24,7 +32,7 @@ public static class ActionDatabase
 
     static ActionDatabase()
     {
-        // 공격 액션 데이터 초기화
+        // init attack action data 
         AttackActions = new List<HandActionData>
         {
             new HandActionData("Left", HandActionType.SINGLE_HAND_FLIP_LEFT, "Left"),
@@ -34,7 +42,7 @@ public static class ActionDatabase
             new HandActionData("Wave", HandActionType.SHAKE_OVER_HANDS, "ok")
         };
 
-        // 방어 액션 데이터 초기화
+        // init defend action data
         DefendActions = new List<HandActionData>
         {
             new HandActionData("Left", HandActionType.SINGLE_HAND_FLIP_LEFT, "Left"),
@@ -45,7 +53,11 @@ public static class ActionDatabase
         };
     }
 
-    // 이미지를 Resources 폴더에서 불러오는 헬퍼 함수
+    /// <summary>
+    /// Help function to import images from Resources folder
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
     public static Sprite GetActionSprite(string path)
     {
         return Resources.Load<Sprite>(path);

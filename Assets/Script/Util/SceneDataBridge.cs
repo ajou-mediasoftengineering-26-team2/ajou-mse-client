@@ -1,5 +1,9 @@
 ﻿
 //202322158 이준상
+
+/// <summary>
+/// Classes for connecting data between scenes
+/// </summary>
 public static class SceneDataBridge
 {
     public static string MatchId;

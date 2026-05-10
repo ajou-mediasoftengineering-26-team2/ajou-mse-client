@@ -1,5 +1,10 @@
 using UnityEngine;
 //202322158 이준상
+
+
+/// <summary>
+/// AudioManager that subscribes to and uses eventbus.
+/// </summary>
 public class AudioManager : MonoBehaviour
 {
     private static AudioManager _instance;
@@ -14,6 +19,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip playerRoundWinClip;
     [SerializeField] private AudioClip enemyRoundWinClip;
 
+    /// <summary>
+    /// Use SingleTon
+    /// </summary>
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -26,6 +34,9 @@ public class AudioManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    /// <summary>
+    /// Subscribe EventBus
+    /// </summary>
     private void OnEnable()
     {
         EventBus.Subscribe<ButtonEvent>(OnButton);
@@ -34,6 +45,9 @@ public class AudioManager : MonoBehaviour
         EventBus.Subscribe<PlaySfxEvent>(OnPlaySfx);
     }
 
+    /// <summary>
+    /// Unsubscribe EventBus
+    /// </summary>
     private void OnDisable()
     {
         EventBus.Unsubscribe<ButtonEvent>(OnButton);
@@ -49,11 +63,19 @@ public class AudioManager : MonoBehaviour
         Play(evt.IsPlayer ? playerAttackClip : enemyAttackClip);
     }
 
+    /// <summary>
+    /// Play the Music case of me and enemy
+    /// </summary>
+    /// <param name="evt"></param>
     private void OnRoundWon(RoundWonEvent evt)
     {
         Play(evt.IsPlayer ? playerRoundWinClip : enemyRoundWinClip);
     }
 
+    /// <summary>
+    /// PlayMusic each case of event
+    /// </summary>
+    /// <param name="evt"></param>
     private void OnPlaySfx(PlaySfxEvent evt)
     {
         switch (evt.SfxType)
@@ -76,6 +98,10 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Play Music
+    /// </summary>
+    /// <param name="clip"></param>
     private void Play(AudioClip clip)
     {
         if (sfxSource == null || clip == null) return;

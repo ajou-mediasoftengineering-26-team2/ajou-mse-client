@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+//202322158 이준상
+
 /// <summary>
-/// 레포지토리 베이스 클래스
-/// NetworkManager를 사용하여 실제 HTTP 요청을 수행
+/// Repository Base Class
+/// Performing a Real HTTP Request Using Network Manager
 /// </summary>
 public abstract class BaseRepository
 {
