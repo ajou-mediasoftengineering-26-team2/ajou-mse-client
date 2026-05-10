@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 
+//202422170 주형준
 public interface IShopRepository
 {
     Task<ApiResponse<GetShopInfoResponse>> GetShopInfo(string playerId);

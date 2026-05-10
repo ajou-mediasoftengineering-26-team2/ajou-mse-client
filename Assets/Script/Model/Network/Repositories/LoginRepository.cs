@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+//202422170 주형준
 public interface ILoginRepository
 {
     Task<ApiResponse<PostLoginResponse>> PostUserID(string playerName);

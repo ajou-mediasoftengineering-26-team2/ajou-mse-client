@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 
+//202422170 주형준
 public interface IMainBattleRepository
 {
     Task<ApiResponse<RoomInfoModel>> PutChoice(string playerId, string choice);
