@@ -68,7 +68,11 @@ public class MainBattleView : MonoBehaviour
         //If round win, dot ui will be change
         _viewModel.LeftRoundWin.Subscribe(val => RefreshDots(_myDotElements, val));
         _viewModel.RightRoundWin.Subscribe(val => RefreshDots(_enemyDotElements, val));
-        
+        _viewModel.StationName.Subscribe(station =>
+        {
+            var label = _mainBattleRoot.Q<Label>("CurrentStation");
+            label.text = station;
+        });
         _viewModel.MySelecting.Subscribe(selecting =>
         {
             var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
