@@ -16,7 +16,7 @@
                     <ui:Label text="YOUR TURN" name="TurnText" style="flex-grow: 1; flex-shrink: 0; white-space: nowrap; font-size: 18px; color: white; -unity-font-style: bold; width: auto; min-width: auto; -unity-font-definition: url(&quot;project://database/Assets/Font/Moris.ttf?fileID=12800000&amp;guid=2d7379ed362a9074981d6328ba09312b&amp;type=3#Moris&quot;);"/>
                 </ui:VisualElement>
                 <ui:VisualElement name="Station" style="height: auto; align-items: center; margin-bottom: 10px;">
-                    <ui:Label text="City Hall" name="CurrentStation" style="font-size: 24px; color: rgb(56, 58, 140); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
+                    <ui:Label text="City Hall" name="CurrentStation" enabled="true" style="font-size: 24px; color: rgb(56, 58, 140); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="RightHP" style="width: 40%; flex-direction: column; justify-content: flex-start;">
