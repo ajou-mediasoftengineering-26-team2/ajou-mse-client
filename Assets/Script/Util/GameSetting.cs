@@ -10,9 +10,9 @@ public class GameSetting
 {
     // Points required to win a round
     public static readonly int ROUNDWINING = 3;
-    // Base attack second value
+    // Base attack case value
     public static readonly int ATTACK = 5;
-    // Base defense second value
+    // Base defense case value
     public static readonly int DEFANSE = 5;
     
     // System notification messages for login

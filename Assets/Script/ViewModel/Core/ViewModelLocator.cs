@@ -35,7 +35,7 @@ public class ViewModelLocator
     /// <returns></returns>
     public T Get<T>() where T : ViewModelBase, new()
     {
-        //ou might wonder about the different initialization strategies.
+        //You might wonder about the different initialization strategies.
         //Repositories are initialized at the very beginning of the game because they must be globally accessible at all times.
         //In contrast, ViewModels are lazily instantiated only when called.
         //This is because a ViewModel's lifecycle is tightly coupled with its corresponding View;

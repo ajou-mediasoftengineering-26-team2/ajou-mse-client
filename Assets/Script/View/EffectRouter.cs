@@ -1,6 +1,10 @@
 using System;
 using UnityEngine;
 //202322158 이준상
+
+/// <summary>
+/// Use EventBus few
+/// </summary>
 public class EffectRouter : MonoBehaviour
 {
     [SerializeField] private Animator fxAnimator;

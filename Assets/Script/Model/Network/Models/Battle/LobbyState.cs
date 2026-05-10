@@ -1,4 +1,7 @@
-﻿public enum LobbyState
+﻿//202322158 이준상
+
+//Define Lobby state to use firebase realtime database.
+public enum LobbyState
 {
     LOBBY_WAITING,
     LOBBY_START_COUNTDOWN,

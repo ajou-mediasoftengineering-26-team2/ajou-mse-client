@@ -7,8 +7,15 @@ using Unity.Mathematics;
 using UnityEngine;
 
 //202322158 이준상
+/// <summary>
+/// ViewModel for the main battle scene.
+/// Maintains HP, rounds, timer, turn and selection state via observables.
+/// Subscribes to Firebase match and player nodes to reflect real-time game state.
+/// Sends player actions to server and exposes UI-friendly labels and countdown.
+/// </summary>
 public class MainBattleViewModel : ViewModelBase
 {
+    // Repository and runtime state (player/lobby ids, timers, subscriptions)
     private readonly IMainBattleRepository _repository;
     private string _playerId;
     private string _lobbyId;
@@ -18,43 +25,53 @@ public class MainBattleViewModel : ViewModelBase
     private CancellationTokenSource _timerCts;
 
     // ── HP ──────────────────────────────────────────────────────────
+    // Player HP observables (Left = local player, Right = remote player)
     public Observable<int> LeftHp  { get; } = new Observable<int>();
     public Observable<int> RightHp { get; } = new Observable<int>();
 
-    // ── 라운드 승리 마커 ─────────────────────────────────────────────
+    // ── round win maker ─────────────────────────────────────────────
     
+    // Per-round win counters (used to display round wins)
     public Observable<int> LeftRoundWin { get; } = new Observable<int>();
     public Observable<int> RightRoundWin { get; } = new Observable<int>();
     
 
-    // ── 타이머 ──────────────────────────────────────────────────────
+    // ── timer ──────────────────────────────────────────────────────
+    // Countdown timer observable (used by UI for remaining seconds)
     public Observable<int> RemainingSeconds { get; } = new Observable<int>();
 
-    // ── 공격자 여부 ─────────────────────────────────────────────────
+    // ── attacker? ─────────────────────────────────────────────────
+    // Whether local player currently has attacking priority
     public Observable<bool> IsAttacker { get; } = new Observable<bool>();
 
-    // ── 역 이름 ─────────────────────────────────────────────────────
+    // ── station name ─────────────────────────────────────────────────────
+    // Display name of the subway station for the match
     public Observable<string> StationName { get; } = new Observable<string>();
 
-    // ── 게임 상태 ───────────────────────────────────────────────────
+    // ──  game state 1 ───────────────────────────────────────────────────
+    // Match-level state exposed to the UI
     public Observable<LobbyState> MatchState      { get; } = new Observable<LobbyState>();
     public Observable<int>    CurrentRound    { get; } = new Observable<int>();
     public Observable<int>    WinnerPlayerIdx { get; } = new Observable<int>(-1);
     
     
-    //  ── 게임 상태 ───────────────────────────────────────────────────
+    //  ── game state 2 ───────────────────────────────────────────────────
+    // Selection flags indicating if each player is currently selecting
     public Observable<bool> MySelecting { get; } = new Observable<bool>();
     public Observable<bool> EnemySelecting { get; } = new Observable<bool>();
     
 
-    // ── 돈 ──────────────────────────────────────────────────────────
+    // ── money ──────────────────────────────────────────────────────────
+    // Player currency
     public Observable<int> Money { get; } = new Observable<int>();
     
-    // 현재 라벨 상태
+    // Status label displayed in UI (e.g., YOUR TURN, ENEMY TURN, GAME OVER)
     public Observable<string> LabelState { get; } = new Observable<string>();
     
     // current Turn
+    // Current turn index
     public Observable<int> CurrentTurn { get; } = new Observable<int>();
+    // Formatted countdown string (ss.ff)
     public Observable<string> CountDown { get; } = new Observable<string>();
     public MainBattleViewModel()
     {
@@ -69,6 +86,11 @@ public class MainBattleViewModel : ViewModelBase
         base.Initialize();
         TryStartFirebaseSubscriptions();
     }
+    /// <summary>
+    /// Sends player's chosen action to the server and publishes local AttackStartedEvent.
+    /// Validates presence of playerId before sending.
+    /// </summary>
+    /// <param name="choice"></param>
     public async void OnHandAction(HandActionType choice)
     {
         try
@@ -79,6 +101,7 @@ public class MainBattleViewModel : ViewModelBase
                 return;
             }
 
+            //network communication to server(spring)
             string choiceValue = choice.ToString();
             Debug.Log($"PutChoice request -> id={_playerId}, choice={choiceValue}");
             await _repository.PutChoice(_playerId, choiceValue);
@@ -101,6 +124,13 @@ public class MainBattleViewModel : ViewModelBase
         Debug.Log(LeftRoundWin.Value + "Teststest");
     }
 
+    /// <summary>
+    /// Configure this ViewModel with the local player id, match id, and enemy id.
+    /// Triggers starting of Firebase subscriptions when all ids are provided.
+    /// </summary>
+    /// <param name="playerId"></param>
+    /// <param name="matchId"></param>
+    /// <param name="enemyId"></param>
     public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId)
     {
         _playerId = playerId;
@@ -111,6 +141,10 @@ public class MainBattleViewModel : ViewModelBase
     
     
 
+    /// <summary>
+    /// Ensure Firebase is initialized then subscribe to match and player nodes to keep
+    /// observables up-to-date with server state (station, hp, round, countdown, etc.).
+    /// </summary>
     private async Task FirebaseSetting()
     {
         try
@@ -122,7 +156,7 @@ public class MainBattleViewModel : ViewModelBase
                 return;
             }
 
-            // matches/{lobbyId} 구독
+            // matches/{lobbyId} subscribe
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
                 $"matches/{_lobbyId}",
                 onValueChanged: (match) =>
@@ -139,12 +173,13 @@ public class MainBattleViewModel : ViewModelBase
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
 
+                    //lobby data changing mean timer start again.
                     StartTimer(match.countdownStartTime, match.countdownSec);
                 },
                 onError: (error) => Debug.LogError(error)
             );
 
-            // 내 플레이어 구독 → Left
+            // my player subscribe -> left
             await FirebaseClient.Instance.SubscribeAsync<PlayerInfoModel>(
                 $"matches/{_lobbyId}/players/{_playerId}",
                 onValueChanged: (player) =>
@@ -159,8 +194,7 @@ public class MainBattleViewModel : ViewModelBase
                 onError: (error) => Debug.LogError(error)
             );
 
-            // 상대방 구독 → Right
-            // TODO: 상대방 playerId 확정 후 주석 해제
+            // enemy player subscribe -> right
             await FirebaseClient.Instance.SubscribeAsync<PlayerInfoModel>(
                 $"matches/{_lobbyId}/players/{_enemyId}",
                 onValueChanged: (player) =>
@@ -180,6 +214,13 @@ public class MainBattleViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Runs a high-frequency countdown that updates CountDown observable until end time.
+    /// Uses CancellationToken to stop the timer when needed.
+    /// Some logics were written with the help of ai.
+    /// </summary>
+    /// <param name="startTimeStr"></param>
+    /// <param name="durationSec"></param>
     private async void StartTimer(string startTimeStr, int durationSec)
     {
         _timerCts?.Cancel();
@@ -187,6 +228,7 @@ public class MainBattleViewModel : ViewModelBase
         _timerCts = new CancellationTokenSource();
         var token = _timerCts.Token;
 
+        //setting format and convert to DataTime
         string format = "yyyy-MM-dd'T'HH:mm:ss.fff";
         if (!DateTime.TryParseExact(startTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime))
         {
@@ -195,6 +237,8 @@ public class MainBattleViewModel : ViewModelBase
 
         DateTime endTime = startTime.AddSeconds(durationSec);
     
+        
+        //Show CountDown Value
         try 
         {
             while (!token.IsCancellationRequested)
@@ -221,6 +265,10 @@ public class MainBattleViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Starts Firebase subscriptions if ViewModel initialized and ids are set.
+    /// Guards against duplicate subscription setup.
+    /// </summary>
     private void TryStartFirebaseSubscriptions()
     {
         if (!IsInitialized || _firebaseSubscribed) return;
@@ -233,31 +281,36 @@ public class MainBattleViewModel : ViewModelBase
         _ = FirebaseSetting();
     }
     
-    // ViewModel 안에서
+    /// <summary>
+    /// Compute human-friendly LabelState based on MatchState and selecting flags.
+    /// </summary>
     private void GetStatusText()
     {
         Debug.Log(MatchState.Value + " : Match STate");
-        // 1순위: 대기 중일 때
+        // waiting
         if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
         {
             LabelState.Value = "START SOON..";
         }
+        // game over
         else if (MatchState.Value == LobbyState.END_RESULT)
         {
             LabelState.Value = "GAME OVER!";
         }
-        // 2순위: 내 턴일 때
+        // my turn or enemy turn
         else if (MySelecting.Value)
         {
             LabelState.Value = "YOUR TURN";
         }
-        // 3순위: 그 외 (적 턴일 때)
         else
         {
             LabelState.Value = "ENEMY TURN";
         }
     }
     
+    /// <summary>
+    /// Cleanup timers and unsubscribe flags when ViewModel is disposed.
+    /// </summary>
     public override void Dispose()
     {
         _timerCts?.Cancel();

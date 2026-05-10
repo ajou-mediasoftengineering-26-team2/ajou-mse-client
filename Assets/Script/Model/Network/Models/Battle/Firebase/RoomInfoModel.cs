@@ -1,5 +1,7 @@
 ﻿using System;
 
+//202322158 이준상
+//Room information DTO
 [Serializable]
 public class RoomInfoModel
 {

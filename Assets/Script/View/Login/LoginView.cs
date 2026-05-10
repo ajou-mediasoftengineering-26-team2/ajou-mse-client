@@ -4,86 +4,114 @@ using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
+
+
+//202322158 이준상
+
+/// <summary>
+/// View class that controls login UI elements and binds them to the ViewModel.
+/// </summary>
 public class LoginView : MonoBehaviour
 {
-   //뷰모델 참조
+   // Reference to the associated ViewModel
    private LoginViewModel _viewModel;
-   //UXML ID창, 생성 버튼
+   
+   // UI elements from UXML
    private TextField _LoginIDInput;
    private Button _createButton;
    
+   // Labels for displaying information
    private Label _stationUILabel;
    private Label _nickNameLabel;
 
+   // VisualElements for different UI sections
    private VisualElement loginUIRoot;
    private VisualElement stationUIRoot;
    private VisualElement lobbyWaitingUIRoot;
    
-   
-   [FormerlySerializedAs("displayController")] [SerializeField]
-   public SubwayDisplayView displayView;
+   [FormerlySerializedAs("displayController")] 
+   [SerializeField] public SubwayDisplayView displayView;
+
    private void OnEnable()
    {
-      
+      // 1. Retrieve the ViewModel via the Locator (Handles lazy instantiation)
       _viewModel = ViewModelLocator.Instance.Get<LoginViewModel>();
       
-      
+      // 2. Locate and bind the root visual elements from UIDocuments in the scene.
       loginUIRoot = GameObject.Find("LoginUI").GetComponent<UIDocument>().rootVisualElement;
       stationUIRoot = GameObject.Find("StationUI").GetComponent<UIDocument>().rootVisualElement;
       lobbyWaitingUIRoot = GameObject.Find("LobbyWaitingUI").GetComponent<UIDocument>().rootVisualElement;
       
+      // Hide the lobby waiting UI initially.
       lobbyWaitingUIRoot.style.display = DisplayStyle.None;
       
+      // 3. Assign specific UI controls using UQuery (Q).
       _LoginIDInput = loginUIRoot.Q<TextField>("LoginID");
       _createButton = loginUIRoot.Q<Button>("Create");
       _stationUILabel = stationUIRoot.Q<Label>("StationName");
       _nickNameLabel = lobbyWaitingUIRoot.Q<Label>("NicknameLabel");
       
+      // 4. Setup button click interactions.
       _createButton.clicked += () =>
       {
+         // Notify the EventBus (e.g., for playing UI sound effects).
          EventBus.Publish(new ButtonEvent());
+         // Pass the input ID to the ViewModel to attempt login.
          _viewModel.OnSubmitID(_LoginIDInput.value);
       };
       
+      // 5. [Observer Subscription] Bind UI updates to ViewModel state changes.
       
-      // 옵저버 구독 후 받아온 값에 대해서 성공 실패 여부를 묻고  성공시 로그인 성공, 아니면 로그인 에러
+      // Observe login success state.
       _viewModel.IsSuccess.Subscribe(OnLoginSuccess);
+      
+      // Observe error messages: Display a toast notification on failure.
       _viewModel.ErrorMsg.Subscribe(msg =>
       {
-         Debug.LogError(msg  +" test");
          if (string.IsNullOrEmpty(msg)) return;
          Toast.Show(msg);
-         Debug.LogError(msg + ": 로그인 에러");
+         Debug.LogError($"{msg}: Login Error");
       });
+      
+      // Observe current station info.
       _viewModel.SubwayStation.Subscribe(station =>
       {
          _stationUILabel.text = station;
       });
       
+      // Observe match start: Transition to the battle scene when triggered.
       _viewModel.IsMatchStarted.Subscribe(started =>
       {
          if (!started) return;
          displayView.StopDisplay();
-         SceneManager.LoadScene("MainBattleScene");//여기 부분을 그 다음에 battle씬으로 가게 하면 될 것 같습니다
+         SceneManager.LoadScene("MainBattleScene");
       });
    }
 
+   /// <summary>
+   /// Updates the UI and prepares the lobby state upon successful login.
+   /// </summary>
+   /// <param name="isSuccess"></param>
    private void OnLoginSuccess(bool isSuccess)
    {
       if (!isSuccess) return;
       
       string lobbyId = _viewModel.LobbyId.Value;
       string playerId = _viewModel.PlayerId.Value;
-      Debug.Log($"{GameSetting.LOGINSUCCESS}! playerId: {playerId}, lobbyId: {lobbyId}");// 씬 혹은 ui 바꾸기
+      Debug.Log($"{GameSetting.LOGINSUCCESS}! Player: {playerId}, Lobby: {lobbyId}");
+
+      // UI Transition: Swap Login UI with Lobby UI.
       loginUIRoot.style.display = DisplayStyle.None;
       lobbyWaitingUIRoot.style.display = DisplayStyle.Flex;
+      
       Toast.Show(GameSetting.LOGINSUCCESS);
       _nickNameLabel.text = _LoginIDInput.value;
+      
+      // Start subway display visuals.
       displayView.StartDisplay();
    }
    
-   
-   // 메모리 누수 방지를 위해 할당 해제
+   // Clean up the ViewModel to prevent memory leaks and dangling subscriptions.
    private void OnDestroy()
    {
       _viewModel?.Dispose();

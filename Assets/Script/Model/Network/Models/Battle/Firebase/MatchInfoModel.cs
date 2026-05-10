@@ -1,6 +1,5 @@
-﻿// Firebase: matches/<lobbyId>
-// players 필드는 Dictionary라 JsonUtility 미지원 → 별도 경로로 각각 구독
-
+﻿//202322158 이준상
+// Firebase: matches/<lobbyId>
 using System;
 using System.Collections.Generic;
 

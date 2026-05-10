@@ -1,5 +1,10 @@
 ﻿//202322158 이준상
 
+/// <summary>
+/// Define Game Events
+/// </summary>
+
+
 public enum SfxType
 {
     ButtonClick,

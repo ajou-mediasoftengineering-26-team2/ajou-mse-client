@@ -1,4 +1,5 @@
-﻿// PUT turn/choice 응답 data (서버가 null로 내려보냄)
+﻿//202322158 이준상
+// PUT turn/choice response data -> null
 
 using System;
 
