@@ -11,7 +11,7 @@ using System.Collections.Generic;
 /// </summary>
 public class Observable<T>
 {
-    private T _value;
+    protected T _value;
     // Event that triggers whenever the value is updated.
     public event Action<T> OnValueChanged;
 
@@ -29,9 +29,14 @@ public class Observable<T>
             {
                 _value = value;
                 // Invoke all registered listeners (subscribers) with the new value.
-                OnValueChanged?.Invoke(_value);
+                Notify(_value);
             }
         }
+    }
+    
+    protected void Notify(T value)
+    {
+        OnValueChanged?.Invoke(value);
     }
 
     /// <summary>
