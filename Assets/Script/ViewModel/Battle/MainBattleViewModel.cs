@@ -7,6 +7,8 @@ using Unity.Mathematics;
 using UnityEngine;
 
 //202322158 이준상
+
+
 /// <summary>
 /// ViewModel for the main battle scene.
 /// Maintains HP, rounds, timer, turn and selection state via observables.
@@ -58,6 +60,7 @@ public class MainBattleViewModel : ViewModelBase
     //  ── game state 2 ───────────────────────────────────────────────────
     // Selection flags indicating if each player is currently selecting
     public Observable<bool> MySelecting { get; } = new Observable<bool>();
+    public ObservableEvent<bool> MySelectingE { get; } = new ObservableEvent<bool>();
     public Observable<bool> EnemySelecting { get; } = new Observable<bool>();
     
 
@@ -189,6 +192,7 @@ public class MainBattleViewModel : ViewModelBase
                     LeftHp.Value     = player.hp;
                     IsAttacker.Value = player.attacking;
                     MySelecting.Value = player.selecting;
+                    MySelectingE.Value = player.selecting;
                     Debug.Log(player.hp + " " + player.username  + player.hp+ "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
