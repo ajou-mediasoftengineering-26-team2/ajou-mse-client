@@ -76,6 +76,8 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<int> CurrentTurn { get; } = new Observable<int>();
     // Formatted countdown string (ss.ff)
     public Observable<string> CountDown { get; } = new Observable<string>();
+
+    public Observable<string> HoverTest { get; } = new Observable<string>();
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -141,8 +143,11 @@ public class MainBattleViewModel : ViewModelBase
         _enemyId = enemyId;
         TryStartFirebaseSubscriptions();
     }
-    
-    
+
+    public void HoverTesttest(string test)
+    {
+        HoverTest.Value = test;
+    }
 
     /// <summary>
     /// Ensure Firebase is initialized then subscribe to match and player nodes to keep

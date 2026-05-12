@@ -27,8 +27,9 @@ public class MainBattleView : MonoBehaviour
     private VisualElement _enemyRoundWining;
 
     private VisualElement _actionElement;
-    
+    private VisualElement _itemSlot;
     private VisualElement _mainBattleRoot;
+    private VisualElement _toopTipRoot;
     private VisualElement _perksRoot;
     private Label _timer;
     
@@ -40,16 +41,37 @@ public class MainBattleView : MonoBehaviour
     public UIDocument perks;
     public VisualTreeAsset roundItemTemplate;
     public VisualTreeAsset actionItemSelect;
+    public UIDocument toopTip;
     private void OnEnable()
     {
         
         _mainBattleRoot = mainBattle.rootVisualElement; 
         _perksRoot = perks.rootVisualElement;
+        _toopTipRoot = toopTip.rootVisualElement;
         
         _myRoundWining = _mainBattleRoot.Q<VisualElement>("MyRoundContainer");
         _enemyRoundWining = _mainBattleRoot.Q<VisualElement>("EnemyRoundContainer");
         _actionElement = _mainBattleRoot.Q<VisualElement>("ChooseAction");
         _timer = _mainBattleRoot.Q<Label>("Time");
+        
+        _mainBattleRoot.Query<VisualElement>(className: "slot").ForEach(slot => 
+        {
+            slot.RegisterCallback<MouseEnterEvent>(evt => 
+            {
+                // 여기서 각 슬롯에 맞는 아이템 데이터를 ViewModel에 넣어줘야 합니다.
+                // 예를 들어, 슬롯의 'name'이나 'userData'를 활용할 수 있습니다.
+                Debug.Log($"{slot.name}에 마우스 진입!");
+               _viewModel.HoverTesttest("test"); 
+               _toopTipRoot.style.left = evt.mousePosition.x;
+               _toopTipRoot.style.top = evt.mousePosition.y;
+            });
+
+            slot.RegisterCallback<MouseLeaveEvent>(evt => 
+            {
+                _viewModel.HoverTest.Value = null;
+            });
+        });
+        
         viewModelSetting();
         
         InitializeDots(_myRoundWining, _myDotElements);
@@ -74,6 +96,20 @@ public class MainBattleView : MonoBehaviour
             label.text = station;
         });
         
+        _viewModel.HoverTest.Subscribe(test =>
+        {
+            if (test == null)
+            {
+                _toopTipRoot.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                _toopTipRoot.Q<Label>("ItemTitle").text = test;
+                _toopTipRoot.Q<Label>("ItemDescription").text = "LEE JUN SANG";
+        
+                _toopTipRoot.style.display = DisplayStyle.Flex;
+            }
+        });
         _viewModel.MySelectingE.Subscribe(selecting =>
         {
             var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");

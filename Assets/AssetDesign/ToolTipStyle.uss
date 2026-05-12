@@ -1,0 +1,80 @@
+/* 툴팁 전체 컨테이너 */
+.tooltip-container {
+    flex-direction: row;        /* 가로로 배치 */
+    align-items: center;        /* 세로 중앙 정렬 */
+    background-color: rgba(30, 30, 30, 0.95);
+    border-width: 2px;
+    border-color: rgb(255, 100, 0);
+    padding: 10px;
+    /* 중요: 내용물에 따라 늘어나게 하되 최소 크기 지정 */
+    min-width: 250px;
+    height: auto;
+    overflow: hidden;           /* 자식이 튀어나가지 않게 */
+    
+}
+.tooltip-container {
+    width: auto;
+    height: auto;
+
+    display: flex;
+    flex-direction: row;
+
+    flex-shrink: 0;
+
+    padding: 10px;
+
+    max-width: 400px;
+}
+
+.item-info-section {
+    /* 5. 텍스트 영역이 남은 공간을 다 쓰도록 */
+    flex-grow: 1;
+    flex-shrink: 1; /* 가로가 부족하면 줄바꿈을 위해 줄어들 수 있게 함 */
+
+    /* 텍스트가 겹치지 않게 높이를 자동으로 */
+    height: auto;
+}
+
+.item-description {
+    /* 6. 설명글 줄바꿈 필수 설정 */
+    white-space: normal;
+    word-wrap: break-word;
+}
+/* 아이콘 컨테이너 */
+.item-icon-container {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;             /* 글자가 길어져도 아이콘 크기는 유지 */
+    background-color: rgb(45, 45, 45);
+    margin-right: 12px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 텍스트 영역 (제목 + 설명) */
+.item-info-section {
+    flex-grow: 1;               /* 남은 공간 다 차지 */
+    flex-direction: column;     /* 텍스트는 위아래로 */
+    justify-content: center;
+}
+
+.item-title {
+    color: rgb(255, 100, 0);
+    font-size: 24px;
+    -unity-font-style: bold;
+    margin: 0; padding: 0;      /* 기본 여백 제거 */
+}
+
+.item-description {
+    color: rgb(255, 200, 0);
+    font-size: 14px;
+    margin-top: 4px;            /* 제목과의 간격 */
+    /* 1. 줄바꿈 허용 */
+    white-space: normal;
+
+    /* 2. 가로 폭 제한 (폭이 지정되어야 그 지점에서 줄을 바꿉니다) */
+    width: 100%;
+
+    /* 혹은 최대 폭 지정 */
+    max-width: 250px;
+}
