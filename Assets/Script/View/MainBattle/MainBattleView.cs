@@ -73,22 +73,8 @@ public class MainBattleView : MonoBehaviour
             var label = _mainBattleRoot.Q<Label>("CurrentStation");
             label.text = station;
         });
-        _viewModel.MySelecting.Subscribe(selecting =>
-        {
-            var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
-            
-            // Class control: Add class if the second factor is true; remove if false
-            indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
-            indicator.EnableInClassList("enemy-turn", !_viewModel.MySelecting.Value);
-            
-            Debug.Log(selecting + " selecting value *********************");
-            
-            //Only show action card when my turn.
-            System.Action action = _viewModel.MySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
-            action();
-        });
         
-        _viewModel.IsAttacker.Subscribe(selecting =>
+        _viewModel.MySelectingE.Subscribe(selecting =>
         {
             var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
             
@@ -102,6 +88,35 @@ public class MainBattleView : MonoBehaviour
             System.Action action = _viewModel.MySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
             action();
         });
+        // _viewModel.MySelecting.Subscribe(selecting =>
+        // {
+        //     var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
+        //     
+        //     // Class control: Add class if the second factor is true; remove if false
+        //     indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
+        //     indicator.EnableInClassList("enemy-turn", !_viewModel.MySelecting.Value);
+        //     
+        //     Debug.Log(selecting + " selecting value *********************");
+        //     
+        //     //Only show action card when my turn.
+        //     System.Action action = _viewModel.MySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
+        //     action();
+        // });
+        //
+        // _viewModel.IsAttacker.Subscribe(selecting =>
+        // {
+        //     var indicator = _mainBattleRoot.Q<VisualElement>("TurnIndicator");
+        //     
+        //     // Class control: Add class if the second factor is true; remove if false
+        //     indicator.EnableInClassList("my-turn", _viewModel.MySelecting.Value);
+        //     indicator.EnableInClassList("enemy-turn", !_viewModel.MySelecting.Value);
+        //     
+        //     Debug.Log(selecting + " selecting value *********************");
+        //     
+        //     //Only show action card when my turn.
+        //     System.Action action = _viewModel.MySelecting.Value ? () => UpdateRoundWithDelay() : () => HideAllActionOptions(_actionElements);
+        //     action();
+        // });
         
         //Setting current matchState ex) Your turn, Enemy turn...
         _viewModel.LabelState.Subscribe(labelText =>
