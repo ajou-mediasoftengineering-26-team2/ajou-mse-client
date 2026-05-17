@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 //202322158 이준상
 
 /// <summary>
@@ -7,7 +9,8 @@ using UnityEngine;
 /// </summary>
 public class EffectRouter : MonoBehaviour
 {
-    [SerializeField] private Animator fxAnimator;
+    [FormerlySerializedAs("fxAnimator")] [SerializeField] private Animator player1Animator;
+    [SerializeField] private Animator player2Animator;
 
     private void OnEnable()
     {
@@ -17,29 +20,39 @@ public class EffectRouter : MonoBehaviour
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<ActionSelectedEvent>(OnActionSelected);
+        EventBus.Unsubscribe<ActionSelectedEvent>(onSelectFinished);
         EventBus.Unsubscribe<RoundWonEvent>(OnRoundWon);
     }
 
     private void OnRoundWon(RoundWonEvent evt)
     {
-        if (fxAnimator == null) return;
-        fxAnimator.SetTrigger(evt.IsPlayer ? "PlayerWin" : "EnemyWin");
+        if (player1Animator == null) return;
+        player1Animator.SetTrigger(evt.IsPlayer ? "PlayerWin" : "EnemyWin");
     }
+
     private void OnActionSelected(ActionSelectedEvent evt)
     {
-        if (fxAnimator == null) return;
-        fxAnimator.SetInteger("HandAction", (int)evt.ActionCode);
 
+
+        
+    }
+
+    private void onSelectFinished(ActionSelectedEvent evt)
+    {
+        if  (player1Animator == null) return;
+        player1Animator.SetInteger("HandAction", (int)evt.ActionCode);
+
+        if (player2Animator == null) return;
+        player2Animator.SetInteger("HandAction", (int)evt.ActionCode);
         StartCoroutine(ResetHandActionNextFrame());
     }
-    
+
     private System.Collections.IEnumerator 
         ResetHandActionNextFrame()
     {
         yield return null; // 1 frame
-        if (fxAnimator != null)
-            fxAnimator.SetInteger("HandAction", 0);
+        if (player1Animator != null)
+            player1Animator.SetInteger("HandAction", 0);
     }
 
 }

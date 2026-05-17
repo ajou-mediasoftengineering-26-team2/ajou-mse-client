@@ -187,15 +187,24 @@ public class LoginViewModel : ViewModelBase
             $"matches/{lobbyId}/players",
             onKeysChanged: playerIds =>
             {
-                if (playerIds == null || playerIds.Count == 0) return;
+                if (playerIds == null || playerIds.Count < 2) return;
 
-                //Get enemy id. Because we will be using at MainBattleScene. 
-                foreach (string candidate in playerIds)
+                string firstPlayerId = playerIds[0];
+                string secondPlayerId = playerIds[1];
+
+                // 2. 내가 첫 번째 플레이어라면? -> 내가 Camera1, 상대가 Camera2
+                if (PlayerId.Value == firstPlayerId)
                 {
-                    if (candidate == PlayerId.Value) continue;
-                    EnemyId.Value = candidate;
-                    //Debug.Log(candidate + "EnemyID");
-                    break;
+                    EnemyId.Value = secondPlayerId;
+                    SceneDataBridge.playerCamera = CameraType.Camera1; // 혹은 본인의 카메라 데이터 형식
+                    SceneDataBridge.enemyCamera = CameraType.Camera2;
+                }
+                // 3. 내가 두 번째 플레이어라면? -> 내가 Camera2, 상대가 Camera1
+                else if (PlayerId.Value == secondPlayerId)
+                {
+                    EnemyId.Value = firstPlayerId;
+                    SceneDataBridge.playerCamera = CameraType.Camera2;
+                    SceneDataBridge.enemyCamera = CameraType.Camera1;
                 }
 
                 TryMoveToBattleIfReady();

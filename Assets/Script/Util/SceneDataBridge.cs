@@ -11,6 +11,6 @@ public static class SceneDataBridge
     public static string enemyId;
     public static string playerName;
     public static string enemyName;
-    public static int playerCamera;
-    public static int enemyCamera;
+    public static CameraType playerCamera;
+    public static CameraType enemyCamera;
 }

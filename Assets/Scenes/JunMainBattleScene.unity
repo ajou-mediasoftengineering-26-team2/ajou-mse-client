@@ -1108,8 +1108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01908f9976e159f47be52ab9790c9c3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraManager
-  playerCamera: {fileID: 330585543}
-  enemyCamera: {fileID: 1281513880}
+  Camera1: {fileID: 330585543}
+  Camera2: {fileID: 1281513880}
 --- !u!4 &770157174
 Transform:
   m_ObjectHideFlags: 0
@@ -1710,6 +1710,7 @@ MonoBehaviour:
   roundItemTemplate: {fileID: 9197481963319205126, guid: 0257cd09acd014c4eba4dc406a03d648, type: 3}
   actionItemSelect: {fileID: 9197481963319205126, guid: 303b5869cc70c9a4cb388c6ffa7013b0, type: 3}
   toopTip: {fileID: 968198646}
+  cameraManager: {fileID: 0}
 --- !u!1 &1853724354
 GameObject:
   m_ObjectHideFlags: 0
@@ -1739,7 +1740,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8335d2762c544d12a32b7d4859c11708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EffectRouter
-  fxAnimator: {fileID: 1947275573}
+  player1Animator: {fileID: 1947275573}
+  player2Animator: {fileID: 152097936}
 --- !u!4 &1853724356
 Transform:
   m_ObjectHideFlags: 0
