@@ -38,11 +38,20 @@ public readonly struct RoundWonEvent
 public readonly struct LoginPanelHideEvent
 { }
 
+
+public enum BattleRole { Attack, Defense}
+public enum Player {First, Second}
+
 public readonly struct ActionSelectedEvent
 {
     public readonly HandActionType ActionCode;
-    public ActionSelectedEvent(HandActionType actionCode)
+    public readonly BattleRole Role;
+    public readonly Player Player;
+    public ActionSelectedEvent(HandActionType actionCode, BattleRole role, Player player)
     {
+        Role = role;
         ActionCode = actionCode;
+        Player = player;
     }
 }
+

@@ -11,16 +11,17 @@ public class EffectRouter : MonoBehaviour
 {
     [FormerlySerializedAs("fxAnimator")] [SerializeField] private Animator player1Animator;
     [SerializeField] private Animator player2Animator;
+    private const string HandActionParameter = "HandAction";
 
     private void OnEnable()
     {
-        EventBus.Subscribe<ActionSelectedEvent>(OnActionSelected);
+        EventBus.Subscribe<ActionSelectedEvent>(OnSelectFinished);
         EventBus.Subscribe<RoundWonEvent>(OnRoundWon);
     }
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<ActionSelectedEvent>(onSelectFinished);
+        EventBus.Unsubscribe<ActionSelectedEvent>(OnSelectFinished);
         EventBus.Unsubscribe<RoundWonEvent>(OnRoundWon);
     }
 
@@ -30,29 +31,33 @@ public class EffectRouter : MonoBehaviour
         player1Animator.SetTrigger(evt.IsPlayer ? "PlayerWin" : "EnemyWin");
     }
 
-    private void OnActionSelected(ActionSelectedEvent evt)
+    private void OnSelectFinished(ActionSelectedEvent evt)
     {
+        Animator targetAnimator = GetAnimatorByPlayer(evt.Player);
+        if (targetAnimator == null) return;
 
-
-        
+        int handActionValue = GetHandActionValue(evt.Role, evt.ActionCode);
+        targetAnimator.SetInteger(HandActionParameter, handActionValue);
+        StartCoroutine(ResetHandActionNextFrame(targetAnimator));
     }
 
-    private void onSelectFinished(ActionSelectedEvent evt)
+    private Animator GetAnimatorByPlayer(Player player)
     {
-        if  (player1Animator == null) return;
-        player1Animator.SetInteger("HandAction", (int)evt.ActionCode);
-
-        if (player2Animator == null) return;
-        player2Animator.SetInteger("HandAction", (int)evt.ActionCode);
-        StartCoroutine(ResetHandActionNextFrame());
+        return player == Player.First ? player1Animator : player2Animator;
     }
 
-    private System.Collections.IEnumerator 
-        ResetHandActionNextFrame()
+    private int GetHandActionValue(BattleRole role, HandActionType actionCode)
+    {
+        // Role offset lets you keep HandActionType as a shared key while separating attack/defense animations.
+        int roleOffset = role == BattleRole.Attack ? 0 : 10;
+        return roleOffset + (int)actionCode;
+    }
+
+    private System.Collections.IEnumerator ResetHandActionNextFrame(Animator targetAnimator)
     {
         yield return null; // 1 frame
-        if (player1Animator != null)
-            player1Animator.SetInteger("HandAction", 0);
+        if (targetAnimator != null)
+            targetAnimator.SetInteger(HandActionParameter, 0);
     }
 
 }
