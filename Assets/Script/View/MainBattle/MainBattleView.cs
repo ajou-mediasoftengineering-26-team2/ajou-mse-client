@@ -76,7 +76,10 @@ public class MainBattleView : MonoBehaviour
         Debug.Log($"Action clicked: {actionIndex}");
         _actionRenderer.HideAllActionOptions();
         _viewModel.OnHandAction(actionIndex);
-        EventBus.Publish(new ActionSelectedEvent(actionIndex));
+        EventBus.Publish(new ActionSelectedEvent(actionIndex,
+                _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
+            ));
     }
 
     private void OnDestroy()
