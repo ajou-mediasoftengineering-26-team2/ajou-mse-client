@@ -30,6 +30,7 @@ public class Toast : MonoBehaviour
         RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
     }
 
+    
     void Awake()
     {
         // Singleton Setup: Ensures only one Toast instance exists throughout the game.
