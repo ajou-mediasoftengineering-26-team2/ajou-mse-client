@@ -82,6 +82,10 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<string> CountDown { get; } = new Observable<string>();
 
     public Observable<string> HoverTest { get; } = new Observable<string>();
+    
+    // ── camera ──────────────────────────────────────────────────────────
+    public Observable<CameraType> CameraPoint { get; } = new Observable<CameraType>();
+
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -140,13 +144,7 @@ public class MainBattleViewModel : ViewModelBase
     /// <param name="playerId"></param>
     /// <param name="matchId"></param>
     /// <param name="enemyId"></param>
-    public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId)
-    {
-        _playerId = playerId;
-        _lobbyId = matchId;
-        _enemyId = enemyId;
-        TryStartFirebaseSubscriptions();
-    }
+    
 
     public void HoverTesttest(string test)
     {
@@ -203,6 +201,7 @@ public class MainBattleViewModel : ViewModelBase
                     IsAttacker.Value = player.attacking;
                     MySelecting.Value = player.selecting;
                     MySelectingE.Value = player.selecting;
+                    MyName.Value = player.username;
                     Debug.Log(player.hp + " " + player.username  + player.hp+ "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
@@ -216,6 +215,7 @@ public class MainBattleViewModel : ViewModelBase
                     if (player == null) return;
                     RightHp.Value   = player.hp;
                     EnemySelecting.Value = player.selecting;
+                    EnemyName.Value = player.username;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
                 onError: (error) => Debug.LogError(error)
@@ -332,5 +332,13 @@ public class MainBattleViewModel : ViewModelBase
         _firebaseSubscribed = false;
         base.Dispose();
     }
-    
+
+    public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId, CameraType playerCamera, CameraType enemyCamera)
+    {
+        _playerId = playerId;
+        _lobbyId = matchId;
+        _enemyId = enemyId;
+        CameraPoint.Value = playerCamera;
+        TryStartFirebaseSubscriptions();
+    }
 }

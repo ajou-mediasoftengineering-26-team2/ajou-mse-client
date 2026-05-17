@@ -84,7 +84,7 @@ public class LoginView : MonoBehaviour
       {
          if (!started) return;
          displayView.StopDisplay();
-         SceneManager.LoadScene("MainBattleScene");
+         SceneManager.LoadScene("JunMainBattleScene");
       });
    }
 
