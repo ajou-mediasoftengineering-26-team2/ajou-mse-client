@@ -71,6 +71,10 @@ public class MainBattleViewModel : ViewModelBase
     // Status label displayed in UI (e.g., YOUR TURN, ENEMY TURN, GAME OVER)
     public Observable<string> LabelState { get; } = new Observable<string>();
     
+    // ── name ──────────────────────────────────────────────────────────
+    public Observable<String> MyName { get;   } = new Observable<String>();
+
+    public Observable<String> EnemyName { get; } = new Observable<string>();
     // current Turn
     // Current turn index
     public Observable<int> CurrentTurn { get; } = new Observable<int>();
@@ -164,6 +168,7 @@ public class MainBattleViewModel : ViewModelBase
                 return;
             }
 
+            
             // matches/{lobbyId} subscribe
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
                 $"matches/{_lobbyId}",
