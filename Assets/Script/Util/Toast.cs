@@ -31,6 +31,7 @@ public class Toast : MonoBehaviour
         RepositoryFactory.Instance.Register<IPerkAndShopRepository, PerkAndShopRepository>();
     }
 
+    
     void Awake()
     {
         // Singleton Setup: Ensures only one Toast instance exists throughout the game.

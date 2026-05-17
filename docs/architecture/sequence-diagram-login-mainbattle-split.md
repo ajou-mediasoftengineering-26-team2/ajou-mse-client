@@ -4,43 +4,46 @@
 
 ```mermaid
 sequenceDiagram
-  autonumber
-  actor User
-  participant LV as LoginView
-  participant LVM as LoginViewModel
-  participant LR as LoginRepository
-  participant NM as NetworkManager
-  participant API as Spring API
-  participant FBC as FirebaseClient
-  participant RTDB as Firebase Realtime DB
-  participant Toast as Toast
-  participant Bridge as SceneDataBridge
-  participant Scene as SceneManager
+    autonumber
+    actor User
+    participant LV as LoginView
+    participant LVM as LoginViewModel
+    participant LR as LoginRepository
+    participant NM as NetworkManager
+    participant API as Spring API
+    participant FBC as FirebaseClient
+    participant RTDB as Firebase Realtime DB
+    participant Bridge as SceneDataBridge
+    participant Scene as SceneManager
 
-  User->>LV: ID 입력 + Create 클릭
-  LV->>LVM: OnSubmitID(playerName)
-  LVM->>LR: PostUserID(playerName)
-  LR->>NM: Post("auth/player", body)
-  NM->>API: HTTP POST /auth/player
-  API-->>NM: ApiResponse<PostLoginResponse>
-  NM-->>LR: ApiResponse
-  LR-->>LVM: ApiResponse
+    User->>LV: Input Name & Click 'Create'
+    LV->>LVM: OnSubmitID(playerName)
+    LVM->>LR: PostUserID(playerName)
+    LR->>NM: Post("auth/player", body)
+    NM->>API: HTTP POST /auth/player
+    API-->>NM: ApiResponse (PostLoginResponse)
+    NM-->>LR: ApiResponse
+    LR-->>LVM: ApiResponse
 
-  alt 로그인 실패
-    LVM-->>LV: ErrorMsg 업데이트
-    LV->>Toast: Show(error message)
-  else 로그인 성공
-    LVM-->>LV: IsSuccess=true, PlayerId/LobbyId 설정
-    LV->>Toast: Show("Login successful.")
-    LVM->>FBC: SubscribeAsync("matches/{lobbyId}")
-    FBC->>RTDB: match state 구독
-    LVM->>FBC: SubscribeChildKeysAsync("matches/{lobbyId}/players")
-    FBC->>RTDB: player keys 구독
-    RTDB-->>LVM: state / enemyId 업데이트
-    LVM->>Bridge: MatchId, playerId, enemyId 저장
-    LVM-->>LV: IsMatchStarted=true
-    LV->>Scene: LoadScene("111HyungJun_Dev_Junsang")
-  end
+    alt Login Failed
+        LVM-->>LV: Update ErrorMsg (Toast)
+    else Login Success
+        LVM->>LVM: Set IsSuccess = true & Store IDs
+        
+        par Firebase Subscriptions
+            LVM->>FBC: SubscribeAsync("matches/{lobbyId}")
+            FBC->>RTDB: Subscribe Match State
+            LVM->>FBC: SubscribeChildKeysAsync("matches/{lobbyId}/players")
+            FBC->>RTDB: Subscribe Player Keys
+        end
+
+        RTDB-->>LVM: Notify State / EnemyId Updates
+        
+        Note over LVM: If Conditions Met (Enemy found & State change)
+        LVM->>Bridge: Save MatchId, PlayerId, EnemyId
+        LVM-->>LV: IsMatchStarted = true
+        LV->>Scene: LoadScene("MainBattleScene")
+    end
 ```
 
 ## 2) MainBattle Part
