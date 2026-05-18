@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/LoginScene.unity
     guid: 36f5592d35c07c042942987478e39031
   - enabled: 1
+    path: Assets/Scenes/JunMainBattleScene.unity
+    guid: 5f75c971fb6545b48b22e457ccac02ea
+  - enabled: 1
     path: Assets/Scenes/MainBattleScene.unity
     guid: 294ab51085699994682fc41a5f2c4b34
   - enabled: 1

@@ -7,6 +7,8 @@ using Unity.Mathematics;
 using UnityEngine;
 
 //202322158 이준상
+
+
 /// <summary>
 /// ViewModel for the main battle scene.
 /// Maintains HP, rounds, timer, turn and selection state via observables.
@@ -58,6 +60,7 @@ public class MainBattleViewModel : ViewModelBase
     //  ── game state 2 ───────────────────────────────────────────────────
     // Selection flags indicating if each player is currently selecting
     public Observable<bool> MySelecting { get; } = new Observable<bool>();
+    public ObservableEvent<bool> MySelectingE { get; } = new ObservableEvent<bool>();
     public Observable<bool> EnemySelecting { get; } = new Observable<bool>();
     
 
@@ -68,11 +71,21 @@ public class MainBattleViewModel : ViewModelBase
     // Status label displayed in UI (e.g., YOUR TURN, ENEMY TURN, GAME OVER)
     public Observable<string> LabelState { get; } = new Observable<string>();
     
+    // ── name ──────────────────────────────────────────────────────────
+    public Observable<String> MyName { get;   } = new Observable<String>();
+
+    public Observable<String> EnemyName { get; } = new Observable<string>();
     // current Turn
     // Current turn index
     public Observable<int> CurrentTurn { get; } = new Observable<int>();
     // Formatted countdown string (ss.ff)
     public Observable<string> CountDown { get; } = new Observable<string>();
+
+    public Observable<string> HoverTest { get; } = new Observable<string>();
+    
+    // ── camera ──────────────────────────────────────────────────────────
+    public Observable<CameraType> CameraPoint { get; } = new Observable<CameraType>();
+
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -131,15 +144,12 @@ public class MainBattleViewModel : ViewModelBase
     /// <param name="playerId"></param>
     /// <param name="matchId"></param>
     /// <param name="enemyId"></param>
-    public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId)
+    
+
+    public void HoverTesttest(string test)
     {
-        _playerId = playerId;
-        _lobbyId = matchId;
-        _enemyId = enemyId;
-        TryStartFirebaseSubscriptions();
+        HoverTest.Value = test;
     }
-    
-    
 
     /// <summary>
     /// Ensure Firebase is initialized then subscribe to match and player nodes to keep
@@ -156,6 +166,7 @@ public class MainBattleViewModel : ViewModelBase
                 return;
             }
 
+            
             // matches/{lobbyId} subscribe
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
                 $"matches/{_lobbyId}",
@@ -189,6 +200,8 @@ public class MainBattleViewModel : ViewModelBase
                     LeftHp.Value     = player.hp;
                     IsAttacker.Value = player.attacking;
                     MySelecting.Value = player.selecting;
+                    MySelectingE.Value = player.selecting;
+                    MyName.Value = player.username;
                     Debug.Log(player.hp + " " + player.username  + player.hp+ "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
@@ -202,6 +215,7 @@ public class MainBattleViewModel : ViewModelBase
                     if (player == null) return;
                     RightHp.Value   = player.hp;
                     EnemySelecting.Value = player.selecting;
+                    EnemyName.Value = player.username;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
                 onError: (error) => Debug.LogError(error)
@@ -318,5 +332,13 @@ public class MainBattleViewModel : ViewModelBase
         _firebaseSubscribed = false;
         base.Dispose();
     }
-    
+
+    public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId, CameraType playerCamera, CameraType enemyCamera)
+    {
+        _playerId = playerId;
+        _lobbyId = matchId;
+        _enemyId = enemyId;
+        CameraPoint.Value = playerCamera;
+        TryStartFirebaseSubscriptions();
+    }
 }
