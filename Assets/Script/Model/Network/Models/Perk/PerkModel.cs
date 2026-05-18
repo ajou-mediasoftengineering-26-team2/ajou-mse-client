@@ -1,13 +1,7 @@
 using System;
 
 //202422170 주형준
-[Serializable]
-public class PerkOption
-{
-    public int    id;
-    public string title;
-    public string description;
-}
+
 
 // GET perk/choices - 퍽 선택지 3개
 [Serializable]
