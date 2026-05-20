@@ -244,10 +244,14 @@ public class MainBattleViewModel : ViewModelBase
         else if(MatchState.Value == LobbyState.GAME_CHOICE_FINISHED)
         {
             await _repository.PutChoice(_playerId, CurrentHandAction.Value.ToString());
+            
+        }
+        else if (MatchState.Value == LobbyState.GAME_TURN_ANIMATION)
+        {
             EventBus.Publish(new ActionSelectedEvent(CurrentHandAction.Value,
-                         IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
-                         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
-                     ));
+                IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
+            ));
             await Task.Delay(5000);
             await _repository.PutAck(_playerId);
         }
