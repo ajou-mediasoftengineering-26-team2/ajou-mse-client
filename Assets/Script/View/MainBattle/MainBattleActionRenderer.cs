@@ -11,10 +11,10 @@ public class MainBattleActionRenderer
 
     private readonly VisualTreeAsset _actionItemSelect;
     private readonly List<VisualElement> _actionElements = new();
-    private readonly Action<HandActionType> _onActionClicked;
+    private readonly Action<HandActionType, String> _onActionClicked;
     private bool _isActionAnimatingOut;
 
-    public MainBattleActionRenderer(VisualTreeAsset actionItemSelect, Action<HandActionType> onActionClicked = null)
+    public MainBattleActionRenderer(VisualTreeAsset actionItemSelect, Action<HandActionType, String> onActionClicked = null)
     {
         _actionItemSelect = actionItemSelect;
         _onActionClicked = onActionClicked;
@@ -71,7 +71,7 @@ public class MainBattleActionRenderer
             if (card != null)
             {
                 HandActionType actionCode = actionData.actionCode;
-                card.RegisterCallback<ClickEvent>(_ => OnActionClicked(actionCode));
+                card.RegisterCallback<ClickEvent>(_ => OnActionClicked(actionCode, actionData.actionName));
             }
 
             item.schedule.Execute(() => item.style.scale = new StyleScale(Vector3.one)).StartingIn(50);
@@ -87,10 +87,10 @@ public class MainBattleActionRenderer
         }
     }
 
-    private void OnActionClicked(HandActionType actionType)
+    private void OnActionClicked(HandActionType actionType, string actionDataActionName)
     {
         if (_isActionAnimatingOut) return;
         _isActionAnimatingOut = true;
-        _onActionClicked?.Invoke(actionType);
+        _onActionClicked?.Invoke(actionType, actionDataActionName);
     }
 }

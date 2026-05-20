@@ -1,4 +1,5 @@
 ﻿
+using System;
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -71,15 +72,16 @@ public class MainBattleView : MonoBehaviour
     /// When player clicked action buton, this function will be call back.
     /// </summary>
     /// <param name="actionIndex"></param>
-    private void OnActionClicked(HandActionType actionIndex)
+    private void OnActionClicked(HandActionType actionIndex, String actionText)
     {
         Debug.Log($"Action clicked: {actionIndex}");
-        _actionRenderer.HideAllActionOptions();
-        _viewModel.OnHandAction(actionIndex);
-        EventBus.Publish(new ActionSelectedEvent(actionIndex,
-                _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
-                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
-            ));
+        _viewModel.OnChangeActionIndex(actionIndex, actionText);
+        //_viewModel.OnHandAction(actionIndex);
+        
+        // EventBus.Publish(new ActionSelectedEvent(actionIndex,
+        //         _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
+        //         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
+        //     ));
     }
 
     private void OnDestroy()

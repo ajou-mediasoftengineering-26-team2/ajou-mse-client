@@ -128,6 +128,7 @@ public class NetworkManager : MonoBehaviour
         string url = BuildUrl(endpoint);
         string jsonBody = JsonUtility.ToJson(body);
 
+        Debug.Log("Https put request url ************** : "+url);
         using (UnityWebRequest request = new UnityWebRequest(url, "PUT"))
         {
             byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);

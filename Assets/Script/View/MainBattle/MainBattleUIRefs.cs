@@ -14,6 +14,7 @@ public class MainBattleUIRefs
     public Label Timer { get; }
     public Label MyName { get;  }
     public Label EnemyName { get;  }
+    public Label ActionName { get; }
     
     public CameraTurnManager CameraManager { get; }
 
@@ -29,6 +30,7 @@ public class MainBattleUIRefs
         Timer = MainBattleRoot.Q<Label>("Time");
         MyName = MainBattleRoot.Q<Label>("MyName");
         EnemyName = MainBattleRoot.Q<Label>("EnemyName");
+        ActionName = MainBattleRoot.Q<Label>("ActionLogText");
         
         if (MainBattleRoot == null) Debug.LogError("MainBattle root is null.");
         if (TooltipRoot == null) Debug.LogError("Tooltip root is null.");

@@ -9,7 +9,13 @@ public interface IShopRepository
 
 public class ShopRepository : BaseRepository, IShopRepository
 {
-    protected override string EndpointBase => "shop"; // TODO: 엔드포인트 확정 후 수정
+    protected override string EndpointBase
+    {
+        get => "shop"; // TODO: 엔드포인트 확정 후 수정
+        set
+        {
+        }
+    }
 
     public async Task<ApiResponse<GetShopInfoResponse>> GetShopInfo(string playerId)
     {

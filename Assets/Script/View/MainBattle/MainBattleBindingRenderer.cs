@@ -102,6 +102,11 @@ public class MainBattleBindingRenderer
         {
             _uiRefs.EnemyName.text = name;
         });
+        
+        _viewModel.CurrentHandActionText.Subscribe(name =>
+        {
+            _uiRefs.ActionName.text = "Current Action : " + name.ToString();
+        });
     }
 
     private void BindSlotHover()

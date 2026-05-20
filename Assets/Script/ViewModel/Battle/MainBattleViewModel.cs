@@ -86,6 +86,11 @@ public class MainBattleViewModel : ViewModelBase
     // ── camera ──────────────────────────────────────────────────────────
     public Observable<CameraType> CameraPoint { get; } = new Observable<CameraType>();
 
+    // ── Current action ──────────────────────────────────────────────────────────
+    public Observable<HandActionType> CurrentHandAction { get; } = new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
+    public Observable<string> CurrentHandActionText { get; } = new Observable<string>();
+    
+    
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -179,13 +184,13 @@ public class MainBattleViewModel : ViewModelBase
                         MatchState.Value = result;
                     }
 
+                    ChangePlayByState(match);
                     GetStatusText();
                     CurrentRound.Value    = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
 
                     //lobby data changing mean timer start again.
-                    StartTimer(match.countdownStartTime, match.countdownSec);
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -225,6 +230,25 @@ public class MainBattleViewModel : ViewModelBase
         {
             _firebaseSubscribed = false;
             Debug.LogException(e);
+        }
+    }
+
+    private async Task ChangePlayByState(MatchInfoModel match)
+    {
+
+        if (MatchState.Value == LobbyState.GAME_PLAYER_CHOICE)
+        {
+            StartTimer(match.countdownStartTime, match.countdownSec);
+        }
+        else if(MatchState.Value == LobbyState.GAME_CHOICE_FINISHED)
+        {
+            _repository.PutChoice(_playerId, CurrentHandAction.ToString());
+            EventBus.Publish(new ActionSelectedEvent(CurrentHandAction.Value,
+                         IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
+                         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
+                     ));
+            await Task.Delay(5000);
+            await _repository.PutAck(_playerId);
         }
     }
 
@@ -322,6 +346,7 @@ public class MainBattleViewModel : ViewModelBase
         }
     }
     
+    
     /// <summary>
     /// Cleanup timers and unsubscribe flags when ViewModel is disposed.
     /// </summary>
@@ -340,5 +365,11 @@ public class MainBattleViewModel : ViewModelBase
         _enemyId = enemyId;
         CameraPoint.Value = playerCamera;
         TryStartFirebaseSubscriptions();
+    }
+
+    public void OnChangeActionIndex(HandActionType actionIndex, string actionText)
+    {
+        CurrentHandAction.Value = actionIndex;
+        CurrentHandActionText.Value = actionText;
     }
 }

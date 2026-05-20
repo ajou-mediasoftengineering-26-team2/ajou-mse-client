@@ -9,7 +9,13 @@ public interface IPerkRepository
 
 public class PerkRepository : BaseRepository, IPerkRepository
 {
-    protected override string EndpointBase => "perk"; // TODO: 엔드포인트 확정 후 수정
+    protected override string EndpointBase
+    {
+        get => "perk"; // TODO: 엔드포인트 확정 후 수정
+        set
+        {
+        }
+    }
 
     public async Task<ApiResponse<GetPerkChoicesResponse>> GetPerkChoices(string playerId)
     {

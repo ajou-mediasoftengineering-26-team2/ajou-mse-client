@@ -9,7 +9,13 @@ public interface ILoginRepository
 
 public class LoginRepository : BaseRepository, ILoginRepository 
 {
-    protected override string EndpointBase => "auth/player"; // 플레이어 엔드 포인트
+    protected override string EndpointBase
+    {
+        get => "auth/player"; // 플레이어 엔드 포인트
+        set
+        {
+        }
+    }
 
     public async Task<ApiResponse<PostLoginResponse>> PostUserID(string playerName)
     {
