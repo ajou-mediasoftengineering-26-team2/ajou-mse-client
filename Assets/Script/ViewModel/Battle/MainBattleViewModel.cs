@@ -88,7 +88,7 @@ public class MainBattleViewModel : ViewModelBase
 
     // ── Current action ──────────────────────────────────────────────────────────
     public Observable<HandActionType> CurrentHandAction { get; } = new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
-    public Observable<string> CurrentHandActionText { get; } = new Observable<string>();
+    public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
     
     
     public MainBattleViewModel()
@@ -102,6 +102,7 @@ public class MainBattleViewModel : ViewModelBase
     {
         if (IsInitialized) return;
         base.Initialize();
+        CurrentHandActionText.Value = "Left";
         TryStartFirebaseSubscriptions();
     }
     /// <summary>
@@ -242,7 +243,7 @@ public class MainBattleViewModel : ViewModelBase
         }
         else if(MatchState.Value == LobbyState.GAME_CHOICE_FINISHED)
         {
-            _repository.PutChoice(_playerId, CurrentHandAction.ToString());
+            await _repository.PutChoice(_playerId, CurrentHandAction.Value.ToString());
             EventBus.Publish(new ActionSelectedEvent(CurrentHandAction.Value,
                          IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
                          SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second

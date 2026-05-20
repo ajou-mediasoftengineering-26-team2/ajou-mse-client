@@ -1,5 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using UnityEngine;
+using Object = System.Object;
 
 //202422170 주형준
 public interface IMainBattleRepository
@@ -26,6 +27,7 @@ public class MainBattleRepository : BaseRepository, IMainBattleRepository
             choice = choice
         };
         string fullEndpoint = EndpointBase + "/choice";
+        Debug.Log(body.choice + " " +  body.id);
         return await networkManager.Put<RoomInfoModel>(fullEndpoint, body);
     }
     
