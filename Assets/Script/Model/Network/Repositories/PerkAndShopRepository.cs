@@ -10,7 +10,14 @@ public interface IPerkAndShopRepository
 
 public class PerkAndShopRepository : BaseRepository, IPerkAndShopRepository
 {
-    protected override string EndpointBase => "shop"; // 서버 팀 확정 후 수정
+    protected override string EndpointBase
+    {
+        get => "shop"; // 서버 팀 확정 후 수정
+        set
+        {
+            
+        }
+    }
 
     public async Task<ApiResponse<GetPerkAndShopInfoResponse>> GetInfo(string playerId)
     {

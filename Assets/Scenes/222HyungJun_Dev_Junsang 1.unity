@@ -1467,7 +1467,8 @@ MonoBehaviour:
   perks: {fileID: 1915182567}
   roundItemTemplate: {fileID: 9197481963319205126, guid: 0257cd09acd014c4eba4dc406a03d648, type: 3}
   actionItemSelect: {fileID: 9197481963319205126, guid: 303b5869cc70c9a4cb388c6ffa7013b0, type: 3}
-  actionData: {fileID: 11400000, guid: 6d47449d16ec41740acc327e5937ce7d, type: 2}
+  toopTip: {fileID: 0}
+  cameraManager: {fileID: 0}
 --- !u!1 &1853724354
 GameObject:
   m_ObjectHideFlags: 0
@@ -1497,7 +1498,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8335d2762c544d12a32b7d4859c11708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EffectRouter
-  fxAnimator: {fileID: 1947275573}
+  player1Animator: {fileID: 1947275573}
+  player2Animator: {fileID: 0}
 --- !u!4 &1853724356
 Transform:
   m_ObjectHideFlags: 0
@@ -1537,7 +1539,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1915182566}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
