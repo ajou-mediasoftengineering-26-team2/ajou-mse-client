@@ -70,6 +70,55 @@
     background-color: #FFDF2C;
 }
 
+.round-winning {
+    flex-direction: column;
+    margin-bottom: 4px;
+}
+
+.round-name {
+    font-size: 12px;
+    color: white;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: #333;
+    -unity-font-definition: url("project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&guid=3ec608b729ff9514f880eda17091b1f1&type=3#DungGeunMo");
+    padding: 2px 8px;
+    border-width: 1px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 4px;
+    white-space: nowrap;
+}
+
+.round-name-left {
+    align-self: flex-start;
+    border-color: #FFDF2C;
+    color: #FFDF2C;
+}
+
+.round-name-right {
+    align-self: flex-end;
+    border-color: #4BA3FF;
+    color: #4BA3FF;
+}
+
+.round-dots-row {
+    flex-direction: row;
+    align-items: center;
+    height: 20px;
+}
+
+.left-dots {
+    justify-content: flex-start;
+    align-self: flex-start;
+}
+
+.right-dots {
+    justify-content: flex-start;
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
 /* 하단 컨테이너 */
 .hud-bottom-container {
     width: 50%;
@@ -107,6 +156,50 @@
 }
 .turn-indicator.enemy-turn #TurnDot {
     background-color: #FF4B4B;
+}
+
+.role-badge {
+    flex-direction: row;
+    align-items: center;
+    padding: 2px 8px;
+    border-width: 1px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.role-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    margin-right: 6px;
+}
+
+.role-text {
+    font-size: 12px;
+    color: white;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: #333;
+    -unity-font-definition: url("project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&guid=3ec608b729ff9514f880eda17091b1f1&type=3#DungGeunMo");
+    white-space: nowrap;
+}
+
+.role-attack {
+    border-color: #FF4B4B;
+    background-color: rgba(255, 75, 75, 0.2);
+}
+
+.role-attack .role-dot {
+    background-color: #FF4B4B;
+}
+
+.role-defense {
+    border-color: #4BA3FF;
+    background-color: rgba(75, 163, 255, 0.2);
+}
+
+.role-defense .role-dot {
+    background-color: #4BA3FF;
 }
 
 .action-log {
