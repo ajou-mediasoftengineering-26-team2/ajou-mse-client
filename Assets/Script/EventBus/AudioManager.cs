@@ -14,9 +14,9 @@ public class AudioManager : MonoBehaviour
 
     [Header("SFX Clips")]
     [SerializeField] private AudioClip buttonClickClip;
-    [SerializeField] private AudioClip playerAttackClip;
-    [SerializeField] private AudioClip enemyAttackClip;
-    [SerializeField] private AudioClip playerRoundWinClip;
+    [SerializeField] private AudioClip softAttackClip;
+    [SerializeField] private AudioClip hardAttackClip;
+    [SerializeField] private AudioClip RoundWinClip;
     [SerializeField] private AudioClip enemyRoundWinClip;
 
     /// <summary>
