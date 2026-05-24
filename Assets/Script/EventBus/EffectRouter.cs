@@ -9,6 +9,11 @@ using UnityEngine.Serialization;
 /// </summary>
 public class EffectRouter : MonoBehaviour
 {
+    private static readonly int HitAction = Animator.StringToHash("HitAction");
+    private static readonly int LeftHitAction = Animator.StringToHash("LeftHitAction");
+    private static readonly int RightHitAction = Animator.StringToHash("RightHitAction");
+    private static readonly int RepeatCountHash = Animator.StringToHash("RepeatCount");
+
     [FormerlySerializedAs("fxAnimator")] [SerializeField] private Animator player1Animator;
     [SerializeField] private Animator player2Animator;
     private const string HandActionParameter = "HandAction";
@@ -17,12 +22,14 @@ public class EffectRouter : MonoBehaviour
     {
         EventBus.Subscribe<ActionSelectedEvent>(OnSelectFinished);
         EventBus.Subscribe<RoundWonEvent>(OnRoundWon);
+        EventBus.Subscribe<HitAnimation>(OnHitAnimation);
     }
 
     private void OnDisable()
     {
         EventBus.Unsubscribe<ActionSelectedEvent>(OnSelectFinished);
         EventBus.Unsubscribe<RoundWonEvent>(OnRoundWon);
+        EventBus.Unsubscribe<HitAnimation>(OnHitAnimation);
     }
 
     private void OnRoundWon(RoundWonEvent evt)
@@ -40,6 +47,8 @@ public class EffectRouter : MonoBehaviour
         targetAnimator.SetInteger(HandActionParameter, handActionValue);
         StartCoroutine(ResetHandActionNextFrame(targetAnimator));
     }
+    
+    
 
     private Animator GetAnimatorByPlayer(Player player)
     {
@@ -58,6 +67,26 @@ public class EffectRouter : MonoBehaviour
         yield return null; // 1 frame
         if (targetAnimator != null)
             targetAnimator.SetInteger(HandActionParameter, 0);
+    }
+    
+    private void OnHitAnimation(HitAnimation evt)
+    {
+        Animator targetAnimator = GetAnimatorByPlayer(evt.Player);
+
+
+        switch (evt.hitAction)
+        {
+            case HitActionType.Left:
+                targetAnimator.SetTrigger(LeftHitAction);
+                break;
+            case HitActionType.Right:
+                targetAnimator.SetTrigger(RightHitAction);
+                break;
+            case HitActionType.Both5:
+                targetAnimator.SetTrigger(HitAction);
+                targetAnimator.SetInteger(RepeatCountHash, 0);
+                break;
+        }
     }
 
 }

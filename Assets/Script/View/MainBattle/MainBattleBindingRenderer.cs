@@ -27,11 +27,11 @@ public class MainBattleBindingRenderer
         _viewModel.LeftRoundWin.Subscribe(_dotsRenderer.RefreshMy);
         _viewModel.RightRoundWin.Subscribe(_dotsRenderer.RefreshEnemy);
 
-        _viewModel.StationName.Subscribe(station =>
-        {
-            var label = _uiRefs.MainBattleRoot.Q<Label>("CurrentStation");
-            label.text = station;
-        });
+        // _viewModel.StationName.Subscribe(station =>
+        // {
+        //     var label = _uiRefs.MainBattleRoot.Q<Label>("CurrentStation");
+        //     label.text = station;
+        // });
 
         _viewModel.HoverTest.Subscribe(test =>
         {
@@ -89,7 +89,7 @@ public class MainBattleBindingRenderer
         {
             if (CameraTurnManager.Instance != null)
             {
-                CameraTurnManager.Instance.SetCameraTarget(camera);
+                EventBus.Publish(new CameraAction(camera));
             }
         });
 

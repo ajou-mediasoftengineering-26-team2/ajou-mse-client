@@ -14,6 +14,11 @@ public enum SfxType
     EnemyRoundWin
 }
 
+public enum HitActionType
+{
+    Left, Right, Both1, Both5, Both10
+}
+
 public readonly struct PlaySfxEvent
 {
     public readonly SfxType SfxType;
@@ -61,5 +66,29 @@ public readonly struct RoundOver
     
     public RoundOver(bool isWin) => this.isWin = isWin;
     
+}
+
+public readonly struct CameraAction
+{
+    public readonly CameraType ActionCode;
+    public CameraAction(CameraType cameraType) => this.ActionCode = cameraType;
+}
+
+public readonly struct HitAnimation
+{
+    public readonly HitActionType hitAction;
+    public readonly BattleRole Role;
+    public readonly Player Player;
+
+    public HitAnimation(BattleRole role, Player player, HitActionType type)
+    {
+        Role = role;
+        Player = player;
+        hitAction = type;
+    }
+}
+
+public readonly struct HitAnimationZoomIn
+{
 }
 
