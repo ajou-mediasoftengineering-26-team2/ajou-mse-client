@@ -1,27 +1,24 @@
 using System.Threading.Tasks;
 
-//202422170 주형준
 public interface IPerkRepository
 {
-    Task<ApiResponse<GetPerkChoicesResponse>> GetPerkChoices(string playerId);
-    Task<ApiResponse<SelectPerkResponse>> PostSelectPerk(string playerId, int perkId);
+    Task<ApiResponse<EmptyResponse>> PutAck(string playerId);
+    Task<ApiResponse<EmptyResponse>> PutChoice(string playerId, string perk);
 }
 
 public class PerkRepository : BaseRepository, IPerkRepository
 {
-    protected override string EndpointBase => "perk"; // TODO: 엔드포인트 확정 후 수정
+    protected override string EndpointBase => "perk";
 
-    public async Task<ApiResponse<GetPerkChoicesResponse>> GetPerkChoices(string playerId)
+    public async Task<ApiResponse<EmptyResponse>> PutAck(string playerId)
     {
-        return await networkManager.Get<GetPerkChoicesResponse>(
-            EndpointBase + "/choices",
-            new System.Collections.Generic.Dictionary<string, string> { { "id", playerId } }
-        );
+        var body = new PutPerkAckRequest{playerId = playerId};
+        return await networkManager.Put<EmptyResponse>(EndpointBase + "/ack", body);
     }
 
-    public async Task<ApiResponse<SelectPerkResponse>> PostSelectPerk(string playerId, int perkId)
+    public async Task<ApiResponse<EmptyResponse>> PutChoice(string playerId, string perk)
     {
-        var body = new PostSelectPerkRequest { id = playerId, perkId = perkId };
-        return await networkManager.Post<SelectPerkResponse>(EndpointBase + "/select", body);
+        var body = new PutPerkChoiceRequest{perk = perk, playerId = playerId};
+        return await networkManager.Put<EmptyResponse>(EndpointBase + "/choice", body);
     }
 }
