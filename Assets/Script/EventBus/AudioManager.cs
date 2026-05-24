@@ -40,9 +40,18 @@ public class AudioManager : MonoBehaviour
     private void OnEnable()
     {
         EventBus.Subscribe<ButtonEvent>(OnButton);
-        EventBus.Subscribe<AttackStartedEvent>(OnAttackStarted);
-        EventBus.Subscribe<RoundWonEvent>(OnRoundWon);
-        EventBus.Subscribe<PlaySfxEvent>(OnPlaySfx);
+        EventBus.Subscribe<SortHitEvent>(OnPlaySortSfx);
+        EventBus.Subscribe<HardHitEvent>(OnPlayHardSfx);
+    }
+
+    private void OnPlayHardSfx(HardHitEvent obj)
+    {
+        Play(hardAttackClip);
+    }
+
+    private void OnPlaySortSfx(SortHitEvent evt)
+    {
+        Play(softAttackClip);
     }
 
     /// <summary>
@@ -51,26 +60,25 @@ public class AudioManager : MonoBehaviour
     private void OnDisable()
     {
         EventBus.Unsubscribe<ButtonEvent>(OnButton);
-        EventBus.Unsubscribe<AttackStartedEvent>(OnAttackStarted);
-        EventBus.Unsubscribe<RoundWonEvent>(OnRoundWon);
-        EventBus.Unsubscribe<PlaySfxEvent>(OnPlaySfx);
+        EventBus.Unsubscribe<SortHitEvent>(OnPlaySortSfx);
+        EventBus.Unsubscribe<HardHitEvent>(OnPlayHardSfx);
+        // EventBus.Unsubscribe<AttackStartedEvent>(OnAttackStarted);
+        // EventBus.Unsubscribe<RoundWonEvent>(OnRoundWon);
+        // EventBus.Unsubscribe<PlaySfxEvent>(OnPlaySfx);
     }
 
     private void OnButton(ButtonEvent evt) => Play(buttonClickClip);
 
-    private void OnAttackStarted(AttackStartedEvent evt)
-    {
-        Play(evt.IsPlayer ? playerAttackClip : enemyAttackClip);
-    }
+    
 
     /// <summary>
     /// Play the Music case of me and enemy
     /// </summary>
     /// <param name="evt"></param>
-    private void OnRoundWon(RoundWonEvent evt)
-    {
-        Play(evt.IsPlayer ? playerRoundWinClip : enemyRoundWinClip);
-    }
+    // private void OnRoundWon(RoundWonEvent evt)
+    // {
+    //     Play(evt.IsPlayer ? playerRoundWinClip : enemyRoundWinClip);
+    // }
 
     /// <summary>
     /// PlayMusic each case of event
@@ -82,18 +90,6 @@ public class AudioManager : MonoBehaviour
         {
             case SfxType.ButtonClick:
                 Play(buttonClickClip);
-                break;
-            case SfxType.PlayerAttack:
-                Play(playerAttackClip);
-                break;
-            case SfxType.EnemyAttack:
-                Play(enemyAttackClip);
-                break;
-            case SfxType.PlayerRoundWin:
-                Play(playerRoundWinClip);
-                break;
-            case SfxType.EnemyRoundWin:
-                Play(enemyRoundWinClip);
                 break;
         }
     }

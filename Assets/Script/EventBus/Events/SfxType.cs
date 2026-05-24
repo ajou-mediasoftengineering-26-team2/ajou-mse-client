@@ -4,5 +4,7 @@ public enum SfxType
     PlayerAttack,
     EnemyAttack,
     PlayerRoundWin,
-    EnemyRoundWin
+    EnemyRoundWin,
+    SoftHit,
+    HardHit,
 }
