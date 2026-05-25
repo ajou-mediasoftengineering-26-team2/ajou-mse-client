@@ -3,32 +3,23 @@ using System.Threading.Tasks;
 // 202422170 주형준
 public interface IPerkAndShopRepository
 {
-    Task<ApiResponse<GetPerkAndShopInfoResponse>>  GetInfo(string playerId);
-    Task<ApiResponse<PerkAndShopUpgradeResponse>>  PostUpgrade(string playerId);
-    Task<ApiResponse<PerkAndShopSelectResponse>>   PostSelectPerk(string playerId, int perkId);
+    Task<ApiResponse<EmptyResponse>> PutChoice(string playerId, string perk);
+    Task<ApiResponse<EmptyResponse>> PutAck(string playerId);
 }
 
 public class PerkAndShopRepository : BaseRepository, IPerkAndShopRepository
 {
-    protected override string EndpointBase => "shop"; // 서버 팀 확정 후 수정
+    protected override string EndpointBase => "perk";
 
-    public async Task<ApiResponse<GetPerkAndShopInfoResponse>> GetInfo(string playerId)
+    public async Task<ApiResponse<EmptyResponse>> PutChoice(string playerId, string perk)
     {
-        return await networkManager.Get<GetPerkAndShopInfoResponse>(
-            EndpointBase + "/info",
-            new System.Collections.Generic.Dictionary<string, string> { { "id", playerId } }
-        );
+        var body = new PutPerkAndShopChoiceRequest { playerId = playerId, perk = perk };
+        return await networkManager.Put<EmptyResponse>(EndpointBase + "/choice", body);
     }
 
-    public async Task<ApiResponse<PerkAndShopUpgradeResponse>> PostUpgrade(string playerId)
+    public async Task<ApiResponse<EmptyResponse>> PutAck(string playerId)
     {
-        var body = new PostPerkAndShopUpgradeRequest { id = playerId };
-        return await networkManager.Post<PerkAndShopUpgradeResponse>(EndpointBase + "/upgrade", body);
-    }
-
-    public async Task<ApiResponse<PerkAndShopSelectResponse>> PostSelectPerk(string playerId, int perkId)
-    {
-        var body = new PostPerkAndShopSelectRequest { id = playerId, perkId = perkId };
-        return await networkManager.Post<PerkAndShopSelectResponse>(EndpointBase + "/perk/select", body);
+        var body = new PutPerkAndShopAckRequest { playerId = playerId };
+        return await networkManager.Put<EmptyResponse>(EndpointBase + "/ack", body);
     }
 }

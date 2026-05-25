@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,24 +10,30 @@ public class PerkAndShopView : MonoBehaviour
     private void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
-
+        
         var selectBtn1 = root.Q<Button>("SelectBtn1");
         var selectBtn2 = root.Q<Button>("SelectBtn2");
         var selectBtn3 = root.Q<Button>("SelectBtn3");
-
+        
         var perk1Title = root.Q<Label>("Perk1Title");
         var perk1Exp   = root.Q<Label>("Perk1Exp");
         var perk2Title = root.Q<Label>("Perk2Title");
         var perk2Exp   = root.Q<Label>("Perk2Exp");
         var perk3Title = root.Q<Label>("Perk3Title");
         var perk3Exp   = root.Q<Label>("Perk3Exp");
-        //업그레이드 샵 부분 전까지 임시
+        
+        var perk1Img = root.Q<Image>("Perk1Img");
+        var perk2Img = root.Q<Image>("Perk2Img");
+        var perk3Img = root.Q<Image>("Perk3Img");
+
+        // 업그레이드 버튼 (서버팀 확인 후 활성화)
         var upgradeBtn = root.Q<Button>("UpgradeBtn");
 
         _viewModel = new PerkAndShopViewModel();
         _viewModel.SetPlayerInfo(SceneDataBridge.playerId, SceneDataBridge.MatchId);
         _viewModel.Initialize();
-        
+
+
         root.style.display = DisplayStyle.None;
         _viewModel.IsVisible.Subscribe(visible =>
             root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None);
@@ -38,6 +45,10 @@ public class PerkAndShopView : MonoBehaviour
         _viewModel.Perk3Title.Subscribe(v => perk3Title.text = v ?? "");
         _viewModel.Perk3Desc.Subscribe(v  => perk3Exp.text   = v ?? "");
         
+        _viewModel.Perk1Raw.Subscribe(raw => SetPerkImage(perk1Img, raw));
+        _viewModel.Perk2Raw.Subscribe(raw => SetPerkImage(perk2Img, raw));
+        _viewModel.Perk3Raw.Subscribe(raw => SetPerkImage(perk3Img, raw));
+
         _viewModel.CanSelect.Subscribe(can =>
         {
             selectBtn1.SetEnabled(can);
@@ -45,13 +56,18 @@ public class PerkAndShopView : MonoBehaviour
             selectBtn3.SetEnabled(can);
         });
 
-        // 업그레이드 비활성
         upgradeBtn.SetEnabled(false);
-
-        // 버튼 이벤트
+        
         selectBtn1.clicked += () => _viewModel.OnSelectPerk(1);
         selectBtn2.clicked += () => _viewModel.OnSelectPerk(2);
         selectBtn3.clicked += () => _viewModel.OnSelectPerk(3);
+    }
+
+    private void SetPerkImage(Image imgElement, string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return;
+        if (!Enum.TryParse<PerkType>(raw, out var perkType)) return;
+        imgElement.sprite = Resources.Load<Sprite>($"Perks/{perkType}");
     }
 
     private void OnDestroy() => _viewModel?.Dispose();
