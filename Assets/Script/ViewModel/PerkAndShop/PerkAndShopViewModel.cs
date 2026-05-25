@@ -47,12 +47,12 @@ public class PerkAndShopViewModel : ViewModelBase
     {
         base.Initialize();
         //테스트용 -> 나중에 지우기
-        /*
+        ///*
         IsVisible.Value = true;
         _perkChoices = new List<string> { "UPGRADE", "IRON_FIST", "VAMPIRISM", "GRIT" };
         RefreshPerkCards();
         CanSelect.Value = true;
-        */
+        //*/
         //테스트용 -> 나중에 지우기
         try
         {
