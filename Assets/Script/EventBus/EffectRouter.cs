@@ -40,7 +40,7 @@ public class EffectRouter : MonoBehaviour
 
     private void OnSelectFinished(ActionSelectedEvent evt)
     {
-        Animator targetAnimator = GetAnimatorByPlayer(evt.Player);
+        Animator targetAnimator = GetAnimatorByPlayer(evt.Role);
         if (targetAnimator == null) return;
 
         int handActionValue = GetHandActionValue(evt.Role, evt.ActionCode);
@@ -50,9 +50,9 @@ public class EffectRouter : MonoBehaviour
     
     
 
-    private Animator GetAnimatorByPlayer(Player player)
+    private Animator GetAnimatorByPlayer(BattleRole player)
     {
-        return player == Player.First ? player1Animator : player2Animator;
+        return player == BattleRole.Attack ? player1Animator : player2Animator;
     }
 
     private int GetHandActionValue(BattleRole role, HandActionType actionCode)
@@ -71,7 +71,7 @@ public class EffectRouter : MonoBehaviour
     
     private void OnHitAnimation(HitAnimation evt)
     {
-        Animator targetAnimator = GetAnimatorByPlayer(evt.Player);
+        Animator targetAnimator = GetAnimatorByPlayer(evt.Role);
 
 
         switch (evt.hitAction)

@@ -25,6 +25,8 @@ public class MainBattleView : MonoBehaviour
     private MainBattleActionRenderer _actionRenderer;
     private MainBattleBindingRenderer _bindingRenderer;
 
+
+    private MainBattleEventManager _event;
     [SerializeField]
     public UIDocument mainBattle;
     public UIDocument perks;
@@ -79,7 +81,8 @@ public class MainBattleView : MonoBehaviour
             EventBus.Publish(new HitAnimation(
                 _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
                 SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-                HitActionType.Both5));
+                HitActionType.Both5,
+                _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
         }
         
         if (Keyboard.current != null && Keyboard.current.digit0Key.wasPressedThisFrame)
@@ -89,7 +92,8 @@ public class MainBattleView : MonoBehaviour
             EventBus.Publish(new HitAnimation(
                 _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
                 SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-                HitActionType.Left));
+                HitActionType.Left,
+                _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
         }
         
         if (Keyboard.current != null && Keyboard.current.digit1Key.wasPressedThisFrame)
@@ -99,7 +103,19 @@ public class MainBattleView : MonoBehaviour
             EventBus.Publish(new HitAnimation(
                 _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
                 SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-                HitActionType.Right));
+                HitActionType.Right,
+                _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
+        }
+        
+        if (Keyboard.current != null && Keyboard.current.digit4Key.wasPressedThisFrame)
+        {
+            Debug.Log("space");
+            EventBus.Publish(new CameraAction(CameraType.Action));
+            EventBus.Publish(new HitAnimation(
+                BattleRole.Attack,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                HitActionType.Right,
+                _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
         }
     }
 
@@ -118,7 +134,6 @@ public class MainBattleView : MonoBehaviour
         //         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
         //     ));
     }
-
     private void OnDestroy()
     {
         _viewModel?.Dispose();
