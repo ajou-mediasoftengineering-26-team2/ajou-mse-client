@@ -26,7 +26,7 @@ public class PerkAndShopView : MonoBehaviour
         var perk2Img = root.Q<Image>("Perk2Img");
         var perk3Img = root.Q<Image>("Perk3Img");
 
-        // 업그레이드 버튼 (서버팀 확인 후 활성화)
+        // 업그레이드 버튼
         var upgradeBtn = root.Q<Button>("UpgradeBtn");
 
         _viewModel = new PerkAndShopViewModel();

@@ -55,3 +55,5 @@ public readonly struct ActionSelectedEvent
     }
 }
 
+
+public readonly struct ItemAnimationEndEvent { }
