@@ -6,17 +6,22 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] UIDocument PerksAndShopUIDocument;
     [SerializeField] UIDocument MainBattle;
+    [SerializeField] UIDocument MatchStart;
 
 
     private HitAnimation current;
     private void OnEnable()
     {
+        PerksAndShopUIDocument.enabled = false;
+        MatchStart.enabled = false;
+        
+        
         EventBus.Subscribe<RoundOver>(PerksAndShopUIPOP);
         EventBus.Subscribe<HitAnimation>(HitAnimation);
         EventBus.Subscribe<SortHitEvent>(HitUi);
         EventBus.Subscribe<HardHitEvent>(HitUi);
+        EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
     }
-
     
 
     private void OnDisable()
@@ -25,6 +30,7 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<HitAnimation>(HitAnimation);
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
+        EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
     }
     
     
@@ -77,4 +83,12 @@ public class UIManager : MonoBehaviour
                 break;
         }
     }
+    
+    private void MatchStartUI(MatchStartEvent evt)
+    {
+        MatchStart.enabled = true;
+        MatchStart.GetComponent<MatchStartView>().StartAnimation();
+    }
+
+    
 }

@@ -44,7 +44,7 @@ public class MainBattleView : MonoBehaviour
             SceneDataBridge.playerCamera,
             SceneDataBridge.enemyCamera
             );
-
+        
         var activeCameraManager = cameraManager != null ? cameraManager : CameraTurnManager.Instance;
         if (activeCameraManager != null)
         {
@@ -116,6 +116,11 @@ public class MainBattleView : MonoBehaviour
                 SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
                 HitActionType.Right,
                 _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
+        }
+        
+        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        {
+            EventBus.Publish(new MatchStartEvent());
         }
     }
 
