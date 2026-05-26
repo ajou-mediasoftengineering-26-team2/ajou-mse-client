@@ -1,0 +1,13 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="BackGround" style="flex-grow: 1; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.71);">
+        <ui:VisualElement name="RoundResultUI" style="flex-grow: 0; align-self: center; align-items: center; justify-content: space-around; width: 30%; height: 35%; background-color: rgb(42, 42, 42); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; border-left-width: 5px; border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-color: rgb(5, 5, 93); border-right-color: rgb(5, 5, 93); border-top-color: rgb(5, 5, 93); border-bottom-color: rgb(5, 5, 93);">
+            <ui:Label text="Round 0" name="CurrentRound" style="font-size: 36px; color: rgb(255, 255, 255); -unity-text-align: middle-center; -unity-font-style: bold; height: 30%; width: 100%; justify-content: center; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;"/>
+            <ui:Label text="WIN" name="RoundResult" style="height: 40%; width: 100%; -unity-text-align: middle-center; font-size: 50px; color: rgb(220, 200, 80); -unity-font-style: bold;"/>
+            <ui:VisualElement name="Money" style="flex-grow: 0; height: 30%; flex-direction: row; width: 100%; align-content: auto; align-self: center; justify-content: center;">
+                <ui:VisualElement name="MoneyImgElement" style="flex-grow: 0; aspect-ratio: 1; height: 40%; align-self: center; align-items: center; justify-content: center; align-content: flex-start; border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-left-color: rgb(255, 193, 7); border-right-color: rgb(255, 193, 7); border-top-color: rgb(255, 193, 7); border-bottom-color: rgb(255, 193, 7); background-color: rgb(250, 230, 60);"/>
+                <ui:VisualElement style="flex-grow: 0; flex-shrink: 0; width: 5%;"/>
+                <ui:Label text="10" name="GetMoney" style="height: 100%; width: auto; font-size: 24px; color: rgb(255, 255, 255); -unity-text-align: middle-center; -unity-font-style: bold;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
