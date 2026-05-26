@@ -45,6 +45,19 @@
     margin-right: 20px;
 }
 
+.choice-sprite-frame {
+    width: 130px;         /* 스코어가 빠진 만큼 카드 프레임을 살짝 더 키웠습니다 */
+    height: 130px;
+    background-color: rgb(30, 30, 30);
+    border-width: 3px;
+    border-color: rgb(80, 80, 80);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 /* 가운데 VS 또는 대시(-) 표시 스타일 */
 .vs-text {
     color: rgb(150, 150, 150);

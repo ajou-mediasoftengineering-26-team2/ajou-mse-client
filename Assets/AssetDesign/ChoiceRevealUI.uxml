@@ -1,15 +1,15 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/AssetDesign/RoundWining_UI.uss?fileID=7433441132597879392&amp;guid=2eb5aba4ca98d4f40984ab64df8007a1&amp;type=3#RoundWining_UI"/>
-    <ui:VisualElement class="display-container" style="background-color: rgba(0, 0, 0, 0.2);">
+    <ui:VisualElement class="display-container" style="color: rgba(27, 27, 27, 0.2);">
         <ui:VisualElement class="score-section">
-            <ui:VisualElement class="player-group">
+            <ui:VisualElement class="player-group" style="align-items: center;">
+                <ui:VisualElement name="left-choice-image" class="choice-sprite-frame" style="background-image: none; background-position-x: right 0;"/>
                 <ui:Label name="left-status" text="ATTACK" class="status-badge status-attack" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 200, 0); -unity-text-align: upper-center;"/>
                 <ui:Label name="left-name" text="PLAYER 1" class="player-name" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 200, 0); font-size: 20px;"/>
             </ui:VisualElement>
-            <ui:Label name="left-score" text="0" class="label-yellow" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
             <ui:Label text="VS" class="vs-text" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
-            <ui:Label name="right-score" text="0" class="label-orange" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
             <ui:VisualElement class="player-group">
+                <ui:VisualElement name="right-choice-image" class="choice-sprite-frame" style="align-items: center; align-self: center;"/>
                 <ui:Label name="right-status" text="DEFENSE" class="status-badge status-defense" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 100, 0); -unity-text-align: upper-center;"/>
                 <ui:Label name="right-name" text="PLAYER 2" class="player-name" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 100, 0); font-size: 20px;"/>
             </ui:VisualElement>
