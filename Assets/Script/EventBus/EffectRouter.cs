@@ -40,7 +40,7 @@ public class EffectRouter : MonoBehaviour
 
     private void OnSelectFinished(ActionSelectedEvent evt)
     {
-        Animator targetAnimator = GetAnimatorByPlayer(evt.Role);
+        Animator targetAnimator = GetAnimatorByPlayer(evt.Player, evt.Role);
         if (targetAnimator == null) return;
 
         int handActionValue = GetHandActionValue(evt.Role, evt.ActionCode);
@@ -50,9 +50,27 @@ public class EffectRouter : MonoBehaviour
     
     
 
-    private Animator GetAnimatorByPlayer(BattleRole player)
+    private Animator GetAnimatorByPlayer(Player player, BattleRole role)
     {
-        return player == BattleRole.Attack ? player1Animator : player2Animator;
+        switch (player, role)
+        {
+            // 1. First(왼쪽)가 공격하는 상황 -> 당연히 Second(오른쪽)가 맞으므로 오른쪽 팝업!
+            case (Player.First, BattleRole.Attack):
+                return player1Animator;
+
+            // 2. First(왼쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(왼쪽)에 팝업!
+            case (Player.First, BattleRole.Defense):
+                return player2Animator;
+
+            // 3. Second(오른쪽)가 공격하는 상황 -> First(왼쪽)가 맞으므로 왼쪽 팝업!
+            case (Player.Second, BattleRole.Attack):
+                return player2Animator;
+            // 4. Second(오른쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(오른쪽)에 팝업!
+            case (Player.Second, BattleRole.Defense):
+                return player1Animator;
+        }
+
+        return null;
     }
 
     private int GetHandActionValue(BattleRole role, HandActionType actionCode)
@@ -71,7 +89,7 @@ public class EffectRouter : MonoBehaviour
     
     private void OnHitAnimation(HitAnimation evt)
     {
-        Animator targetAnimator = GetAnimatorByPlayer(evt.Role);
+        Animator targetAnimator = GetAnimatorByPlayer(evt.Player,  evt.Role);
 
 
         switch (evt.hitAction)
