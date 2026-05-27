@@ -24,6 +24,14 @@ public class GameSetting
     
     // Standardized date-time format for database and logging
     public static string format = "yyyy-MM-dd'T'HH:mm:ss.fff"; // Use fff instead of SSS
+
+
+    public static readonly Dictionary<CameraType, int> DELAY_MAP = new Dictionary<CameraType, int>()
+    {
+        { CameraType.Camera1, 0 },
+        { CameraType.Camera2, 800 }
+    };
+    
 }
 
 /// <summary>

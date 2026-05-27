@@ -265,7 +265,7 @@ public class MainBattleViewModel : ViewModelBase
         }
         else if(MatchState.Value == LobbyState.GAME_CHOICE_FINISHED)
         {
-            await Task.Delay(1000);
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
             await _repository.PutChoice(_playerId, CurrentHandAction.Value.ToString());
             
         }
@@ -275,7 +275,7 @@ public class MainBattleViewModel : ViewModelBase
                 IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
                 SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
             ));
-            await Task.Delay(6000);
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]+5000);
             await _repository.PutAck(_playerId);
         }
         else if (MatchState.Value == LobbyState.END_RESULT)
@@ -413,6 +413,7 @@ public class MainBattleViewModel : ViewModelBase
 
     public async void PutRoundStartAck()
     {
+        await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
         await _roundRepository.startAck(SceneDataBridge.playerId);
     }
 }
