@@ -6,7 +6,8 @@ public class MatchStartView : MonoBehaviour
 {
     private VisualElement _leftPlayerGroup;
     private VisualElement _rightPlayerGroup;
-
+    
+    
     void OnEnable()
     {
         var uiDoc = GetComponent<UIDocument>();
@@ -116,6 +117,7 @@ public class MatchStartView : MonoBehaviour
                 Debug.Log("UI 종료 완료");
             }).StartingIn(500);
         }
-
+        
+        
     }
 }
