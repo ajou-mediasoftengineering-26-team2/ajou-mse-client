@@ -1,48 +1,42 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-// 202422170 주형준
+//202422170 주형준
 public class PerkAndShopViewModel : ViewModelBase
 {
-    private readonly IPerkAndShopRepository _repo;
-
+    private readonly IPerkAndShopRepository _perkAndShopRepo;
     private string _playerId;
     private string _lobbyId;
 
-    // Shop
-    public Observable<int>    CurrentRound { get; } = new Observable<int>();
-    public Observable<int>    Money        { get; } = new Observable<int>();
-    public Observable<int>    HandLevel    { get; } = new Observable<int>(1);
-    public Observable<int>    UpgradeCost  { get; } = new Observable<int>();
-    public Observable<string> BeforeStat   { get; } = new Observable<string>();
-    public Observable<string> AfterStat    { get; } = new Observable<string>();
-    public Observable<bool>   CanUpgrade   { get; } = new Observable<bool>();
+    private string _matchSubId;
+    private string _playerSubId;
+    private List<string> _perkChoices = new List<string>();
 
-    // Perk
-    public Observable<string> Perk1Title { get; } = new Observable<string>();
-    public Observable<string> Perk1Desc  { get; } = new Observable<string>();
-    public Observable<string> Perk2Title { get; } = new Observable<string>();
-    public Observable<string> Perk2Desc  { get; } = new Observable<string>();
-    public Observable<string> Perk3Title { get; } = new Observable<string>();
-    public Observable<string> Perk3Desc  { get; } = new Observable<string>();
-    public Observable<bool>   CanSelect  { get; } = new Observable<bool>(true);
+    public Observable<bool>   IsVisible   { get; } = new Observable<bool>();
+    public Observable<string> Perk1Title  { get; } = new Observable<string>();
+    public Observable<string> Perk1Desc   { get; } = new Observable<string>();
+    public Observable<string> Perk1Raw    { get; } = new Observable<string>();
+    public Observable<string> Perk2Title  { get; } = new Observable<string>();
+    public Observable<string> Perk2Desc   { get; } = new Observable<string>();
+    public Observable<string> Perk2Raw    { get; } = new Observable<string>();
+    public Observable<string> Perk3Title  { get; } = new Observable<string>();
+    public Observable<string> Perk3Desc   { get; } = new Observable<string>();
+    public Observable<string> Perk3Raw    { get; } = new Observable<string>();
+    public Observable<bool>   CanSelect   { get; } = new Observable<bool>(false);
+    //public Observable<bool>   CanUpgrade  { get; } = new Observable<bool>(false);
+    //public Observable<string> BeforeStat  { get; } = new Observable<string>();
+    //public Observable<string> AfterStat   { get; } = new Observable<string>();
+    //public Observable<string> UpgradeCost { get; } = new Observable<string>();
+    public Observable<string> ErrorMsg    { get; } = new Observable<string>();
 
-    public Observable<string> ErrorMsg { get; } = new Observable<string>();
-
-    private int _perk1Id, _perk2Id, _perk3Id;
-
-    /// <summary>
-    /// Default constructor. Repository is retrieved from the factory.
-    /// </summary>
     public PerkAndShopViewModel()
     {
-        _repo = RepositoryFactory.Instance.Get<IPerkAndShopRepository>();
+        RepositoryFactory.Instance.Register<IPerkAndShopRepository, PerkAndShopRepository>();
+        _perkAndShopRepo = RepositoryFactory.Instance.Get<IPerkAndShopRepository>();
     }
 
-    /// <summary>
-    /// Called from the View's OnEnable to inject player and lobby info before Initialize.
-    /// </summary>
     public void SetPlayerInfo(string playerId, string lobbyId)
     {
         _playerId = playerId;
@@ -52,105 +46,90 @@ public class PerkAndShopViewModel : ViewModelBase
     public override async void Initialize()
     {
         base.Initialize();
+        //테스트용 -> 나중에 지우기
+        /*
+        IsVisible.Value = true;
+        _perkChoices = new List<string> { "UPGRADE", "IRON_FIST", "VAMPIRISM", "GRIT" };
+        RefreshPerkCards();
+        CanSelect.Value = true;
+        */
+        //테스트용 -> 나중에 지우기
         try
         {
             await FirebaseInitializer.EnsureInitializedAsync();
-
-            await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
-                $"matches/{_lobbyId}",
-                onValueChanged: match =>
-                {
-                    if (match == null) return;
-                    CurrentRound.Value = match.currentRound;
-                },
-                onError: err => Debug.LogError(err)
-            );
-
-            await LoadInfoAsync();
-        }
-        catch (Exception e) { Debug.LogException(e); }
-    }
-
-    private async Task LoadInfoAsync()
-    {
-        var res = await _repo.GetInfo(_playerId);
-        if (!res.isSuccess) { ErrorMsg.Value = res.error.message; return; }
-        Refresh(res.data);
-    }
-
-    private void Refresh(GetPerkAndShopInfoResponse data)
-    {
-        // Shop
-        Money.Value       = data.money;
-        HandLevel.Value   = data.handLevel;
-        UpgradeCost.Value = data.upgradeCost;
-        BeforeStat.Value  = data.currentStat;
-        AfterStat.Value   = data.nextStat;
-        CanUpgrade.Value  = data.money >= data.upgradeCost;
-
-        // Perk
-        _perk1Id = data.perk1.id;
-        _perk2Id = data.perk2.id;
-        _perk3Id = data.perk3.id;
-
-        Perk1Title.Value = data.perk1.title;
-        Perk1Desc.Value  = data.perk1.description;
-        Perk2Title.Value = data.perk2.title;
-        Perk2Desc.Value  = data.perk2.description;
-        Perk3Title.Value = data.perk3.title;
-        Perk3Desc.Value  = data.perk3.description;
-        CanSelect.Value  = true;
-    }
-
-    private void Refresh(PerkAndShopUpgradeResponse data)
-    {
-        Money.Value       = data.money;
-        HandLevel.Value   = data.handLevel;
-        UpgradeCost.Value = data.upgradeCost;
-        BeforeStat.Value  = data.currentStat;
-        AfterStat.Value   = data.nextStat;
-        CanUpgrade.Value  = data.money >= data.upgradeCost;
-    }
-
-    /// <summary>
-    /// Sends upgrade request to server and refreshes on success.
-    /// </summary>
-    public async void OnUpgrade()
-    {
-        if (!CanUpgrade.Value) return;
-        CanUpgrade.Value = false;
-        try
-        {
-            var res = await _repo.PostUpgrade(_playerId);
-            if (!res.isSuccess)
-            {
-                ErrorMsg.Value   = res.error.message;
-                CanUpgrade.Value = true;
-                return;
-            }
-            Refresh(res.data);
-            EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
+            await SubscribeMatchStateAsync();
+            await SubscribePlayerInfoAsync();
         }
         catch (Exception e)
         {
-            ErrorMsg.Value   = e.Message;
-            CanUpgrade.Value = true;
             Debug.LogException(e);
         }
     }
 
-    /// <summary>
-    /// Sends selected perk to server based on slot number (1, 2, or 3).
-    /// </summary>
+    private async Task SubscribeMatchStateAsync()
+    {
+        _matchSubId = await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
+            $"matches/{_lobbyId}",
+            onValueChanged: match =>
+            {
+                if (match == null) return;
+                bool isPerkPhase = match.state == "GAME_PERK_CHOICE";
+                IsVisible.Value = isPerkPhase;
+                CanSelect.Value = isPerkPhase && _perkChoices.Count > 0;
+            },
+            onError: err => Debug.LogError(err)
+        );
+    }
+
+    private async Task SubscribePlayerInfoAsync()
+    {
+        _playerSubId = await FirebaseClient.Instance.SubscribeAsync<PlayerInfoModel>(
+            $"matches/{_lobbyId}/players/{_playerId}",
+            onValueChanged: player =>
+            {
+                if (player?.perkChoiceList == null || player.perkChoiceList.Count == 0) return;
+                _perkChoices = player.perkChoiceList;
+                RefreshPerkCards();
+
+                // 서버팀 확인 후 추가
+                // BeforeStat.Value  = player.currentStat;
+                // AfterStat.Value   = player.nextStat;
+                // UpgradeCost.Value = player.upgradeCost.ToString();
+                // CanUpgrade.Value  = player.money >= player.upgradeCost;
+            },
+            onError: err => Debug.LogError(err)
+        );
+    }
+
+    private void RefreshPerkCards()
+    {
+        SetPerkCard(_perkChoices, 1, Perk1Title, Perk1Desc, Perk1Raw);
+        SetPerkCard(_perkChoices, 2, Perk2Title, Perk2Desc, Perk2Raw);
+        SetPerkCard(_perkChoices, 3, Perk3Title, Perk3Desc, Perk3Raw);
+    }
+
+    private void SetPerkCard(List<string> choices, int index,
+        Observable<string> title, Observable<string> desc, Observable<string> raw)
+    {
+        if (choices.Count <= index) return;
+        if (!Enum.TryParse<PerkType>(choices[index], out var perkType)) return;
+
+        title.Value = PerkInfoProvider.GetDisplayName(perkType);
+        desc.Value  = PerkInfoProvider.GetDescription(perkType);
+        raw.Value   = choices[index];
+    }
+
     public async void OnSelectPerk(int slot)
     {
         if (!CanSelect.Value) return;
-        int perkId = slot switch { 1 => _perk1Id, 2 => _perk2Id, 3 => _perk3Id, _ => -1 };
-        if (perkId < 0) return;
+        if (_perkChoices.Count <= slot) return;
+
+        string selectedPerk = _perkChoices[slot];
         CanSelect.Value = false;
+
         try
         {
-            var res = await _repo.PostSelectPerk(_playerId, perkId);
+            var res = await _perkAndShopRepo.PutChoice(_playerId, selectedPerk);
             if (!res.isSuccess)
             {
                 ErrorMsg.Value  = res.error.message;
@@ -165,5 +144,40 @@ public class PerkAndShopViewModel : ViewModelBase
             CanSelect.Value = true;
             Debug.LogException(e);
         }
+    }
+/*
+    public async void OnUpgrade()
+    {
+        if (!CanUpgrade.Value) return;
+        if (_perkChoices.Count == 0) return;
+
+        CanUpgrade.Value = false;
+        try
+        {
+            var res = await _perkAndShopRepo.PutChoice(_playerId, _perkChoices[0]);
+            if (!res.isSuccess)
+            {
+                ErrorMsg.Value   = res.error.message;
+                CanUpgrade.Value = true;
+                return;
+            }
+            EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
+        }
+        catch (Exception e)
+        {
+            ErrorMsg.Value   = e.Message;
+            CanUpgrade.Value = true;
+            Debug.LogException(e);
+        }
+    }
+*/
+
+    public override void Dispose()
+    {
+        if (!string.IsNullOrEmpty(_matchSubId))
+            FirebaseClient.Instance.Unsubscribe(_matchSubId);
+        if (!string.IsNullOrEmpty(_playerSubId))
+            FirebaseClient.Instance.Unsubscribe(_playerSubId);
+        base.Dispose();
     }
 }
