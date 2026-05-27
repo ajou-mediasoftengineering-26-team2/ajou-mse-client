@@ -17,6 +17,7 @@ public class UIManager : MonoBehaviour
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
     [SerializeField] UIDocument ItemUI;
+    [SerializeField] UIDocument RoundResultUI;
 
     private HitAnimation current;
 
@@ -37,6 +38,7 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Subscribe<ItemReceivedEvent>(ShowItemUI);
+        EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
         EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Subscribe<HandElementalChoice>(HandElementalChoice);
@@ -66,6 +68,7 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
+        EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
         EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Unsubscribe<HandElementalChoice>(HandElementalChoice);
@@ -186,5 +189,11 @@ public class UIManager : MonoBehaviour
     {
         ItemUI.enabled = true;
         ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
+    }
+    
+    private void ShowRoundResultUI(RoundOver evt)
+    {
+        RoundResultUI.enabled = true;
+        RoundResultUI.GetComponent<RoundResultView>().ShowResult(evt.isWin);
     }
 }
