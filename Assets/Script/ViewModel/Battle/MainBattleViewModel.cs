@@ -19,12 +19,16 @@ public class MainBattleViewModel : ViewModelBase
 {
     // Repository and runtime state (player/lobby ids, timers, subscriptions)
     private readonly IMainBattleRepository _repository;
+    private readonly IRoundRepository _roundRepository;
     private string _playerId;
     private string _lobbyId;
     private string _enemyId;
     private bool _isTimerRunning = false;
     private bool _firebaseSubscribed;
     private CancellationTokenSource _timerCts;
+    private PlayerInfoModel player1;
+    private PlayerInfoModel player2;
+    
 
     // ── HP ──────────────────────────────────────────────────────────
     // Player HP observables (Left = local player, Right = remote player)
@@ -91,11 +95,13 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
     
     
+    
     public MainBattleViewModel()
     {
         // _playerId = playerId;
         // _lobbyId = lobbyId;
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
+        _roundRepository = RepositoryFactory.Instance.Get<IRoundRepository>();
     }
 
     public override void Initialize()
@@ -104,7 +110,20 @@ public class MainBattleViewModel : ViewModelBase
         base.Initialize();
         CurrentHandActionText.Value = "Left";
         TryStartFirebaseSubscriptions();
+        
+        eventJunsang();
     }
+
+    private void eventJunsang()
+    {
+        EventBus.Subscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
+    }
+
+    private void GRSAAckEvent(GameRoundStartAnimationAckEvent obj)
+    {
+        
+    }
+
     /// <summary>
     /// Sends player's chosen action to the server and publishes local AttackStartedEvent.
     /// Validates presence of playerId before sending.
@@ -192,6 +211,7 @@ public class MainBattleViewModel : ViewModelBase
                     CurrentTurn.Value = match.currentTurn;
 
                     //lobby data changing mean timer start again.
+                    
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -208,6 +228,7 @@ public class MainBattleViewModel : ViewModelBase
                     MySelecting.Value = player.selecting;
                     MySelectingE.Value = player.selecting;
                     MyName.Value = player.username;
+                    player1 = player;
                     Debug.Log(player.hp + " " + player.username  + player.hp+ "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
@@ -222,6 +243,7 @@ public class MainBattleViewModel : ViewModelBase
                     RightHp.Value   = player.hp;
                     EnemySelecting.Value = player.selecting;
                     EnemyName.Value = player.username;
+                    player2 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
                 onError: (error) => Debug.LogError(error)
@@ -259,6 +281,10 @@ public class MainBattleViewModel : ViewModelBase
         else if (MatchState.Value == LobbyState.END_RESULT)
         {
             EventBus.Publish(new RoundOver(true));
+        }
+        else if (MatchState.Value == LobbyState.GAME_ROUND_START_ANIMATION)
+        {
+            EventBus.Publish(new MatchStartEvent(player1, player2));
         }
     }
 
@@ -365,6 +391,7 @@ public class MainBattleViewModel : ViewModelBase
         _timerCts?.Cancel();
         _timerCts?.Dispose();
         _firebaseSubscribed = false;
+        EventBus.Unsubscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
         base.Dispose();
     }
 
