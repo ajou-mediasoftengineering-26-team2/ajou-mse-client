@@ -284,7 +284,7 @@ public class MainBattleViewModel : ViewModelBase
         }
         else if (MatchState.Value == LobbyState.GAME_ROUND_START_ANIMATION)
         {
-            EventBus.Publish(new MatchStartEvent(player1, player2));
+            EventBus.Publish(new IntroduceStationEvent(station: match.station ,player1 , player2));
         }
     }
 
@@ -408,5 +408,11 @@ public class MainBattleViewModel : ViewModelBase
     {
         CurrentHandAction.Value = actionIndex;
         CurrentHandActionText.Value = actionText;
+    }
+
+
+    public async void PutRoundStartAck()
+    {
+        await _roundRepository.startAck(SceneDataBridge.playerId);
     }
 }

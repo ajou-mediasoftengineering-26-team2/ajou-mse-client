@@ -20,4 +20,19 @@ public class PlayerInfoModel
     public List<string> perkList;
     public List<string> itemList;
     public string receviedItem;//서버 오타 -> receivedItem
+
+    public PlayerInfoModel(string username)
+    {
+        this.username = username;
+    }
+
+    public PlayerInfoModel()
+    {
+    }
+
+    public PlayerInfoModel(string username, bool attacking)
+    {
+        this.username = username;
+        this.attacking = attacking;
+    }
 }

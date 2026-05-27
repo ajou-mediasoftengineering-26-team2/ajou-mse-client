@@ -122,6 +122,11 @@ public class MainBattleView : MonoBehaviour
         {
             EventBus.Publish(new MatchStartEvent());
         }
+        
+        if (Keyboard.current != null && Keyboard.current.nKey.wasPressedThisFrame)
+        {
+            EventBus.Publish(new IntroduceStationEvent("Hongik univ."));
+        }
     }
 
     /// <summary>

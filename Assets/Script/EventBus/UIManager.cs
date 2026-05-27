@@ -7,13 +7,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument PerksAndShopUIDocument;
     [SerializeField] UIDocument MainBattle;
     [SerializeField] UIDocument MatchStart;
+    [SerializeField] UIDocument IntroduceStation;
 
 
+    private PlayerInfoModel player1;
+    private PlayerInfoModel player2;
+    
     private HitAnimation current;
     private void OnEnable()
     {
         PerksAndShopUIDocument.enabled = false;
         MatchStart.enabled = false;
+        IntroduceStation.enabled = false;
         
         
         EventBus.Subscribe<RoundOver>(PerksAndShopUIPOP);
@@ -21,6 +26,7 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<SortHitEvent>(HitUi);
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
+        EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
     }
     
 
@@ -31,6 +37,7 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
+        EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
     }
     
     
@@ -87,8 +94,18 @@ public class UIManager : MonoBehaviour
     private void MatchStartUI(MatchStartEvent evt)
     {
         MatchStart.enabled = true;
-        MatchStart.GetComponent<MatchStartView>().StartAnimation();
+        MatchStart.GetComponent<MatchStartView>().StartAnimation(player1, player2);
     }
 
-    
+    public void ShowStationUI(IntroduceStationEvent evt)
+    {
+        IntroduceStation.enabled = true;
+        var view = IntroduceStation.GetComponent<IntroduceStationView>();
+        player1 = evt.player1;
+        player2 = evt.player2; 
+        if (view != null)
+        {
+            view.StartAnimation(evt.station);
+        }
+    }
 }
