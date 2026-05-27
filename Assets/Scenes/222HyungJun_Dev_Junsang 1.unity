@@ -1356,7 +1356,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1512037682}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
@@ -1467,7 +1467,6 @@ MonoBehaviour:
   perks: {fileID: 1915182567}
   roundItemTemplate: {fileID: 9197481963319205126, guid: 0257cd09acd014c4eba4dc406a03d648, type: 3}
   actionItemSelect: {fileID: 9197481963319205126, guid: 303b5869cc70c9a4cb388c6ffa7013b0, type: 3}
-  toopTip: {fileID: 0}
   cameraManager: {fileID: 0}
 --- !u!1 &1853724354
 GameObject:
@@ -1525,6 +1524,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1915182568}
   - component: {fileID: 1915182567}
+  - component: {fileID: 1915182569}
   m_Layer: 5
   m_Name: PerksUI
   m_TagString: Untagged
@@ -1546,7 +1546,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 680eb5afc2f831646956d26f4c15eb73, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 161fdafe6dc523e419e80d53025e0281, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 7195de825ecf5aa438bc783443f696c9, type: 3}
   m_SortingOrder: 0
   m_Position: 0
   m_WorldSpaceSizeMode: 1
@@ -1570,6 +1570,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1915182569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1915182566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5502c171eec104b4896d7739ec6bcfea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PerkAndShopView
 --- !u!1 &1947275571
 GameObject:
   m_ObjectHideFlags: 0
