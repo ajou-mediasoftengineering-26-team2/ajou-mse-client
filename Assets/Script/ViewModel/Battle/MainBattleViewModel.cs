@@ -282,6 +282,11 @@ public class MainBattleViewModel : ViewModelBase
         {
             EventBus.Publish(new RoundOver(true));
         }
+        else if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        {
+            EventBus.Publish(new IntroduceStationEvent(station: match.station ,player1 , player2));
+        }
+        
         else if (MatchState.Value == LobbyState.GAME_ROUND_START_ANIMATION)
         {
             EventBus.Publish(new IntroduceStationEvent(station: match.station ,player1 , player2));
