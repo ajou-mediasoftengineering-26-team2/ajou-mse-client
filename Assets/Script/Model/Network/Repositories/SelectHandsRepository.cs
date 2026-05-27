@@ -9,7 +9,13 @@ public interface ISelectHandsRepository
 
 public class SelectHandsRepository : BaseRepository, ISelectHandsRepository
 {
-    protected override string EndpointBase => "hand"; // confirm with server team
+    protected override string EndpointBase
+    {
+        get => "hand"; // confirm with server team
+        set
+        {
+        }
+    }
 
     public async Task<ApiResponse<GetSelectHandsInfoResponse>> GetInfo(string playerId)
     {

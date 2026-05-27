@@ -1,7 +1,4 @@
-﻿namespace Script.EventBus.Events
+﻿public readonly struct ItemAnimationEndEvent
 {
-    public class ItemAnimationEndEvent
-    {
         
-    }
 }
