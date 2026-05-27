@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument MainBattle;
     [SerializeField] UIDocument MatchStart;
     [SerializeField] UIDocument ItemUI;
+    [SerializeField] UIDocument RoundResultUI;
 
     private HitAnimation current;
     private void OnEnable()
@@ -22,6 +23,7 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Subscribe<ItemReceivedEvent>(ShowItemUI);
+        EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
     }
     
 
@@ -33,6 +35,7 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
+        EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
     }
     
     
@@ -97,5 +100,11 @@ public class UIManager : MonoBehaviour
     {
         ItemUI.enabled = true;
         ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
+    }
+    
+    private void ShowRoundResultUI(RoundOver evt)
+    {
+        RoundResultUI.enabled = true;
+        RoundResultUI.GetComponent<RoundResultView>().ShowResult(evt.isWin);
     }
 }
