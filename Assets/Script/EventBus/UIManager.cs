@@ -7,7 +7,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument PerksAndShopUIDocument;
     [SerializeField] UIDocument MainBattle;
     [SerializeField] UIDocument MatchStart;
-
+    [SerializeField] UIDocument ItemUI;
 
     private HitAnimation current;
     private void OnEnable()
@@ -21,6 +21,7 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<SortHitEvent>(HitUi);
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
+        EventBus.Subscribe<ItemReceivedEvent>(ShowItemUI);
     }
     
 
@@ -31,6 +32,7 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
+        EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
     }
     
     
@@ -91,4 +93,9 @@ public class UIManager : MonoBehaviour
     }
 
     
+    private void ShowItemUI(ItemReceivedEvent evt)
+    {
+        ItemUI.enabled = true;
+        ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
+    }
 }
