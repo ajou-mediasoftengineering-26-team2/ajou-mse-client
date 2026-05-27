@@ -7,14 +7,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument PerksAndShopUIDocument;
     [SerializeField] UIDocument MainBattle;
     [SerializeField] UIDocument MatchStart;
-    [SerializeField] UIDocument ItemUI;
-    [SerializeField] UIDocument RoundResultUI;
+    [SerializeField] UIDocument IntroduceStation;
 
+
+    private PlayerInfoModel player1;
+    private PlayerInfoModel player2;
+    
     private HitAnimation current;
     private void OnEnable()
     {
         PerksAndShopUIDocument.enabled = false;
         MatchStart.enabled = false;
+        IntroduceStation.enabled = false;
         
         
         EventBus.Subscribe<RoundOver>(PerksAndShopUIPOP);
@@ -22,8 +26,7 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<SortHitEvent>(HitUi);
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
-        EventBus.Subscribe<ItemReceivedEvent>(ShowItemUI);
-        EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
+        EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
     }
     
 
@@ -34,8 +37,7 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
-        EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
-        EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
+        EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
     }
     
     
@@ -92,19 +94,18 @@ public class UIManager : MonoBehaviour
     private void MatchStartUI(MatchStartEvent evt)
     {
         MatchStart.enabled = true;
-        MatchStart.GetComponent<MatchStartView>().StartAnimation();
+        MatchStart.GetComponent<MatchStartView>().StartAnimation(player1, player2);
     }
 
-    
-    private void ShowItemUI(ItemReceivedEvent evt)
+    public void ShowStationUI(IntroduceStationEvent evt)
     {
-        ItemUI.enabled = true;
-        ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
-    }
-    
-    private void ShowRoundResultUI(RoundOver evt)
-    {
-        RoundResultUI.enabled = true;
-        RoundResultUI.GetComponent<RoundResultView>().ShowResult(evt.isWin);
+        IntroduceStation.enabled = true;
+        var view = IntroduceStation.GetComponent<IntroduceStationView>();
+        player1 = evt.player1;
+        player2 = evt.player2; 
+        if (view != null)
+        {
+            view.StartAnimation(evt.station);
+        }
     }
 }
