@@ -29,7 +29,7 @@ public class MainBattleViewModel : ViewModelBase
     private CancellationTokenSource _timerCts;
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
-
+    
 
     // ── HP ──────────────────────────────────────────────────────────
     // Player HP observables (Left = local player, Right = remote player)
@@ -98,6 +98,9 @@ public class MainBattleViewModel : ViewModelBase
         new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
 
     public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
+    
+    
+    
 
 
     private PlayerInfoModel player1Snapshot = null;
@@ -132,6 +135,12 @@ public class MainBattleViewModel : ViewModelBase
     {
     }
 
+
+    private void GRSAAckEvent(GameRoundStartAnimationAckEvent obj)
+    {
+        
+    }
+
     /// <summary>
     /// Sends player's chosen action to the server and publishes local AttackStartedEvent.
     /// Validates presence of playerId before sending.
@@ -146,6 +155,7 @@ public class MainBattleViewModel : ViewModelBase
                 Debug.LogError("PutChoice skipped: playerId is empty.");
                 return;
             }
+
             //network communication to server(spring)
             string choiceValue = choice.ToString();
             Debug.Log($"PutChoice request -> id={_playerId}, choice={choiceValue}");
@@ -176,6 +186,8 @@ public class MainBattleViewModel : ViewModelBase
     /// <param name="playerId"></param>
     /// <param name="matchId"></param>
     /// <param name="enemyId"></param>
+    
+
     public void HoverTesttest(string test)
     {
         HoverTest.Value = test;
