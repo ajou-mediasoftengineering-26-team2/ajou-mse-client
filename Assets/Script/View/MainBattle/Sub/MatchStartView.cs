@@ -15,6 +15,14 @@ public class MatchStartView : MonoBehaviour
     private Label position2;
 
     private MainBattleViewModel _viewModel;
+
+
+    private Label name1;
+    private Label name2;
+    private Label position1;
+    private Label position2;
+
+    private MainBattleViewModel _viewModel;
     void OnEnable()
     {
         _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
@@ -41,7 +49,18 @@ public class MatchStartView : MonoBehaviour
             _displayContainer.style.opacity = 1f;
         }
 
+    public void StartAnimation(PlayerInfoModel player1, PlayerInfoModel player2)
+    {
+        var root = GetComponent<UIDocument>().rootVisualElement;
         // 2. 초기 상태 셋팅 (화면 아래에 숨겨두기)
+        name1.text = player1.username;
+        name2.text = player2.username;
+        position1.text = player1.attacking ? "Attack" :  "Defend";
+        position2.text = player2.attacking ? "Attack" :  "Defend";
+        name1 = root.Q<Label>("left-name");
+        name2 = root.Q<Label>("right-name");
+        position1 = root.Q<Label>("left-status");
+        position2 = root.Q<Label>("right-status");
         name1.text = player1.username;
         name2.text = player2.username;
         position1.text = player1.attacking ? "Attack" :  "Defend";

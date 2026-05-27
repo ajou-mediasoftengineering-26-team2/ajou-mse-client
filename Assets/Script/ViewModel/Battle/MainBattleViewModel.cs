@@ -227,7 +227,9 @@ public class MainBattleViewModel : ViewModelBase
                     CurrentRound.Value = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
+
                     //lobby data changing mean timer start again.
+                    
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -256,10 +258,9 @@ public class MainBattleViewModel : ViewModelBase
                 onValueChanged: (player) =>
                 {
                     if (player == null) return;
-                    RightHp.Value = player.hp;
+                    RightHp.Value   = player.hp;
                     EnemySelecting.Value = player.selecting;
                     EnemyName.Value = player.username;
-                    RightRoundWin.Value = player.wins;
                     player2 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
@@ -434,12 +435,13 @@ public class MainBattleViewModel : ViewModelBase
         _firebaseSubscribed = true;
         _ = FirebaseSetting();
     }
-
+    
     /// <summary>
     /// Compute human-friendly LabelState based on MatchState and selecting flags.
     /// </summary>
     private void GetStatusText()
     {
+        Debug.Log(MatchState.Value + " : Match STate");
         // waiting
         if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
         {
@@ -460,8 +462,8 @@ public class MainBattleViewModel : ViewModelBase
             LabelState.Value = "ENEMY TURN";
         }
     }
-
-
+    
+    
     /// <summary>
     /// Cleanup timers and unsubscribe flags when ViewModel is disposed.
     /// </summary>
@@ -489,7 +491,7 @@ public class MainBattleViewModel : ViewModelBase
         CurrentHandAction.Value = actionIndex;
         CurrentHandActionText.Value = actionText;
     }
-
+}
 
     public async void PutRoundStartAck()
     {
