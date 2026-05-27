@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,7 +8,6 @@ public class ItemView : MonoBehaviour
     private Image _itemImg;
     private Label _itemTitle;
     private Label _itemInfo;
-    private IItemRepository _itemRepo;
 
     private void OnEnable()
     {
@@ -17,7 +15,6 @@ public class ItemView : MonoBehaviour
         _itemImg   = root.Q<Image>("ItemImg");
         _itemTitle = root.Q<Label>("ItemTitle");
         _itemInfo  = root.Q<Label>("ItemInfo");
-        _itemRepo  = RepositoryFactory.Instance.Get<IItemRepository>();
     }
 
     public void ShowItem(string itemCode)
@@ -27,13 +24,5 @@ public class ItemView : MonoBehaviour
         _itemInfo.text  = ItemInfoProvider.GetDescription(itemType);
         var sprite = Resources.Load<Sprite>($"Items/{itemType}");
         if (sprite != null) _itemImg.sprite = sprite;
-        StartCoroutine(AckAndClose());
-    }
-
-    private IEnumerator AckAndClose()
-    {
-        yield return new WaitForSeconds(2f);
-        _ = _itemRepo.PutAck(SceneDataBridge.playerId);
-        GetComponent<UIDocument>().enabled = false;
     }
 }
