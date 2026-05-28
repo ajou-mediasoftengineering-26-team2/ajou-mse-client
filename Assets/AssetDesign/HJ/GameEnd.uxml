@@ -1,0 +1,18 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="BackGround" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.86); justify-content: center; align-items: center;">
+        <ui:VisualElement name="GameEnd" style="flex-grow: 0; width: 30%; align-self: center; height: 40%; justify-content: center; border-top-width: 10px; border-right-width: 10px; border-bottom-width: 10px; border-left-width: 10px; border-left-color: rgb(240, 200, 50); border-right-color: rgb(240, 200, 50); border-top-color: rgb(240, 200, 50); border-bottom-color: rgb(240, 200, 50); border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; background-color: rgb(49, 49, 49);">
+            <ui:VisualElement name="PlayerId" style="flex-grow: 1; flex-direction: row;">
+                <ui:Label text="Label" name="VS"/>
+                <ui:Label text="Label" name="Player1Id"/>
+                <ui:Label text="Label" name="Player2Id"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="GameScore" style="flex-grow: 1; flex-direction: row;">
+                <ui:Label text="Label" name="Player1Score"/>
+                <ui:Label text="Label"/>
+                <ui:Label text="Label" name="Player2Score"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Empty" style="flex-grow: 0; height: 2%;"/>
+        <ui:Button text="HOME" name="HomeButton" style="align-items: stretch; width: 20%; height: 10%; border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; font-size: 32px; -unity-font-style: bold; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); background-color: rgb(42, 42, 42); color: rgb(255, 255, 255); border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0);"/>
+    </ui:VisualElement>
+</ui:UXML>
