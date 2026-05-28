@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ChoiceRevealView : MonoBehaviour
 {
+    private VisualElement _container; // 전체를 감싸는 컨테이너 저장
     private VisualElement _leftPlayerGroup;
     private VisualElement _rightPlayerGroup;
 
@@ -13,6 +15,9 @@ public class ChoiceRevealView : MonoBehaviour
     void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
+
+        // 0. 컨테이너 가져오기
+        _container = root.Q<VisualElement>(className: "display-container");
 
         // 1. 컴포넌트 구조 잡기
         var playerGroups = root.Query<VisualElement>(className: "player-group").ToList();
@@ -26,28 +31,43 @@ public class ChoiceRevealView : MonoBehaviour
         _leftChoiceImage = root.Q<VisualElement>("left-choice-image");
         _rightChoiceImage = root.Q<VisualElement>("right-choice-image");
 
-        // 3. 초기 상태 및 트랜지션 규칙 세팅 (여기서 완벽하게 정의)
-        InitInitialState(_leftPlayerGroup);
-        InitInitialState(_rightPlayerGroup);
-
-        // 테스트용 (실제로는 외부에서 호출)
-        
+        // 💡 오브젝트가 켜질 때 UI를 완전히 깨끗한 초기 상태로 만듭니다.
+        ResetAllStates();
     }
 
     public void StartChoiceReveal()
     {
-        RevealChoices(Resources.FindObjectsOfTypeAll<Sprite>()[0], Resources.FindObjectsOfTypeAll<Sprite>()[1]);
+        // 실제 사용 시Resources.Find... 대신 외부에서 스프라이트를 넘겨주는 게 좋습니다.
+        var sprites = Resources.FindObjectsOfTypeAll<Sprite>();
+        if (sprites.Length >= 2)
+        {
+            RevealChoices(sprites[0], sprites[1]);
+        }
+    }
+
+    // 💡 모든 상태를 처음 상태로 되돌리는 통합 리셋 함수
+    private void ResetAllStates()
+    {
+        if (_container != null)
+        {
+            _container.style.opacity = 1f; // 컨테이너 다시 보이게
+        }
+
+        InitInitialState(_leftPlayerGroup);
+        InitInitialState(_rightPlayerGroup);
+        
+        // 보더 색상도 초기화하고 싶다면 여기서 투명이나 기본색으로 리셋
+        ResetBorders(_leftChoiceImage);
+        ResetBorders(_rightChoiceImage);
     }
 
     private void InitInitialState(VisualElement element)
     {
         if (element == null) return;
         
-        // 시작 상태
         element.style.opacity = 0f;
         element.style.translate = new StyleTranslate(new Translate(0, 50, 0));
         
-        // 💡 트랜지션 규칙은 여기서 딱 한 번만 지정합니다 (시간을 0.5초로 통일)
         element.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
         element.style.transitionDuration = new List<TimeValue> 
             { new TimeValue(0.5f, TimeUnit.Second), new TimeValue(0.5f, TimeUnit.Second) };
@@ -55,8 +75,20 @@ public class ChoiceRevealView : MonoBehaviour
             { new EasingFunction(EasingMode.EaseOutBack) };
     }
 
+    private void ResetBorders(VisualElement image)
+    {
+        if (image == null) return;
+        image.style.borderTopColor = StyleKeyword.Null;
+        image.style.borderBottomColor = StyleKeyword.Null;
+        image.style.borderLeftColor = StyleKeyword.Null;
+        image.style.borderRightColor = StyleKeyword.Null;
+    }
+
     public void RevealChoices(Sprite leftPlayerSprite, Sprite rightPlayerSprite)
     {
+        // 실행하기 전에 한 번 더 확실하게 리셋 보장
+        ResetAllStates();
+
         if (leftPlayerSprite != null && _leftChoiceImage != null)
             _leftChoiceImage.style.backgroundImage = new StyleBackground(leftPlayerSprite);
 
@@ -68,10 +100,12 @@ public class ChoiceRevealView : MonoBehaviour
 
     private void PlaySequenceAnimation()
     {
-        // --- Player 1 팝업 (0.5초 대기 후 등장) ---
+        // ⚠️ 혹시 모를 이전 스케줄 제거를 위해 확실히 털고 가기 (선택사항)
+        _leftPlayerGroup.panel.visualTree.schedule.Execute(() => { }).StartingIn(0);
+
+        // --- Player 1 팝업 (2.0초 대기 후 등장) ---
         _leftPlayerGroup.schedule.Execute(() =>
         {
-            // 💡 여기서는 값만 바꿉니다. UI Toolkit이 알아서 인지하고 부드럽게 연출합니다.
             _leftPlayerGroup.style.opacity = 1f;
             _leftPlayerGroup.style.translate = new StyleTranslate(new Translate(0, 0, 0));
 
@@ -81,11 +115,11 @@ public class ChoiceRevealView : MonoBehaviour
                 _leftChoiceImage.style.borderTopColor = new StyleColor(color);
                 _leftChoiceImage.style.borderBottomColor = new StyleColor(color);
                 _leftChoiceImage.style.borderLeftColor = new StyleColor(color);
-                _rightChoiceImage.style.borderRightColor = new StyleColor(color);
+                _leftChoiceImage.style.borderRightColor = new StyleColor(color); // 원본 코드의 오타 수정 (_right->_left)
             }
         }).StartingIn(2000); 
 
-        // --- Player 2 팝업 (1.5초 대기 후 등장) ---
+        // --- Player 2 팝업 (3.5초 대기 후 등장 - 1번이 나오고 1.5초 뒤이므로 2000+1500) ---
         _rightPlayerGroup.schedule.Execute(() =>
         {
             _rightPlayerGroup.style.opacity = 1f;
@@ -99,27 +133,29 @@ public class ChoiceRevealView : MonoBehaviour
                 _rightChoiceImage.style.borderLeftColor = new StyleColor(orangeColor);
                 _rightChoiceImage.style.borderRightColor = new StyleColor(orangeColor);
             }
-        }).StartingIn(1500); 
+        }).StartingIn(3500); // 💡 1번 컴포넌트 등장 시간과의 싱크를 위해 3500으로 수정
 
-        // --- 4.5초 뒤에 전체 UI 숨기기 ---
-        _leftPlayerGroup.schedule.Execute(CloseUI).StartingIn(4500);
+        // --- 6초 뒤에 전체 UI 숨기기 시작 (애니메이션 다 보고 여유있게 지우기) ---
+        _leftPlayerGroup.schedule.Execute(CloseUI).StartingIn(6000);
     }
 
     private void CloseUI()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-        var container = root.Q<VisualElement>(className: "display-container");
-        if (container != null)
+        if (_container != null)
         {
-            container.style.transitionProperty = new List<StylePropertyName> { "opacity" };
-            container.style.transitionDuration = new List<TimeValue> { new TimeValue(0.5f, TimeUnit.Second) };
-            container.style.opacity = 0f;
+            _container.style.transitionProperty = new List<StylePropertyName> { "opacity" };
+            _container.style.transitionDuration = new List<TimeValue> { new TimeValue(0.5f, TimeUnit.Second) };
+            _container.style.opacity = 0f;
 
-            container.schedule.Execute(() => gameObject.SetActive(false)).StartingIn(500);
+            // 페이드 아웃 애니메이션(0.5초)이 완벽히 끝난 후 오브젝트를 끕니다.
+            _container.schedule.Execute(() => 
+            {
+                gameObject.SetActive(false);
+            }).StartingIn(500);
         }
-        
-        
-        InitInitialState(_leftPlayerGroup);
-        InitInitialState(_rightPlayerGroup);
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 }

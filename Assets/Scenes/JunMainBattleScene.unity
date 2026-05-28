@@ -2543,6 +2543,7 @@ MonoBehaviour:
   MainBattle: {fileID: 1512037683}
   MatchStart: {fileID: 1546278199}
   IntroduceStation: {fileID: 388301849}
+  ChoiceReveal: {fileID: 872812207}
 --- !u!1 &1947275571
 GameObject:
   m_ObjectHideFlags: 0
