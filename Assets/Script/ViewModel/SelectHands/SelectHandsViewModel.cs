@@ -13,8 +13,6 @@ public class SelectHandsViewModel : ViewModelBase
     public Observable<bool>   CanSelect   { get; } = new Observable<bool>(true);
     public Observable<string> ErrorMsg    { get; } = new Observable<string>();
 
-    private readonly string[] _handTypes = { "FIRE", "WATER", "WIND", "LIGHTNING", "POISON", "GRASS" };
-
     public SelectHandsViewModel()
     {
         _repo = RepositoryFactory.Instance.Get<ISelectHandsRepository>();
@@ -26,18 +24,11 @@ public class SelectHandsViewModel : ViewModelBase
         _lobbyId  = lobbyId;
     }
 
-    public override async void Initialize()
+    public override void Initialize()
     {
         base.Initialize();
-        try
-        {
-            var res = await _repo.GetInfo(_playerId);
-            if (!res.isSuccess) { ErrorMsg.Value = res.error.message; return; }
-            CurrentHand.Value = res.data.currentHand;
-        }
-        catch (Exception e) { Debug.LogException(e); }
     }
-    
+
     public async void OnSelectHand(int slot)
     {
         if (!CanSelect.Value) return;
@@ -46,7 +37,7 @@ public class SelectHandsViewModel : ViewModelBase
         CanSelect.Value = false;
         try
         {
-            var handType = _handTypes[slot - 1];
+            var handType = ((HandElementalType)(slot - 1)).ToString(); // "FIRE", "WATER" ...
             var res = await _repo.PostSelectHand(_playerId, handType);
             if (!res.isSuccess)
             {

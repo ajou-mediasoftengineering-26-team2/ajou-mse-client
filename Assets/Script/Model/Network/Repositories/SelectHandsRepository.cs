@@ -3,28 +3,20 @@ using System.Threading.Tasks;
 
 public interface ISelectHandsRepository
 {
-    Task<ApiResponse<GetSelectHandsInfoResponse>> GetInfo(string playerId);
-    Task<ApiResponse<PostSelectHandResponse>> PostSelectHand(string playerId, string handType);
+    Task<ApiResponse<EmptyResponse>> PostSelectHand(string playerId, string handType);
 }
 
 public class SelectHandsRepository : BaseRepository, ISelectHandsRepository
 {
     protected override string EndpointBase
     {
-        get => "hand"; // confirm with server team
-        set
-        {
-        }
+        get => "elemental";
+        set { }
     }
 
-    public async Task<ApiResponse<GetSelectHandsInfoResponse>> GetInfo(string playerId)
+    public async Task<ApiResponse<EmptyResponse>> PostSelectHand(string playerId, string handType)
     {
-        return await networkManager.Get<GetSelectHandsInfoResponse>($"{EndpointBase}/info?id={playerId}");
-    }
-
-    public async Task<ApiResponse<PostSelectHandResponse>> PostSelectHand(string playerId, string handType)
-    {
-        var body = new PostSelectHandRequest { id = playerId, handType = handType };
-        return await networkManager.Post<PostSelectHandResponse>($"{EndpointBase}/select", body);
+        var body = new PostSelectHandRequest { playerId = playerId, handElemental = handType };
+        return await networkManager.Put<EmptyResponse>($"{EndpointBase}/choice", body);
     }
 }
