@@ -33,6 +33,7 @@ public class LoginViewModel : ViewModelBase
     public Observable<string> SubwayStation { get; } =  new Observable<string>();
     public Observable<bool> IsMatchStarted { get; } = new Observable<bool>();
 
+    public Observable<bool> IsLobbyCountDown { get; } = new Observable<bool>();
     public LoginViewModel()
     {
         _repository = RepositoryFactory.Instance.Get<ILoginRepository>();
@@ -58,6 +59,7 @@ public class LoginViewModel : ViewModelBase
             },
             onError: (error) => Debug.LogError(error)
         );
+        IsLobbyCountDown.Value = false;
     }
 
     /// <summary>
@@ -223,9 +225,18 @@ public class LoginViewModel : ViewModelBase
         if (_matchState == null || _matchState == LobbyState.LOBBY_WAITING) return;
         if (IsMatchStarted.Value) return;
 
-        SceneDataBridge.MatchId = LobbyId.Value;
-        SceneDataBridge.playerId = PlayerId.Value;
-        SceneDataBridge.enemyId = EnemyId.Value;
-        IsMatchStarted.Value = true;
+
+        if (_matchState == LobbyState.LOBBY_START_COUNTDOWN)
+        {
+            IsLobbyCountDown.Value = true;
+        }
+
+        if (_matchState == LobbyState.GAME_ROUND_START_ANIMATION)
+        {
+            SceneDataBridge.MatchId = LobbyId.Value;
+            SceneDataBridge.playerId = PlayerId.Value;
+            SceneDataBridge.enemyId = EnemyId.Value;
+            IsMatchStarted.Value = true;   
+        }
     }
 }

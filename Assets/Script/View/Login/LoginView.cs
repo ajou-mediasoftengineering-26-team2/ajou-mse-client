@@ -32,8 +32,10 @@ public class LoginView : MonoBehaviour
    [FormerlySerializedAs("displayController")] 
    [SerializeField] public SubwayDisplayView displayView;
 
+   [SerializeField] public UIDocument lobbyCountDown;
    private void OnEnable()
    {
+      lobbyCountDown.enabled = false;
       // 1. Retrieve the ViewModel via the Locator (Handles lazy instantiation)
       _viewModel = ViewModelLocator.Instance.Get<LoginViewModel>();
       
@@ -79,6 +81,11 @@ public class LoginView : MonoBehaviour
          _stationUILabel.text = station;
       });
       
+      _viewModel.IsLobbyCountDown.Subscribe(started =>
+      {
+         if (!started) return;
+         lobbyCountDown.enabled = true;
+      });
       // Observe match start: Transition to the battle scene when triggered.
       _viewModel.IsMatchStarted.Subscribe(started =>
       {
