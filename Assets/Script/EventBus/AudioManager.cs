@@ -8,9 +8,13 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     private static AudioManager _instance;
+    public static AudioManager Instance => _instance;
 
     [Header("SFX Output")]
     [SerializeField] private AudioSource sfxSource;
+    
+    [Header("BGM Output")]
+    [SerializeField] private AudioSource bgmSource;
 
     [Header("SFX Clips")]
     [SerializeField] private AudioClip buttonClickClip;
@@ -32,6 +36,9 @@ public class AudioManager : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
+        
+        sfxSource.volume = PlayerPrefs.GetFloat("SFXVolume", 0.8f);
+        if (bgmSource != null) bgmSource.volume = PlayerPrefs.GetFloat("BGMVolume", 0.8f);
     }
 
     /// <summary>
@@ -99,8 +106,20 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     /// <param name="clip"></param>
     private void Play(AudioClip clip)
-    {
+   {
         if (sfxSource == null || clip == null) return;
         sfxSource.PlayOneShot(clip);
+    }
+    
+    public void SetBgmVolume(float volume) 
+    {
+        if (bgmSource != null) bgmSource.volume = volume;
+        PlayerPrefs.SetFloat("BGMVolume", volume);
+    }
+
+    public void SetSfxVolume(float volume)
+    {
+        if (sfxSource != null) sfxSource.volume = volume;
+        PlayerPrefs.SetFloat("SFXVolume", volume);
     }
 }
