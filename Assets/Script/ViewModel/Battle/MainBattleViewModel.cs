@@ -294,6 +294,11 @@ public class MainBattleViewModel : ViewModelBase
         {
             EventBus.Publish(new IntroduceStationEvent(station: match.station ,player1 , player2));
         }
+        else if (MatchState.Value == LobbyState.GAME_ROUND_END_PLAYER_KO)
+        {
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
+            _roundRepository.endAck(SceneDataBridge.playerId);
+        }
     }
 
     /// <summary>
