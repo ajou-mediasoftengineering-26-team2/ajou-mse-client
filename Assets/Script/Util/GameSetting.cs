@@ -29,7 +29,7 @@ public class GameSetting
     public static readonly Dictionary<CameraType, int> DELAY_MAP = new Dictionary<CameraType, int>()
     {
         { CameraType.Camera1, 0 },
-        { CameraType.Camera2, 800 }
+        { CameraType.Camera2, 1500 }
     };
     
 }
