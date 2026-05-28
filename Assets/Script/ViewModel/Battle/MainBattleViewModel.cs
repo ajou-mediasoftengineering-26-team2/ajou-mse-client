@@ -20,7 +20,6 @@ public class MainBattleViewModel : ViewModelBase
     // Repository and runtime state (player/lobby ids, timers, subscriptions)
     private readonly IMainBattleRepository _repository;
     private readonly IRoundRepository _roundRepository;
-    private readonly IElementalRepository _elementalRepository;
     private string _playerId;
     private string _lobbyId;
     private string _enemyId;
@@ -33,15 +32,15 @@ public class MainBattleViewModel : ViewModelBase
 
     // ── HP ──────────────────────────────────────────────────────────
     // Player HP observables (Left = local player, Right = remote player)
-    public Observable<int> LeftHp { get; } = new Observable<int>();
+    public Observable<int> LeftHp  { get; } = new Observable<int>();
     public Observable<int> RightHp { get; } = new Observable<int>();
 
     // ── round win maker ─────────────────────────────────────────────
-
+    
     // Per-round win counters (used to display round wins)
     public Observable<int> LeftRoundWin { get; } = new Observable<int>();
     public Observable<int> RightRoundWin { get; } = new Observable<int>();
-
+    
 
     // ── timer ──────────────────────────────────────────────────────
     // Countdown timer observable (used by UI for remaining seconds)
@@ -57,62 +56,52 @@ public class MainBattleViewModel : ViewModelBase
 
     // ──  game state 1 ───────────────────────────────────────────────────
     // Match-level state exposed to the UI
-    public Observable<LobbyState> MatchState { get; } = new Observable<LobbyState>();
-    public Observable<int> CurrentRound { get; } = new Observable<int>();
-    public Observable<int> WinnerPlayerIdx { get; } = new Observable<int>(-1);
-
-
+    public Observable<LobbyState> MatchState      { get; } = new Observable<LobbyState>();
+    public Observable<int>    CurrentRound    { get; } = new Observable<int>();
+    public Observable<int>    WinnerPlayerIdx { get; } = new Observable<int>(-1);
+    
+    
     //  ── game state 2 ───────────────────────────────────────────────────
     // Selection flags indicating if each player is currently selecting
     public Observable<bool> MySelecting { get; } = new Observable<bool>();
     public ObservableEvent<bool> MySelectingE { get; } = new ObservableEvent<bool>();
     public Observable<bool> EnemySelecting { get; } = new Observable<bool>();
-
+    
 
     // ── money ──────────────────────────────────────────────────────────
     // Player currency
     public Observable<int> Money { get; } = new Observable<int>();
-
+    
     // Status label displayed in UI (e.g., YOUR TURN, ENEMY TURN, GAME OVER)
     public Observable<string> LabelState { get; } = new Observable<string>();
-
+    
     // ── name ──────────────────────────────────────────────────────────
-    public Observable<String> MyName { get; } = new Observable<String>();
+    public Observable<String> MyName { get;   } = new Observable<String>();
 
     public Observable<String> EnemyName { get; } = new Observable<string>();
-
     // current Turn
     // Current turn index
     public Observable<int> CurrentTurn { get; } = new Observable<int>();
-
     // Formatted countdown string (ss.ff)
     public Observable<string> CountDown { get; } = new Observable<string>();
 
     public Observable<string> HoverTest { get; } = new Observable<string>();
-
+    
     // ── camera ──────────────────────────────────────────────────────────
     public Observable<CameraType> CameraPoint { get; } = new Observable<CameraType>();
 
     // ── Current action ──────────────────────────────────────────────────────────
-    public Observable<HandActionType> CurrentHandAction { get; } =
-        new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
-
+    public Observable<HandActionType> CurrentHandAction { get; } = new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
     public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
     
     
     
-
-
-    private PlayerInfoModel player1Snapshot = null;
-    private PlayerInfoModel player2Snapshot = null;
-    private bool isAttackerSnapshot = true;
     public MainBattleViewModel()
     {
         // _playerId = playerId;
         // _lobbyId = lobbyId;
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
         _roundRepository = RepositoryFactory.Instance.Get<IRoundRepository>();
-        _elementalRepository = RepositoryFactory.Instance.Get<IElementalRepository>();
     }
 
     public override void Initialize()
@@ -121,7 +110,6 @@ public class MainBattleViewModel : ViewModelBase
         base.Initialize();
         CurrentHandActionText.Value = "Left";
         TryStartFirebaseSubscriptions();
-
         
         eventJunsang();
     }
@@ -130,11 +118,6 @@ public class MainBattleViewModel : ViewModelBase
     {
         EventBus.Subscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
     }
-
-    private void GRSAAckEvent(GameRoundStartAnimationAckEvent obj)
-    {
-    }
-
 
     private void GRSAAckEvent(GameRoundStartAnimationAckEvent obj)
     {
@@ -208,23 +191,22 @@ public class MainBattleViewModel : ViewModelBase
                 return;
             }
 
-
+            
             // matches/{lobbyId} subscribe
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
                 $"matches/{_lobbyId}",
                 onValueChanged: (match) =>
                 {
                     if (match == null) return;
-                    StationName.Value = match.station;
+                    StationName.Value     = match.station;
                     if (Enum.TryParse(match.state, true, out LobbyState result))
                     {
                         MatchState.Value = result;
                     }
 
-                    Debug.Log("current state = " + result.ToString());
                     ChangePlayByState(match);
                     GetStatusText();
-                    CurrentRound.Value = match.currentRound;
+                    CurrentRound.Value    = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
 
@@ -240,14 +222,14 @@ public class MainBattleViewModel : ViewModelBase
                 onValueChanged: (player) =>
                 {
                     if (player == null) return;
-                    LeftHp.Value = player.hp;
+
+                    LeftHp.Value     = player.hp;
                     IsAttacker.Value = player.attacking;
                     MySelecting.Value = player.selecting;
                     MySelectingE.Value = player.selecting;
                     MyName.Value = player.username;
-                    LeftRoundWin.Value = player.wins;
                     player1 = player;
-                    Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
+                    Debug.Log(player.hp + " " + player.username  + player.hp+ "Player(ME)");
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -276,96 +258,42 @@ public class MainBattleViewModel : ViewModelBase
 
     private async Task ChangePlayByState(MatchInfoModel match)
     {
-        
-        Func<Task> action = MatchState.Value switch
+
+        if (MatchState.Value == LobbyState.GAME_PLAYER_CHOICE)
         {
-            LobbyState.GAME_PLAYER_CHOICE => () =>
-            {
-                player1Snapshot = player1;
-                player2Snapshot = player2;
-                isAttackerSnapshot = player1Snapshot?.attacking ?? IsAttacker.Value;
-                StartTimer(match.countdownStartTime, match.countdownSec);
-                return Task.CompletedTask;
-            },
-
-            LobbyState.GAME_CHOICE_FINISHED => async () =>
-            {
-                
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
-                await _repository.PutChoice(_playerId, CurrentHandAction.Value.ToString());
-            },
-
-            LobbyState.GAME_TURN_ANIMATION => async () =>
-            {
-
-                EventBus.Publish(new ChoiceAnimation(player1, player2));
-                if (player1Snapshot == null || player2Snapshot == null)
-                {
-                    Debug.LogWarning("[MainBattleViewModel] ChoiceAnimation: player info not ready.");
-                }
-                await Task.Delay(5000);
-                if (player1Snapshot != null && player2Snapshot != null)
-                {
-                    EventBus.Publish(new ActionSelectedEvent(player1Snapshot, player2Snapshot));
-                }
-                else
-                {
-                    Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
-                }
-                EventBus.Publish(new CameraAction(CameraType.Action));
-                EventBus.Publish(new HitAnimation(
-                    isAttackerSnapshot ? BattleRole.Attack : BattleRole.Defense,
-                    SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-                    HitActionType.Both5,
-                    null));
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6000);
-                await _repository.PutAck(_playerId);
-            },
-
-            LobbyState.END_RESULT => () =>
-            {
-                EventBus.Publish(new RoundOver(true));
-                return Task.CompletedTask;
-            },
-
-            LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => () =>
-            {
-                // C# 9.0+ 부터 'or' 패턴으로 switch 조건 결합 가능 (구버전은 case 2개로 분리)
-                EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
-                return Task.CompletedTask;
-            },
-
-            LobbyState.GAME_ROUND_END_PLAYER_KO => async () =>
-            {
-                EventBus.Publish(new RoundOver(true));
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
-                _roundRepository.endAck(SceneDataBridge.playerId);
-            },
-
-            LobbyState.GAME_ELEMENTAL_CHOICE => async () =>
-            {
-                EventBus.Publish(new HandElementalChoice());
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
-                _elementalRepository.PutChoice(_playerId, ElementalHand.FIRE.ToString());
-            },
-
-            LobbyState.GAME_ELEMENTAL_RECEIVING => async () =>
-            {
-                EventBus.Publish(new HandElementalChoiceResult());
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
-                _elementalRepository.PutAck(_playerId);
-            },
-            LobbyState.GAME_PERK_ITEM_RECEIVING => () =>
-            {
-                EventBus.Publish(new PerksAndItemReceiveEvent());
-                return Task.CompletedTask;
-            },
-
-            _ => () => Task.CompletedTask // 매칭되는 상태가 없을 때 기본 동작 (예외 처리 필요 시 throw 가능)
-        };
-
-        // 매칭된 비동기/동기 액션 실행
-        await action();
+            StartTimer(match.countdownStartTime, match.countdownSec);
+        }
+        else if(MatchState.Value == LobbyState.GAME_CHOICE_FINISHED)
+        {
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
+            await _repository.PutChoice(_playerId, CurrentHandAction.Value.ToString());
+            
+        }
+        else if (MatchState.Value == LobbyState.GAME_TURN_ANIMATION)
+        {
+            EventBus.Publish(new ChoiceAnimation());
+            await Task.Delay(5000);
+            EventBus.Publish(new CameraAction(CameraType.Action));
+            EventBus.Publish(new HitAnimation(
+                IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                HitActionType.Both5,
+            null));
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]+6000);
+            await _repository.PutAck(_playerId);
+        }
+        else if (MatchState.Value == LobbyState.END_RESULT)
+        {
+            EventBus.Publish(new RoundOver(true));
+        }
+        else if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        {
+            EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
+        }
+        else if (MatchState.Value == LobbyState.GAME_ROUND_START_ANIMATION)
+        {
+            EventBus.Publish(new IntroduceStationEvent(station: match.station ,player1 , player2));
+        }
     }
 
     /// <summary>
@@ -384,8 +312,7 @@ public class MainBattleViewModel : ViewModelBase
 
         //setting format and convert to DataTime
         string format = "yyyy-MM-dd'T'HH:mm:ss.fff";
-        if (!DateTime.TryParseExact(startTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None,
-                out DateTime startTime))
+        if (!DateTime.TryParseExact(startTimeStr, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime))
         {
             return;
         }
@@ -394,7 +321,7 @@ public class MainBattleViewModel : ViewModelBase
 
         Debug.Log(startTime.ToString() + "*****************" + durationSec);
         //Show CountDown Value
-        try
+        try 
         {
             while (!token.IsCancellationRequested)
             {
@@ -476,8 +403,7 @@ public class MainBattleViewModel : ViewModelBase
         base.Dispose();
     }
 
-    public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId, CameraType playerCamera,
-        CameraType enemyCamera)
+    public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId, CameraType playerCamera, CameraType enemyCamera)
     {
         _playerId = playerId;
         _lobbyId = matchId;
@@ -491,11 +417,10 @@ public class MainBattleViewModel : ViewModelBase
         CurrentHandAction.Value = actionIndex;
         CurrentHandActionText.Value = actionText;
     }
-}
+
 
     public async void PutRoundStartAck()
     {
-        Debug.Log("put round start ack 보내고 있음!");
         await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
         await _roundRepository.startAck(SceneDataBridge.playerId);
     }
