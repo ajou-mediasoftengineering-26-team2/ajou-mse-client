@@ -8,7 +8,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument MainBattle;
     [SerializeField] UIDocument MatchStart;
     [SerializeField] UIDocument IntroduceStation;
-
+    [SerializeField] UIDocument ChoiceReveal;
 
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
@@ -19,7 +19,7 @@ public class UIManager : MonoBehaviour
         PerksAndShopUIDocument.enabled = false;
         MatchStart.enabled = false;
         IntroduceStation.enabled = false;
-        
+        ChoiceReveal.enabled = false;
         
         EventBus.Subscribe<RoundOver>(PerksAndShopUIPOP);
         EventBus.Subscribe<HitAnimation>(HitAnimation);
@@ -27,6 +27,7 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
+        EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
     }
     
 
@@ -38,6 +39,7 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
+        EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
     }
     
     
@@ -108,4 +110,11 @@ public class UIManager : MonoBehaviour
             view.StartAnimation(evt.station);
         }
     }
+
+    private void ChoiceAnimation(ChoiceAnimation evt)
+    {
+        ChoiceReveal.enabled = true;
+        ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal();
+    }
+    
 }

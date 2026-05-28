@@ -271,11 +271,15 @@ public class MainBattleViewModel : ViewModelBase
         }
         else if (MatchState.Value == LobbyState.GAME_TURN_ANIMATION)
         {
-            EventBus.Publish(new ActionSelectedEvent(CurrentHandAction.Value,
-                IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
-                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
-            ));
-            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]+5000);
+            EventBus.Publish(new ChoiceAnimation());
+            await Task.Delay(5000);
+            EventBus.Publish(new CameraAction(CameraType.Action));
+            EventBus.Publish(new HitAnimation(
+                IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                HitActionType.Both5,
+            null));
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]+6000);
             await _repository.PutAck(_playerId);
         }
         else if (MatchState.Value == LobbyState.END_RESULT)
@@ -284,9 +288,8 @@ public class MainBattleViewModel : ViewModelBase
         }
         else if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
         {
-            EventBus.Publish(new IntroduceStationEvent(station: match.station ,player1 , player2));
+            EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
         }
-        
         else if (MatchState.Value == LobbyState.GAME_ROUND_START_ANIMATION)
         {
             EventBus.Publish(new IntroduceStationEvent(station: match.station ,player1 , player2));
@@ -315,8 +318,8 @@ public class MainBattleViewModel : ViewModelBase
         }
 
         DateTime endTime = startTime.AddSeconds(durationSec);
-    
-        
+
+        Debug.Log(startTime.ToString() + "*****************" + durationSec);
         //Show CountDown Value
         try 
         {
