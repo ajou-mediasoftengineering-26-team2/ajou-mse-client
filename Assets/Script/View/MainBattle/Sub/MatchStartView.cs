@@ -16,6 +16,7 @@ public class MatchStartView : MonoBehaviour
     private MainBattleViewModel _viewModel;
     void OnEnable()
     {
+        _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
         var uiDoc = GetComponent<UIDocument>();
         if (uiDoc == null) return;
 
