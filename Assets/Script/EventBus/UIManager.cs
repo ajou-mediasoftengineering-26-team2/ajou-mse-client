@@ -9,6 +9,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument MatchStart;
     [SerializeField] UIDocument IntroduceStation;
     [SerializeField] UIDocument ChoiceReveal;
+    [SerializeField] UIDocument ElementalHandChoice;
+    [SerializeField] UIDocument RoundOver;
+    [SerializeField] UIDocument PerksAndShop;
 
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
@@ -20,28 +23,53 @@ public class UIManager : MonoBehaviour
         MatchStart.enabled = false;
         IntroduceStation.enabled = false;
         ChoiceReveal.enabled = false;
+        ElementalHandChoice.enabled = false;
+        RoundOver.enabled = false;
+        PerksAndShop.enabled = false;
         
-        EventBus.Subscribe<RoundOver>(PerksAndShopUIPOP);
+        EventBus.Subscribe<RoundOver>(RoundOverUI);
         EventBus.Subscribe<HitAnimation>(HitAnimation);
         EventBus.Subscribe<SortHitEvent>(HitUi);
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
+        EventBus.Subscribe<HandElementalChoice>(HandElementalChoice);
+        EventBus.Subscribe<HandElementalChoiceResult>(FinishAnimation);
     }
-    
+
+    private void FinishAnimation(HandElementalChoiceResult obj)
+    {
+        PerksAndShopUIDocument.enabled = false;
+        MatchStart.enabled = false;
+        IntroduceStation.enabled = false;
+        ChoiceReveal.enabled = false;
+        ElementalHandChoice.enabled = false;
+        RoundOver.enabled = false;
+        PerksAndShop.enabled = false;
+        
+        IntroduceStation.enabled = true;
+    }
+
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<RoundOver>(PerksAndShopUIPOP);
+        EventBus.Unsubscribe<RoundOver>(RoundOverUI);
         EventBus.Unsubscribe<HitAnimation>(HitAnimation);
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
+        EventBus.Unsubscribe<HandElementalChoice>(HandElementalChoice);
     }
-    
+
+
+    private void HandElementalChoice(HandElementalChoice evt)
+    {
+        RoundOver.enabled = false;
+        ElementalHandChoice.enabled = true;
+    }
     
     private void HitUi(SortHitEvent obj)
     {
@@ -52,7 +80,11 @@ public class UIManager : MonoBehaviour
     {
         GetAnimatorByPlayer(current.Player, current.Role);
     }
-    
+
+    private void RoundOverUI(RoundOver evt)
+    {
+        RoundOver.enabled = true;
+    }
     private void PerksAndShopUIPOP(RoundOver evt)
     {
         PerksAndShopUIDocument.enabled = true;

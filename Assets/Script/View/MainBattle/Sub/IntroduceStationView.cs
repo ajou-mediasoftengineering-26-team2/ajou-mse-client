@@ -35,6 +35,15 @@ public class IntroduceStationView : MonoBehaviour
 
     public void StartAnimation(string station = "Seoul")
     {
+        if (uiDocument == null) uiDocument = GetComponent<UIDocument>();
+        if (uiDocument != null)
+        {
+            uiDocument.enabled = false; // 한 번 완전히 죽이고
+            uiDocument.enabled = true;  // 새로 살려서 초기화 상태로 만듦
+            root = uiDocument.rootVisualElement;
+        }
+        
+        
         Debug.Log($"[IntroduceStationView] StartAnimation called station={station}");
         EnsureRoot();
         ResetLayoutState();
