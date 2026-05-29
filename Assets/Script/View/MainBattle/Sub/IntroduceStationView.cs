@@ -26,6 +26,7 @@ public class IntroduceStationView : MonoBehaviour
 
     private void OnEnable()
     {
+        Debug.Log("[IntroduceStationView] OnEnable");
         uiDocument = GetComponent<UIDocument>();
         EnsureRoot();
         ResetLayoutState();
@@ -43,13 +44,15 @@ public class IntroduceStationView : MonoBehaviour
         }
         
         
-        //Debug.Log($"[IntroduceStationView] StartAnimation called station={station}");
+        Debug.Log($"[IntroduceStationView] StartAnimation called station={station}");
         EnsureRoot();
         ResetLayoutState();
         CacheElements(force: true);
         
+        Debug.Log($"[IntroduceStationView] root={(root != null)} panel={(root != null && root.panel != null)} container={(container != null)} first={(first != null)} second={(second != null)} third={(third != null)}");
         if (root == null || second == null)
         {
+            Debug.LogWarning("[IntroduceStationView] Missing root/second/container. Abort animation.");
             return;
         }
         
@@ -104,6 +107,7 @@ public class IntroduceStationView : MonoBehaviour
 
         if (root.panel == null)
         {
+            Debug.Log("[IntroduceStationView] root.panel is null. Waiting AttachToPanelEvent.");
             root.UnregisterCallback<AttachToPanelEvent>(OnAttachedToPanel);
             root.RegisterCallback<AttachToPanelEvent>(OnAttachedToPanel);
             return;
@@ -111,6 +115,7 @@ public class IntroduceStationView : MonoBehaviour
 
         if (!IsLayoutReady())
         {
+            Debug.Log("[IntroduceStationView] Layout not ready. Waiting GeometryChangedEvent.");
             RegisterGeometryWait();
             ScheduleLayoutRetry();
             return;
@@ -125,6 +130,7 @@ public class IntroduceStationView : MonoBehaviour
         InitInitialState(third, "third");
         
         // 3. [핵심] 유니티 UI Toolkit이 초기화된 스타일(Opacity 0)을 인지할 시간을 줌 (약 50~100ms 뒤 재생)
+        Debug.Log("[IntroduceStationView] Scheduling sequence animation.");
         root.schedule.Execute(PlaySequenceAnimation).StartingIn(100);
     }
 
@@ -150,6 +156,7 @@ public class IntroduceStationView : MonoBehaviour
 
     private void OnAttachedToPanel(AttachToPanelEvent evt)
     {
+        Debug.Log("[IntroduceStationView] OnAttachedToPanel");
         if (root != null)
         {
             root.UnregisterCallback<AttachToPanelEvent>(OnAttachedToPanel);
@@ -179,6 +186,7 @@ public class IntroduceStationView : MonoBehaviour
         if (!IsLayoutReady()) return;
         waitingForGeometry = false;
         root.UnregisterCallback<GeometryChangedEvent>(OnGeometryChanged);
+        Debug.Log("[IntroduceStationView] Geometry ready. Attempting sequence animation.");
         TryStartAnimation();
     }
 
@@ -189,6 +197,7 @@ public class IntroduceStationView : MonoBehaviour
             && !float.IsNaN(root.worldBound.height)
             && root.worldBound.width > 0f
             && root.worldBound.height > 0f;
+        Debug.Log($"[IntroduceStationView] Layout check rootBound={root.worldBound} containerBound={(container != null ? container.worldBound.ToString() : "null")}");
         return rootValid;
     }
 
@@ -199,6 +208,7 @@ public class IntroduceStationView : MonoBehaviour
         {
             root = uiDocument.rootVisualElement;
         }
+        Debug.Log($"[IntroduceStationView] EnsureRoot uiDocument={(uiDocument != null)} root={(root != null)}");
     }
 
     private void CacheElements(bool force = false)
