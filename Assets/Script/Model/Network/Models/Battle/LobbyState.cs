@@ -27,7 +27,7 @@ public enum LobbyState
     GAME_ROUND_END_PLAYER_KO,       // 클라이언트가 KO 애니메이션을 출력함
     GAME_PERK_CHOICE,               // 클라이언트가 Perk(또는 Elemental) 선택함
     GAME_PERK_ITEM_RECEIVING,       // [추가] 5초 후 데이터 업데이트 및 수령 애니메이션 출력 (노션 명칭 반영)
-    
+    GAME_ELEMENTAL_CHOICE,
     // ※ 만약 기획 상 기재된 (GAME_ELEMENTAL_CHOICE / RECEIVING)을 
     // Perk과 별개의 State 코드로 분리해 관리해야 한다면 아래 주석을 해제하고 사용하세요.
     // GAME_ELEMENTAL_CHOICE,       
@@ -38,4 +38,6 @@ public enum LobbyState
     // ==========================================
     END_RESULT,                     // 게임 끝 애니메이션 및 결과 창 출력
     END_PLAYER_DISCONNECTED          // 플레이어 탈주/연결 끊김 처리
+    ,
+    GAME_ELEMENTAL_RECEIVING
 }
