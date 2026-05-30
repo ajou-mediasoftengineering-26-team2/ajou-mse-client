@@ -45,7 +45,7 @@ public class UIManager : MonoBehaviour
     private void PerksAndShopUIPOP(PerksAndItemReceiveEvent obj)
     {
         AllUIDown();
-        PerksAndShop.enabled = true;
+        Item.enabled = true;
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)
@@ -157,7 +157,13 @@ public class UIManager : MonoBehaviour
     {
         AllUIDown();
         ChoiceReveal.enabled = true;
-        ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal();
+        var view = ChoiceReveal.GetComponent<ChoiceRevealView>();
+        if (view != null)
+        {
+            var left = evt.Player1 ?? player1;
+            var right = evt.Player2 ?? player2;
+            view.StartChoiceReveal(left, right);
+        }
     }
 
     private void AllUIDown()

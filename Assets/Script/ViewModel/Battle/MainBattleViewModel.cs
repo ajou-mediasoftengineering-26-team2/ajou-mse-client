@@ -211,7 +211,6 @@ public class MainBattleViewModel : ViewModelBase
                     CurrentRound.Value = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
-
                     //lobby data changing mean timer start again.
                 },
                 onError: (error) => Debug.LogError(error)
@@ -228,6 +227,7 @@ public class MainBattleViewModel : ViewModelBase
                     MySelecting.Value = player.selecting;
                     MySelectingE.Value = player.selecting;
                     MyName.Value = player.username;
+                    LeftRoundWin.Value = player.wins;
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
                 },
@@ -243,6 +243,7 @@ public class MainBattleViewModel : ViewModelBase
                     RightHp.Value = player.hp;
                     EnemySelecting.Value = player.selecting;
                     EnemyName.Value = player.username;
+                    RightRoundWin.Value = player.wins;
                     player2 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
@@ -274,9 +275,20 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.GAME_TURN_ANIMATION => async () =>
             {
-                EventBus.Publish(new ChoiceAnimation());
+                EventBus.Publish(new ChoiceAnimation(player1, player2));
+                if (player1 == null || player2 == null)
+                {
+                    Debug.LogWarning("[MainBattleViewModel] ChoiceAnimation: player info not ready.");
+                }
                 await Task.Delay(5000);
-                EventBus.Publish(new ActionSelectedEvent());
+                if (player1 != null && player2 != null)
+                {
+                    EventBus.Publish(new ActionSelectedEvent(player1, player2));
+                }
+                else
+                {
+                    Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
+                }
                 EventBus.Publish(new CameraAction(CameraType.Action));
                 EventBus.Publish(new HitAnimation(
                     IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
@@ -459,7 +471,6 @@ public class MainBattleViewModel : ViewModelBase
 
     public async void PutRoundStartAck()
     {
-
         Debug.Log("put round start ack 보내고 있음!");
         await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
         await _roundRepository.startAck(SceneDataBridge.playerId);

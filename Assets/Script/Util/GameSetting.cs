@@ -32,6 +32,46 @@ public class GameSetting
         { CameraType.Camera2, 1500 }
     };
     
+    public static bool TryParseHandAction(string handChoice, out HandActionType action)
+    {
+        if (string.IsNullOrWhiteSpace(handChoice))
+        {
+            action = HandActionType.SHAKE_OVER_HANDS;
+            return false;
+        }
+
+        if (Enum.TryParse(handChoice, true, out action))
+        {
+            return true;
+        }
+
+        switch (handChoice.Trim().ToLowerInvariant())
+        {
+            case "left":
+                action = HandActionType.SINGLE_HAND_FLIP_LEFT;
+                return true;
+            case "right":
+                action = HandActionType.SINGLE_HAND_FLIP_RIGHT;
+                return true;
+            case "both":
+                action = HandActionType.BOTH_HANDS_FLIP;
+                return true;
+            case "stab":
+            case "slice":
+            case "defense":
+                action = HandActionType.INSERT_BETWEEN_HANDS;
+                return true;
+            case "wave":
+            case "pause":
+            case "ok":
+            case "none":
+                action = HandActionType.SHAKE_OVER_HANDS;
+                return true;
+            default:
+                action = HandActionType.SHAKE_OVER_HANDS;
+                return false;
+        }
+    }
 }
 
 /// <summary>

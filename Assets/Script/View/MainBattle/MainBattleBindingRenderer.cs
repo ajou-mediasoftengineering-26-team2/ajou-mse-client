@@ -24,8 +24,14 @@ public class MainBattleBindingRenderer
     {
         BindSlotHover();
 
-        _viewModel.LeftRoundWin.Subscribe(_dotsRenderer.RefreshMy);
-        _viewModel.RightRoundWin.Subscribe(_dotsRenderer.RefreshEnemy);
+        _viewModel.LeftRoundWin.Subscribe(data =>
+        {
+            _uiRefs.LeftScore.text = data + "";
+        });
+        _viewModel.RightRoundWin.Subscribe(data =>
+        {
+            _uiRefs.RightScore.text = data + "";
+        });
 
         // _viewModel.StationName.Subscribe(station =>
         // {
@@ -107,6 +113,7 @@ public class MainBattleBindingRenderer
         {
             _uiRefs.ActionName.text = "Current Action : " + name.ToString();
         });
+        
     }
 
     private void BindSlotHover()
