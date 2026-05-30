@@ -87,8 +87,8 @@ public class PerkAndShopViewModel : ViewModelBase
             $"matches/{_lobbyId}/players/{_playerId}",
             onValueChanged: player =>
             {
-                if (player?.perkChoiceList == null || player.perkChoiceList.Count == 0) return;
-                _perkChoices = player.perkChoiceList;
+                // if (player?.perkChoiceList == null || player.perkChoiceList.Count == 0) return;
+                // _perkChoices = player.perkChoiceList;
                 RefreshPerkCards();
 
                 // 서버팀 확인 후 추가

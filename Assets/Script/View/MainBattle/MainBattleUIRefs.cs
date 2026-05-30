@@ -15,6 +15,8 @@ public class MainBattleUIRefs
     public Label MyName { get;  }
     public Label EnemyName { get;  }
     public Label ActionName { get; }
+    public Label RightScore { get; }
+    public Label LeftScore { get; }
     
     public CameraTurnManager CameraManager { get; }
     
@@ -36,6 +38,8 @@ public class MainBattleUIRefs
         EnemyName = MainBattleRoot.Q<Label>("EnemyName");
         ActionName = MainBattleRoot.Q<Label>("ActionLogText");
         
+        RightScore = MainBattleRoot.Q<Label>("RightScore");
+        LeftScore = MainBattleRoot.Q<Label>("LeftScore");
         LeftHp = MainBattleRoot.Q<VisualElement>("LeftHp");
         RightHp = MainBattleRoot.Q<VisualElement>("RightHp");
         if (MainBattleRoot == null) Debug.LogError("MainBattle root is null.");

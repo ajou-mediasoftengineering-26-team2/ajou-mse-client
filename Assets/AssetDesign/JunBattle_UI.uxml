@@ -2,10 +2,10 @@
     <ui:VisualElement name="VisualElement" style="flex-grow: 1; align-self: stretch; align-items: stretch; justify-content: space-between; width: 100%; height: 100%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
         <ui:VisualElement name="Top" style="flex-grow: 1; width: 100%; height: 10%; min-width: auto; min-height: auto; max-width: none; max-height: none; align-items: stretch; align-self: center; flex-direction: row; justify-content: space-between;">
             <ui:VisualElement name="LeftHP" style="width: 40%; flex-direction: column; justify-content: flex-start;">
-                <ui:Label text="PLAYER_ONE" name="MyName" style="font-size: 16px; color: white; -unity-font-style: bold; margin-bottom: 4px; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
+                <ui:Label text="PLAYER_ONE" name="MyName" style="font-size: 30px; color: white; -unity-font-style: bold; margin-bottom: 4px; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
                 <ui:VisualElement name="MyRoleBadge" class="role-badge role-attack" style="align-self: flex-start; margin-bottom: 6px;">
                     <ui:VisualElement name="MyRoleDot" class="role-dot"/>
-                    <ui:Label text="ATTACK" name="MyRoleText" class="role-text" style="font-size: 20px; color: rgb(255, 223, 44); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
+                    <ui:Label text="ATTACK" name="MyRoleText" class="role-text" style="font-size: 30px; color: rgb(255, 223, 44); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
                 </ui:VisualElement>
                 <ui:VisualElement name="MyHPBackground" style="height: 25px; background-color: rgba(0, 0, 0, 0.5); border-radius: 5px; overflow: hidden;">
                     <ui:VisualElement name="MyHPFill" style="width: 100%; height: 100%; background-color: rgb(255, 50, 50);"/>
@@ -13,6 +13,7 @@
                 <ui:VisualElement name="MyRoundContainer" class="round-winning">
                     <ui:VisualElement name="MyRoundDots" class="round-dots-row left-dots"/>
                 </ui:VisualElement>
+                <ui:Label text="0&#10;" name="LeftScore" style="align-self: flex-end; color: rgb(255, 255, 0); -unity-font-style: bold; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); font-size: 50px; margin-left: 10px;"/>
             </ui:VisualElement>
             <ui:VisualElement name="State" style="flex-grow: 0; width: 20%; height: auto; justify-content: flex-start; align-items: center;">
                 <ui:VisualElement name="Timer" style="height: auto; align-items: center; margin-bottom: 5px;">
@@ -25,30 +26,28 @@
                 <ui:VisualElement name="Station" style="height: auto; align-items: center; margin-bottom: 10px;"/>
             </ui:VisualElement>
             <ui:VisualElement name="RightHP" style="width: 40%; flex-direction: column; justify-content: flex-start;">
-                <ui:Label text="ENEMY_PLAYER" name="EnemyName" style="font-size: 16px; color: white; -unity-font-style: bold; margin-bottom: 4px; -unity-text-align: upper-right; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
+                <ui:Label text="ENEMY_PLAYER" name="EnemyName" style="font-size: 30px; color: white; -unity-font-style: bold; margin-bottom: 4px; -unity-text-align: upper-right; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
                 <ui:VisualElement name="EnemyRoleBadge" class="role-badge role-defense" style="align-self: flex-end; margin-bottom: 6px;">
                     <ui:VisualElement name="EnemyRoleDot" class="role-dot"/>
-                    <ui:Label text="DEFENSE" name="EnemyRoleText" class="role-text" style="color: rgb(255, 223, 44); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); font-size: 20px;"/>
+                    <ui:Label text="DEFENSE" name="EnemyRoleText" class="role-text" style="color: rgb(255, 223, 44); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); font-size: 30px;"/>
                 </ui:VisualElement>
                 <ui:VisualElement name="EnemyHPBackground" style="height: 25px; background-color: rgba(0, 0, 0, 0.5); border-radius: 5px; overflow: hidden;">
                     <ui:VisualElement name="EnemyHPFill" style="width: 100%; height: 100%; background-color: rgb(255, 50, 50); align-self: flex-end;"/>
                 </ui:VisualElement>
+                <ui:Label text="0&#10;" name="RightScore" style="justify-content: space-between; align-self: flex-start; color: rgb(255, 100, 0); -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); font-size: 50px; -unity-font-style: bold; margin-right: 10px;"/>
                 <ui:VisualElement name="EnemyRoundContainer" class="round-winning">
                     <ui:VisualElement name="EnemyRoundDots" class="round-dots-row right-dots"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="Middle" style="flex-grow: 1; width: 100%; height: 55%; min-width: auto; min-height: auto; max-width: none; max-height: none; align-items: flex-end; justify-content: flex-end; -unity-text-outline-width: 0; background-color: rgba(0, 0, 0, 0); -unity-background-image-tint-color: rgba(255, 255, 255, 0.59);">
-            <ui:VisualElement name="ChooseAction" style="flex-grow: 0; width: 20%; flex-direction: column; align-items: flex-end; justify-content: flex-end;"/>
-        </ui:VisualElement>
-        <ui:VisualElement name="BottomSafeZone" style="position: absolute; bottom: 0; left: 0; width: 30%; height: auto; flex-direction: column; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
-            <ui:VisualElement name="ActionLog" class="action-log">
+        <ui:VisualElement name="BottomSafeZone" style="position: absolute; bottom: 0; left: 0; width: 30%; min-width: 250px; height: auto; flex-direction: column; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+            <ui:VisualElement name="ActionLog" class="action-log" style="font-size: 45px;">
                 <ui:Label text="Action : ????" name="ActionLogText" class="action-log-text" style="-unity-font-definition: url(&quot;project://database/Assets/Font/Moris.ttf?fileID=12800000&amp;guid=2d7379ed362a9074981d6328ba09312b&amp;type=3#Moris&quot;); -unity-font-style: bold; -unity-text-outline-color: rgb(255, 223, 44); color: rgb(255, 235, 4);"/>
             </ui:VisualElement>
             <ui:ListView name="TopListView" style="height: 40px; width: 300px; background-color: rgba(0, 0, 0, 0.2);"/>
             <ui:VisualElement name="ProfileAndInfo" style="flex-direction: row; align-items: flex-end; justify-content: flex-start; width: auto;">
                 <ui:VisualElement name="Profile" style="width: 90px; height: 90px; background-color: rgba(255, 255, 255, 0.4); flex-shrink: 0;"/>
-                <ui:VisualElement name="InfoGrid" style="flex-direction: row; flex-wrap: wrap; margin-left: 5px; width: 150px; flex-shrink: 0;">
+                <ui:VisualElement name="InfoGrid" style="flex-direction: row; flex-wrap: wrap; margin-left: 5px; width: 150px; min-width: 150px; max-width: 150px; flex-shrink: 0;">
                     <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);"/>
                     <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);"/>
                     <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);"/>
@@ -57,6 +56,9 @@
                     <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);"/>
                 </ui:VisualElement>
             </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Middle" style="flex-grow: 1; width: 100%; height: 55%; min-width: auto; min-height: auto; max-width: none; max-height: none; align-items: flex-end; justify-content: flex-end; -unity-text-outline-width: 0; background-color: rgba(0, 0, 0, 0); -unity-background-image-tint-color: rgba(255, 255, 255, 0.59);">
+            <ui:VisualElement name="ChooseAction" style="flex-grow: 0; width: 20%; flex-direction: column; align-items: flex-end; justify-content: flex-end;"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

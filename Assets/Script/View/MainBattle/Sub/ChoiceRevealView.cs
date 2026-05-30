@@ -1,4 +1,3 @@
-﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +11,10 @@ public class ChoiceRevealView : MonoBehaviour
 
     private VisualElement _leftChoiceImage;
     private VisualElement _rightChoiceImage;
+    private Label _leftStatus;
+    private Label _rightStatus;
+    private Label _leftName;
+    private Label _rightName;
 
     private Coroutine _animationCoroutine; // 실행 중인 코루틴을 제어하기 위한 변수
 
@@ -46,6 +49,8 @@ public class ChoiceRevealView : MonoBehaviour
 
         ShowContainer();
         SnapToInitialState();
+        ApplyPlayerInfo(null, true);
+        ApplyPlayerInfo(null, false);
 
         var sprites = Resources.FindObjectsOfTypeAll<Sprite>();
         Debug.Log($"[ChoiceReveal] 찾아낸 스프라이트 개수: {sprites.Length}");
@@ -58,6 +63,23 @@ public class ChoiceRevealView : MonoBehaviour
         {
             Debug.LogError("[ChoiceReveal] 메모리에 스프라이트가 2개 이상 없습니다! 테스트용 스프라이트를 직접 넣어주세요.");
         }
+    }
+
+    public void StartChoiceReveal(PlayerInfoModel leftPlayer, PlayerInfoModel rightPlayer)
+    {
+        if (!TryCacheElements())
+        {
+            Debug.LogError("[ChoiceReveal] UIDocument가 준비되지 않아 애니메이션을 시작할 수 없습니다.");
+            return;
+        }
+
+        ShowContainer();
+        SnapToInitialState();
+
+        Sprite leftSprite = ApplyPlayerInfo(leftPlayer, true);
+        Sprite rightSprite = ApplyPlayerInfo(rightPlayer, false);
+
+        RevealChoices(leftSprite, rightSprite);
     }
 
     /// <summary>
@@ -107,22 +129,27 @@ public class ChoiceRevealView : MonoBehaviour
 
         ShowContainer();
 
-        // 1. 혹시 이미 돌고 있는 애니메이션이 있다면 중복 실행 방지를 위해 처단
         if (_animationCoroutine != null)
         {
             StopCoroutine(_animationCoroutine);
         }
 
-        // 2. 완벽하게 초기 상태로 클린 세팅
         SnapToInitialState();
 
-        if (leftPlayerSprite != null && _leftChoiceImage != null)
-            _leftChoiceImage.style.backgroundImage = new StyleBackground(leftPlayerSprite);
+        if (_leftChoiceImage != null)
+        {
+            _leftChoiceImage.style.backgroundImage = leftPlayerSprite != null
+                ? new StyleBackground(leftPlayerSprite)
+                : StyleKeyword.Null;
+        }
 
-        if (rightPlayerSprite != null && _rightChoiceImage != null)
-            _rightChoiceImage.style.backgroundImage = new StyleBackground(rightPlayerSprite);
+        if (_rightChoiceImage != null)
+        {
+            _rightChoiceImage.style.backgroundImage = rightPlayerSprite != null
+                ? new StyleBackground(rightPlayerSprite)
+                : StyleKeyword.Null;
+        }
 
-        // 3. 안정적인 유니티 코루틴 시퀀스 시작
         _animationCoroutine = StartCoroutine(PlaySequenceAnimationCoroutine());
     }
 
@@ -131,11 +158,9 @@ public class ChoiceRevealView : MonoBehaviour
     /// </summary>
     private IEnumerator PlaySequenceAnimationCoroutine()
     {
-        // UI Toolkit 트랜지션 규칙을 안전하게 다시 심어줍니다.
         ApplyTransitionRules(_leftPlayerGroup);
         ApplyTransitionRules(_rightPlayerGroup);
 
-        // 한 프레임 쉬어서 UI Toolkit 엔진이 변경된 트랜지션 규칙을 인지하도록 보장합니다.
         yield return null; 
 
         // --- 1. Player 1 등장 (2.0초 대기 후) ---
@@ -216,6 +241,10 @@ public class ChoiceRevealView : MonoBehaviour
 
         _leftChoiceImage = root.Q<VisualElement>("left-choice-image");
         _rightChoiceImage = root.Q<VisualElement>("right-choice-image");
+        _leftStatus = root.Q<Label>("left-status");
+        _rightStatus = root.Q<Label>("right-status");
+        _leftName = root.Q<Label>("left-name");
+        _rightName = root.Q<Label>("right-name");
 
         return true;
     }
@@ -225,5 +254,49 @@ public class ChoiceRevealView : MonoBehaviour
         if (_container == null) return;
         _container.style.display = DisplayStyle.Flex;
         _container.style.opacity = 1f;
+    }
+
+    private Sprite ApplyPlayerInfo(PlayerInfoModel player, bool isLeft)
+    {
+        Label nameLabel = isLeft ? _leftName : _rightName;
+        Label statusLabel = isLeft ? _leftStatus : _rightStatus;
+        string fallbackName = isLeft ? "PLAYER 1" : "PLAYER 2";
+
+        if (nameLabel != null)
+        {
+            nameLabel.text = player?.username ?? fallbackName;
+        }
+
+        UpdateStatusBadge(statusLabel, player?.attacking ?? false);
+
+        string actionText = "UNKNOWN";
+        Sprite sprite = null;
+        if (player != null)
+        {
+            if (GameSetting.TryParseHandAction(player.handChoice, out var actionCode) &&
+                ActionDatabase.TryGetActionData(player.attacking, actionCode, out var actionData))
+            {
+                actionText = actionData.actionName;
+                sprite = ActionDatabase.GetActionSprite(actionData.imagePath);
+            }
+            else if (!string.IsNullOrWhiteSpace(player.handChoice))
+            {
+                actionText = player.handChoice;
+            }
+        }
+
+        if (statusLabel != null)
+        {
+            statusLabel.text = actionText;
+        }
+
+        return sprite;
+    }
+
+    private void UpdateStatusBadge(Label statusLabel, bool isAttacker)
+    {
+        if (statusLabel == null) return;
+        statusLabel.EnableInClassList("status-attack", isAttacker);
+        statusLabel.EnableInClassList("status-defense", !isAttacker);
     }
 }

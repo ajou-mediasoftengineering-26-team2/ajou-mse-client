@@ -79,12 +79,12 @@ public class ItemViewModel : ViewModelBase
                 Item2Raw.Value = list != null && list.Count > 1 ? list[1] : null;
                 Item3Raw.Value = list != null && list.Count > 2 ? list[2] : null;
                 
-                if (string.IsNullOrEmpty(player.receviedItem)) return;
-                if (!Enum.TryParse<ItemType>(player.receviedItem, out var itemType)) return;
-
-                ItemRaw.Value  = player.receviedItem;
-                ItemName.Value = ItemInfoProvider.GetDisplayName(itemType);
-                ItemDesc.Value = ItemInfoProvider.GetDescription(itemType);
+                // if (string.IsNullOrEmpty(player.receviedItem)) return;
+                // if (!Enum.TryParse<ItemType>(player.receviedItem, out var itemType)) return;
+                //
+                // ItemRaw.Value  = player.receviedItem;
+                // ItemName.Value = ItemInfoProvider.GetDisplayName(itemType);
+                // ItemDesc.Value = ItemInfoProvider.GetDescription(itemType);
             },
             onError: err => Debug.LogError(err)
         );
