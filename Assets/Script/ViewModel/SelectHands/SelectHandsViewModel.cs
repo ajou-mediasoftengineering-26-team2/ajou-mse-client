@@ -46,6 +46,7 @@ public class SelectHandsViewModel : ViewModelBase
                 return;
             }
             CurrentHand.Value = handType;
+            _ = _repo.PutAck(_playerId);
             EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
         }
         catch (Exception e)

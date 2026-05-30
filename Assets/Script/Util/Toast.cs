@@ -30,6 +30,7 @@ public class Toast : MonoBehaviour
         RepositoryFactory.Instance.Register<IMainBattleRepository, MainBattleRepository>();
         RepositoryFactory.Instance.Register<IPerkAndShopRepository, PerkAndShopRepository>();
         RepositoryFactory.Instance.Register<ISelectHandsRepository, SelectHandsRepository>();
+        RepositoryFactory.Instance.Register<IItemRepository, ItemRepository>();
     }
 
     
