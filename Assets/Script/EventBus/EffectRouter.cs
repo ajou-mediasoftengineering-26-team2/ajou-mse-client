@@ -40,12 +40,19 @@ public class EffectRouter : MonoBehaviour
 
     private void OnSelectFinished(ActionSelectedEvent evt)
     {
-        Animator targetAnimator = GetAnimatorByPlayer(evt.Player, evt.Role);
+        Animator targetAnimator = GetAnimatorByPlayer(evt.Player1, );
+        Animator targetAnimator2 = GetAnimatorByPlayer(evt.Player2, );
+        
         if (targetAnimator == null) return;
+        if (targetAnimator2 == null) return;
+        
 
-        int handActionValue = GetHandActionValue(evt.Role, evt.ActionCode);
-        targetAnimator.SetInteger(HandActionParameter, handActionValue);
+        int handActionValue1 = GetHandActionValue(evt.Role, evt.ActionCode);
+        int handActionValue2 = GetHandActionValue(evt.Role, evt.ActionCode);
+        targetAnimator.SetInteger(HandActionParameter, handActionValue1);
+        targetAnimator2.SetInteger(HandActionParameter, handActionValue2);
         StartCoroutine(ResetHandActionNextFrame(targetAnimator));
+        StartCoroutine(ResetHandActionNextFrame(targetAnimator2));
     }
     
     

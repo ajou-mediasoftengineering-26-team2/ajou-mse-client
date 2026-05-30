@@ -142,7 +142,6 @@ public class MainBattleViewModel : ViewModelBase
                 Debug.LogError("PutChoice skipped: playerId is empty.");
                 return;
             }
-
             //network communication to server(spring)
             string choiceValue = choice.ToString();
             Debug.Log($"PutChoice request -> id={_playerId}, choice={choiceValue}");
@@ -224,7 +223,6 @@ public class MainBattleViewModel : ViewModelBase
                 onValueChanged: (player) =>
                 {
                     if (player == null) return;
-
                     LeftHp.Value = player.hp;
                     IsAttacker.Value = player.attacking;
                     MySelecting.Value = player.selecting;
@@ -278,6 +276,7 @@ public class MainBattleViewModel : ViewModelBase
             {
                 EventBus.Publish(new ChoiceAnimation());
                 await Task.Delay(5000);
+                EventBus.Publish(new ActionSelectedEvent());
                 EventBus.Publish(new CameraAction(CameraType.Action));
                 EventBus.Publish(new HitAnimation(
                     IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
@@ -320,6 +319,11 @@ public class MainBattleViewModel : ViewModelBase
                 EventBus.Publish(new HandElementalChoiceResult());
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
                 _elementalRepository.PutAck(_playerId);
+            },
+            LobbyState.GAME_PERK_ITEM_RECEIVING => () =>
+            {
+                EventBus.Publish(new PerksAndItemReceiveEvent());
+                return Task.CompletedTask;
             },
 
             _ => () => Task.CompletedTask // 매칭되는 상태가 없을 때 기본 동작 (예외 처리 필요 시 throw 가능)
@@ -455,6 +459,8 @@ public class MainBattleViewModel : ViewModelBase
 
     public async void PutRoundStartAck()
     {
+
+        Debug.Log("put round start ack 보내고 있음!");
         await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
         await _roundRepository.startAck(SceneDataBridge.playerId);
     }

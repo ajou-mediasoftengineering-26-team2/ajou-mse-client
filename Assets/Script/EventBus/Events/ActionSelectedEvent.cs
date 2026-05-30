@@ -1,13 +1,12 @@
 public readonly struct ActionSelectedEvent
 {
-    public readonly HandActionType ActionCode;
-    public readonly BattleRole Role;
-    public readonly Player Player;
+    public readonly PlayerInfoModel Player1;
+    public readonly PlayerInfoModel Player2;
 
-    public ActionSelectedEvent(HandActionType actionCode, BattleRole role, Player player)
+    public ActionSelectedEvent(Player player,PlayerInfoModel player1, PlayerInfoModel player2)
     {
-        Role = role;
-        ActionCode = actionCode;
-        Player = player;
+        Player1 = player1;
+        Player2 = player2;
     }
+    
 }

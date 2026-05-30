@@ -12,11 +12,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument ElementalHandChoice;
     [SerializeField] UIDocument RoundOver;
     [SerializeField] UIDocument PerksAndShop;
+    [SerializeField] UIDocument Item;
 
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
-    
+
     private HitAnimation current;
+
     private void OnEnable()
     {
         PerksAndShopUIDocument.enabled = false;
@@ -26,7 +28,8 @@ public class UIManager : MonoBehaviour
         ElementalHandChoice.enabled = false;
         RoundOver.enabled = false;
         PerksAndShop.enabled = false;
-        
+        Item.enabled = false;
+
         EventBus.Subscribe<RoundOver>(RoundOverUI);
         EventBus.Subscribe<HitAnimation>(HitAnimation);
         EventBus.Subscribe<SortHitEvent>(HitUi);
@@ -36,18 +39,19 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Subscribe<HandElementalChoice>(HandElementalChoice);
         EventBus.Subscribe<HandElementalChoiceResult>(FinishAnimation);
+        EventBus.Subscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
+    }
+
+    private void PerksAndShopUIPOP(PerksAndItemReceiveEvent obj)
+    {
+        AllUIDown();
+        PerksAndShop.enabled = true;
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)
     {
-        PerksAndShopUIDocument.enabled = false;
-        MatchStart.enabled = false;
-        IntroduceStation.enabled = false;
-        ChoiceReveal.enabled = false;
-        ElementalHandChoice.enabled = false;
-        RoundOver.enabled = false;
-        PerksAndShop.enabled = false;
-        
+        AllUIDown();
+
         IntroduceStation.enabled = true;
     }
 
@@ -62,20 +66,21 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Unsubscribe<HandElementalChoice>(HandElementalChoice);
+        EventBus.Unsubscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
     }
 
 
     private void HandElementalChoice(HandElementalChoice evt)
     {
-        RoundOver.enabled = false;
+        AllUIDown();
         ElementalHandChoice.enabled = true;
     }
-    
+
     private void HitUi(SortHitEvent obj)
     {
         GetAnimatorByPlayer(current.Player, current.Role);
     }
-    
+
     private void HitUi(HardHitEvent obj)
     {
         GetAnimatorByPlayer(current.Player, current.Role);
@@ -85,6 +90,7 @@ public class UIManager : MonoBehaviour
     {
         RoundOver.enabled = true;
     }
+
     private void PerksAndShopUIPOP(RoundOver evt)
     {
         PerksAndShopUIDocument.enabled = true;
@@ -101,7 +107,7 @@ public class UIManager : MonoBehaviour
         Debug.Log("hit animation" + "    " + evt.Player);
         current = evt;
     }
-    
+
     private void GetAnimatorByPlayer(Player player, BattleRole role)
     {
         switch (player, role)
@@ -124,19 +130,23 @@ public class UIManager : MonoBehaviour
                 break;
         }
     }
-    
+
     private void MatchStartUI(MatchStartEvent evt)
     {
+        AllUIDown();
+        Debug.Log("MatchStartUI start");
+        MatchStart.enabled = false;
         MatchStart.enabled = true;
         MatchStart.GetComponent<MatchStartView>().StartAnimation(player1, player2);
     }
 
     public void ShowStationUI(IntroduceStationEvent evt)
     {
+        AllUIDown();
         IntroduceStation.enabled = true;
         var view = IntroduceStation.GetComponent<IntroduceStationView>();
         player1 = evt.player1;
-        player2 = evt.player2; 
+        player2 = evt.player2;
         if (view != null)
         {
             view.StartAnimation(evt.station);
@@ -145,8 +155,21 @@ public class UIManager : MonoBehaviour
 
     private void ChoiceAnimation(ChoiceAnimation evt)
     {
+        AllUIDown();
         ChoiceReveal.enabled = true;
         ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal();
     }
-    
+
+    private void AllUIDown()
+    {
+        PerksAndShopUIDocument.enabled = false;
+        MatchStart.enabled = false;
+        IntroduceStation.enabled = false;
+        ChoiceReveal.enabled = false;
+        ElementalHandChoice.enabled = false;
+        RoundOver.enabled = false;
+        PerksAndShop.enabled = false;
+        Item.enabled = false;
+    }
+
 }

@@ -17,19 +17,7 @@ public class ChoiceRevealView : MonoBehaviour
 
     void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-
-        _container = root.Q<VisualElement>(className: "display-container");
-
-        var playerGroups = root.Query<VisualElement>(className: "player-group").ToList();
-        if (playerGroups.Count >= 2)
-        {
-            _leftPlayerGroup = playerGroups[0];
-            _rightPlayerGroup = playerGroups[1];
-        }
-
-        _leftChoiceImage = root.Q<VisualElement>("left-choice-image");
-        _rightChoiceImage = root.Q<VisualElement>("right-choice-image");
+        TryCacheElements();
 
         // 켜질 때 트랜지션을 끄고 "즉시" 투명 상태로 스냅 초기화
         SnapToInitialState();
@@ -50,6 +38,15 @@ public class ChoiceRevealView : MonoBehaviour
     /// </summary>
     public void StartChoiceReveal()
     {
+        if (!TryCacheElements())
+        {
+            Debug.LogError("[ChoiceReveal] UIDocument가 준비되지 않아 애니메이션을 시작할 수 없습니다.");
+            return;
+        }
+
+        ShowContainer();
+        SnapToInitialState();
+
         var sprites = Resources.FindObjectsOfTypeAll<Sprite>();
         Debug.Log($"[ChoiceReveal] 찾아낸 스프라이트 개수: {sprites.Length}");
 
@@ -102,6 +99,14 @@ public class ChoiceRevealView : MonoBehaviour
     /// </summary>
     public void RevealChoices(Sprite leftPlayerSprite, Sprite rightPlayerSprite)
     {
+        if (!TryCacheElements())
+        {
+            Debug.LogError("[ChoiceReveal] UIDocument가 준비되지 않아 애니메이션을 시작할 수 없습니다.");
+            return;
+        }
+
+        ShowContainer();
+
         // 1. 혹시 이미 돌고 있는 애니메이션이 있다면 중복 실행 방지를 위해 처단
         if (_animationCoroutine != null)
         {
@@ -178,7 +183,10 @@ public class ChoiceRevealView : MonoBehaviour
 
         // --- 4. 페이드아웃 애니메이션 시간(0.5초)만큼 기다린 뒤 오브젝트 비활성화 ---
         yield return new WaitForSeconds(0.5f);
-        gameObject.SetActive(false);
+        if (_container != null)
+        {
+            _container.style.display = DisplayStyle.None;
+        }
         _animationCoroutine = null;
     }
 
@@ -190,5 +198,32 @@ public class ChoiceRevealView : MonoBehaviour
             { new TimeValue(0.5f, TimeUnit.Second), new TimeValue(0.5f, TimeUnit.Second) };
         element.style.transitionTimingFunction = new List<EasingFunction> 
             { new EasingFunction(EasingMode.EaseOutBack) };
+    }
+
+    private bool TryCacheElements()
+    {
+        var uiDoc = GetComponent<UIDocument>();
+        if (uiDoc == null) return false;
+
+        var root = uiDoc.rootVisualElement;
+        if (root == null) return false;
+
+        _container = root.Q<VisualElement>(className: "display-container");
+
+        var playerGroups = root.Query<VisualElement>(className: "player-group").ToList();
+        _leftPlayerGroup = playerGroups.Count > 0 ? playerGroups[0] : null;
+        _rightPlayerGroup = playerGroups.Count > 1 ? playerGroups[1] : null;
+
+        _leftChoiceImage = root.Q<VisualElement>("left-choice-image");
+        _rightChoiceImage = root.Q<VisualElement>("right-choice-image");
+
+        return true;
+    }
+
+    private void ShowContainer()
+    {
+        if (_container == null) return;
+        _container.style.display = DisplayStyle.Flex;
+        _container.style.opacity = 1f;
     }
 }
