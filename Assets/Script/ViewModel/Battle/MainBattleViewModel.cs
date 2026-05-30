@@ -142,7 +142,6 @@ public class MainBattleViewModel : ViewModelBase
                 Debug.LogError("PutChoice skipped: playerId is empty.");
                 return;
             }
-
             //network communication to server(spring)
             string choiceValue = choice.ToString();
             Debug.Log($"PutChoice request -> id={_playerId}, choice={choiceValue}");
@@ -212,7 +211,6 @@ public class MainBattleViewModel : ViewModelBase
                     CurrentRound.Value = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
-
                     //lobby data changing mean timer start again.
                 },
                 onError: (error) => Debug.LogError(error)
@@ -224,12 +222,12 @@ public class MainBattleViewModel : ViewModelBase
                 onValueChanged: (player) =>
                 {
                     if (player == null) return;
-
                     LeftHp.Value = player.hp;
                     IsAttacker.Value = player.attacking;
                     MySelecting.Value = player.selecting;
                     MySelectingE.Value = player.selecting;
                     MyName.Value = player.username;
+                    LeftRoundWin.Value = player.wins;
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
                 },
@@ -245,6 +243,7 @@ public class MainBattleViewModel : ViewModelBase
                     RightHp.Value = player.hp;
                     EnemySelecting.Value = player.selecting;
                     EnemyName.Value = player.username;
+                    RightRoundWin.Value = player.wins;
                     player2 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
@@ -276,8 +275,20 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.GAME_TURN_ANIMATION => async () =>
             {
-                EventBus.Publish(new ChoiceAnimation());
+                EventBus.Publish(new ChoiceAnimation(player1, player2));
+                if (player1 == null || player2 == null)
+                {
+                    Debug.LogWarning("[MainBattleViewModel] ChoiceAnimation: player info not ready.");
+                }
                 await Task.Delay(5000);
+                if (player1 != null && player2 != null)
+                {
+                    EventBus.Publish(new ActionSelectedEvent(player1, player2));
+                }
+                else
+                {
+                    Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
+                }
                 EventBus.Publish(new CameraAction(CameraType.Action));
                 EventBus.Publish(new HitAnimation(
                     IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
@@ -320,6 +331,11 @@ public class MainBattleViewModel : ViewModelBase
                 EventBus.Publish(new HandElementalChoiceResult());
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
                 _elementalRepository.PutAck(_playerId);
+            },
+            LobbyState.GAME_PERK_ITEM_RECEIVING => () =>
+            {
+                EventBus.Publish(new PerksAndItemReceiveEvent());
+                return Task.CompletedTask;
             },
 
             _ => () => Task.CompletedTask // 매칭되는 상태가 없을 때 기본 동작 (예외 처리 필요 시 throw 가능)
@@ -455,6 +471,7 @@ public class MainBattleViewModel : ViewModelBase
 
     public async void PutRoundStartAck()
     {
+        Debug.Log("put round start ack 보내고 있음!");
         await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
         await _roundRepository.startAck(SceneDataBridge.playerId);
     }
