@@ -114,19 +114,19 @@ public class UIManager : MonoBehaviour
         {
             // 1. First(왼쪽)가 공격하는 상황 -> 당연히 Second(오른쪽)가 맞으므로 오른쪽 팝업!
             case (Player.First, BattleRole.Attack):
-                Toast.ShowDamagePopupLeft(2);
+                Toast.ShowDamagePopupRight(2);
                 break;
             // 2. First(왼쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(왼쪽)에 팝업!
             case (Player.First, BattleRole.Defense):
-                Toast.ShowDamagePopupRight(2);
+                Toast.ShowDamagePopupLeft(2);
                 break;
             // 3. Second(오른쪽)가 공격하는 상황 -> First(왼쪽)가 맞으므로 왼쪽 팝업!
             case (Player.Second, BattleRole.Attack):
-                Toast.ShowDamagePopupRight(2);
+                Toast.ShowDamagePopupLeft(2);
                 break;
             // 4. Second(오른쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(오른쪽)에 팝업!
             case (Player.Second, BattleRole.Defense):
-                Toast.ShowDamagePopupLeft(2);
+                Toast.ShowDamagePopupRight(2);
                 break;
         }
     }
