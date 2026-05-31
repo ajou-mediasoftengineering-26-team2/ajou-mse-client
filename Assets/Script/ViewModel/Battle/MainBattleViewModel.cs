@@ -100,6 +100,9 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
 
 
+    private PlayerInfoModel player1Snapshot = null;
+    private PlayerInfoModel player2Snapshot = null;
+    private bool isAttackerSnapshot = true;
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -116,6 +119,7 @@ public class MainBattleViewModel : ViewModelBase
         CurrentHandActionText.Value = "Left";
         TryStartFirebaseSubscriptions();
 
+        
         eventJunsang();
     }
 
@@ -259,31 +263,37 @@ public class MainBattleViewModel : ViewModelBase
 
     private async Task ChangePlayByState(MatchInfoModel match)
     {
+        
         Func<Task> action = MatchState.Value switch
         {
             LobbyState.GAME_PLAYER_CHOICE => () =>
             {
+                player1Snapshot = player1;
+                player2Snapshot = player2;
+                isAttackerSnapshot = player1Snapshot?.attacking ?? IsAttacker.Value;
                 StartTimer(match.countdownStartTime, match.countdownSec);
                 return Task.CompletedTask;
             },
 
             LobbyState.GAME_CHOICE_FINISHED => async () =>
             {
+                
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
                 await _repository.PutChoice(_playerId, CurrentHandAction.Value.ToString());
             },
 
             LobbyState.GAME_TURN_ANIMATION => async () =>
             {
+
                 EventBus.Publish(new ChoiceAnimation(player1, player2));
-                if (player1 == null || player2 == null)
+                if (player1Snapshot == null || player2Snapshot == null)
                 {
                     Debug.LogWarning("[MainBattleViewModel] ChoiceAnimation: player info not ready.");
                 }
                 await Task.Delay(5000);
-                if (player1 != null && player2 != null)
+                if (player1Snapshot != null && player2Snapshot != null)
                 {
-                    EventBus.Publish(new ActionSelectedEvent(player1, player2));
+                    EventBus.Publish(new ActionSelectedEvent(player1Snapshot, player2Snapshot));
                 }
                 else
                 {
@@ -291,7 +301,7 @@ public class MainBattleViewModel : ViewModelBase
                 }
                 EventBus.Publish(new CameraAction(CameraType.Action));
                 EventBus.Publish(new HitAnimation(
-                    IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
+                    isAttackerSnapshot ? BattleRole.Attack : BattleRole.Defense,
                     SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
                     HitActionType.Both5,
                     null));
