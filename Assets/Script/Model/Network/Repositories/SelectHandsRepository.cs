@@ -3,22 +3,23 @@ using System.Threading.Tasks;
 
 public interface ISelectHandsRepository
 {
-    Task<ApiResponse<GetSelectHandsInfoResponse>> GetInfo(string playerId);
-    Task<ApiResponse<PostSelectHandResponse>> PostSelectHand(string playerId, string handType);
+    Task<ApiResponse<EmptyResponse>> PostSelectHand(string playerId, string handType);
+    Task<ApiResponse<EmptyResponse>> PutAck(string playerId); 
 }
 
 public class SelectHandsRepository : BaseRepository, ISelectHandsRepository
 {
-    protected override string EndpointBase => "hand"; // confirm with server team
+    protected override string EndpointBase { get => "elemental"; set { } }
 
-    public async Task<ApiResponse<GetSelectHandsInfoResponse>> GetInfo(string playerId)
+    public async Task<ApiResponse<EmptyResponse>> PostSelectHand(string playerId, string handType)
     {
-        return await networkManager.Get<GetSelectHandsInfoResponse>($"{EndpointBase}/info?id={playerId}");
+        var body = new PostSelectHandRequest { playerId = playerId, handElemental = handType };
+        return await networkManager.Put<EmptyResponse>($"{EndpointBase}/choice", body);
     }
 
-    public async Task<ApiResponse<PostSelectHandResponse>> PostSelectHand(string playerId, string handType)
+    public async Task<ApiResponse<EmptyResponse>> PutAck(string playerId) 
     {
-        var body = new PostSelectHandRequest { id = playerId, handType = handType };
-        return await networkManager.Post<PostSelectHandResponse>($"{EndpointBase}/select", body);
+        var body = new PutTurnAckRequest { playerId = playerId };
+        return await networkManager.Put<EmptyResponse>($"{EndpointBase}/ack", body);
     }
 }

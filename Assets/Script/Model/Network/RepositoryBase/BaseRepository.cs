@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 public abstract class BaseRepository
 {
     protected readonly NetworkManager networkManager;
-    protected abstract string EndpointBase { get; }
+    protected abstract string EndpointBase { get; set; }
 
     protected BaseRepository()
     {

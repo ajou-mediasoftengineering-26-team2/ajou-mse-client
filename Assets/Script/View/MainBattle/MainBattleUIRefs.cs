@@ -14,8 +14,13 @@ public class MainBattleUIRefs
     public Label Timer { get; }
     public Label MyName { get;  }
     public Label EnemyName { get;  }
+    public Label ActionName { get; }
     
     public CameraTurnManager CameraManager { get; }
+    
+    
+    public VisualElement LeftHp { get; }
+    public VisualElement RightHp { get; }
 
     public MainBattleUIRefs(UIDocument mainBattle, UIDocument perks, UIDocument tooltip)
     {
@@ -29,7 +34,10 @@ public class MainBattleUIRefs
         Timer = MainBattleRoot.Q<Label>("Time");
         MyName = MainBattleRoot.Q<Label>("MyName");
         EnemyName = MainBattleRoot.Q<Label>("EnemyName");
+        ActionName = MainBattleRoot.Q<Label>("ActionLogText");
         
+        LeftHp = MainBattleRoot.Q<VisualElement>("LeftHp");
+        RightHp = MainBattleRoot.Q<VisualElement>("RightHp");
         if (MainBattleRoot == null) Debug.LogError("MainBattle root is null.");
         if (TooltipRoot == null) Debug.LogError("Tooltip root is null.");
     }

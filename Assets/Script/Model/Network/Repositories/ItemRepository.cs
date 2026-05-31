@@ -8,7 +8,13 @@ public interface IItemRepository
 
 public class ItemRepository : BaseRepository, IItemRepository
 {
-    protected override string EndpointBase => "item";
+    protected override string EndpointBase
+    {
+        get => "item";
+        set
+        {
+        }
+    }
 
     public async Task<ApiResponse<EmptyResponse>> PutAck(string playerId)
     {

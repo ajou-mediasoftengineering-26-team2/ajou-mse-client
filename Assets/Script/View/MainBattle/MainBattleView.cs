@@ -1,6 +1,8 @@
 ﻿
+using System;
 using Unity.VectorGraphics;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 //202322158 이준상
@@ -23,6 +25,8 @@ public class MainBattleView : MonoBehaviour
     private MainBattleActionRenderer _actionRenderer;
     private MainBattleBindingRenderer _bindingRenderer;
 
+
+    private MainBattleEventManager _event;
     [SerializeField]
     public UIDocument mainBattle;
     public UIDocument perks;
@@ -40,11 +44,11 @@ public class MainBattleView : MonoBehaviour
             SceneDataBridge.playerCamera,
             SceneDataBridge.enemyCamera
             );
-
+        
         var activeCameraManager = cameraManager != null ? cameraManager : CameraTurnManager.Instance;
         if (activeCameraManager != null)
         {
-            activeCameraManager.SetCameraTarget(SceneDataBridge.playerCamera);
+            EventBus.Publish(new CameraAction(SceneDataBridge.playerCamera));
         }
 
         _uiRefs = new MainBattleUIRefs(mainBattle, perks, toopTip);
@@ -59,6 +63,8 @@ public class MainBattleView : MonoBehaviour
             _actionRenderer
             );
         _bindingRenderer.Bind();
+        
+        
     }
 
     public void UpdateRoundWithDelay()
@@ -66,22 +72,73 @@ public class MainBattleView : MonoBehaviour
         _actionRenderer.ShowActions(_uiRefs.ActionContainer, _viewModel.IsAttacker.Value);
     }
 
-    
+    private void Update()
+    {
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            Debug.Log("space");
+            EventBus.Publish(new CameraAction(CameraType.Action));
+            EventBus.Publish(new HitAnimation(
+                _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                HitActionType.Both5,
+                _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
+        }
+        
+        if (Keyboard.current != null && Keyboard.current.digit0Key.wasPressedThisFrame)
+        {
+            Debug.Log("space");
+            EventBus.Publish(new CameraAction(CameraType.Action));
+            EventBus.Publish(new HitAnimation(
+                _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                HitActionType.Left,
+                _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
+        }
+        
+        if (Keyboard.current != null && Keyboard.current.digit1Key.wasPressedThisFrame)
+        {
+            Debug.Log("space");
+            EventBus.Publish(new CameraAction(CameraType.Action));
+            EventBus.Publish(new HitAnimation(
+                _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                HitActionType.Right,
+                _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
+        }
+        
+        if (Keyboard.current != null && Keyboard.current.digit4Key.wasPressedThisFrame)
+        {
+            Debug.Log("space");
+            EventBus.Publish(new CameraAction(CameraType.Action));
+            EventBus.Publish(new HitAnimation(
+                BattleRole.Attack,
+                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                HitActionType.Right,
+                _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
+        }
+        
+        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+        {
+            EventBus.Publish(new MatchStartEvent());
+        }
+    }
+
     /// <summary>
     /// When player clicked action buton, this function will be call back.
     /// </summary>
     /// <param name="actionIndex"></param>
-    private void OnActionClicked(HandActionType actionIndex)
+    private void OnActionClicked(HandActionType actionIndex, String actionText)
     {
         Debug.Log($"Action clicked: {actionIndex}");
-        _actionRenderer.HideAllActionOptions();
-        _viewModel.OnHandAction(actionIndex);
-        EventBus.Publish(new ActionSelectedEvent(actionIndex,
-                _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
-                SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
-            ));
+        _viewModel.OnChangeActionIndex(actionIndex, actionText);
+        //_viewModel.OnHandAction(actionIndex);
+        
+        // EventBus.Publish(new ActionSelectedEvent(actionIndex,
+        //         _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
+        //         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
+        //     ));
     }
-
     private void OnDestroy()
     {
         _viewModel?.Dispose();

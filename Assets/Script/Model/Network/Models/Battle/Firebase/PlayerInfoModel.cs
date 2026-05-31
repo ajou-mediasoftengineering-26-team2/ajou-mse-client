@@ -13,6 +13,8 @@ public class PlayerInfoModel
     public string username;
     public bool attacking;
     public bool selecting;
+    
+    //형준
     //퍽에 대해서 추가했습니다 + 아이템
     public List<string> perkChoiceList;
     public List<string> perkList;

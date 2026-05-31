@@ -4,33 +4,20 @@ using UnityEngine.UIElements;
 // 202422170 주형준
 public class RoundResultView : MonoBehaviour
 {
-    private RoundResultViewModel _viewModel;
+    private Label _roundResult;
+    private Label _getMoney;
 
     private void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
-
-        var currentRound = root.Q<Label>("CurrentRound");
-        var roundResult  = root.Q<Label>("RoundResult");
-        var getMoney     = root.Q<Label>("GetMoney");
-
-        _viewModel = new RoundResultViewModel();
-        _viewModel.SetPlayerInfo(SceneDataBridge.playerId, SceneDataBridge.MatchId);
-        _viewModel.Initialize();
-
-        root.style.display = DisplayStyle.None;
-
-        _viewModel.IsVisible.Subscribe(visible =>
-            root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None);
-
-        _viewModel.CurrentRound.Subscribe(v => currentRound.text = v ?? "");
-
-        _viewModel.IsWin.Subscribe(isWin =>
-            roundResult.text = isWin ? "WIN" : "LOSE");
-
-        _viewModel.GetMoney.Subscribe(amount =>
-            getMoney.text = amount.ToString());
+        var root     = GetComponent<UIDocument>().rootVisualElement;
+        _roundResult = root.Q<Label>("RoundResult");
+        _getMoney    = root.Q<Label>("GetMoney");
+        //추후에 현재 라운드 표시 필요 -> roundover 수정필요?!
     }
 
-    private void OnDisable() => _viewModel?.Dispose();
+    public void ShowResult(bool isWin)
+    {
+        _roundResult.text = isWin ? "WIN" : "LOSE";
+        _getMoney.text    = "-";
+    }
 }

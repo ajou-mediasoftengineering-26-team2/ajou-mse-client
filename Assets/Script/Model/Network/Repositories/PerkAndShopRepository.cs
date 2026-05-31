@@ -9,7 +9,13 @@ public interface IPerkAndShopRepository
 
 public class PerkAndShopRepository : BaseRepository, IPerkAndShopRepository
 {
-    protected override string EndpointBase => "perk";
+    protected override string EndpointBase
+    {
+        get => "perk";
+        set
+        {
+        }
+    }
 
     public async Task<ApiResponse<EmptyResponse>> PutChoice(string playerId, string perk)
     {
