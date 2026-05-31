@@ -200,18 +200,22 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     if (match == null) return;
                     StationName.Value = match.station;
-                    if (Enum.TryParse(match.state, true, out LobbyState result))
+                    string stateText = match.state?.Trim();
+                    if (Enum.TryParse(stateText, true, out LobbyState result))
                     {
                         MatchState.Value = result;
                     }
+                    else
+                    {
+                        Debug.LogWarning($"[MainBattleViewModel] Unknown lobby state: '{match.state}'");
+                    }
 
-                    Debug.Log("current state = " + result.ToString());
+                    Debug.Log("current state = " + MatchState.Value.ToString());
                     ChangePlayByState(match);
                     GetStatusText();
                     CurrentRound.Value = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
-
                     //lobby data changing mean timer start again.
                 },
                 onError: (error) => Debug.LogError(error)
@@ -228,6 +232,7 @@ public class MainBattleViewModel : ViewModelBase
                     MySelecting.Value = player.selecting;
                     MySelectingE.Value = player.selecting;
                     MyName.Value = player.username;
+                    LeftRoundWin.Value = player.wins;
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
                 },
@@ -243,6 +248,7 @@ public class MainBattleViewModel : ViewModelBase
                     RightHp.Value = player.hp;
                     EnemySelecting.Value = player.selecting;
                     EnemyName.Value = player.username;
+                    RightRoundWin.Value = player.wins;
                     player2 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
                 },
@@ -274,9 +280,20 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.GAME_TURN_ANIMATION => async () =>
             {
-                EventBus.Publish(new ChoiceAnimation());
+                EventBus.Publish(new ChoiceAnimation(player1, player2));
+                if (player1 == null || player2 == null)
+                {
+                    Debug.LogWarning("[MainBattleViewModel] ChoiceAnimation: player info not ready.");
+                }
                 await Task.Delay(5000);
-                EventBus.Publish(new ActionSelectedEvent());
+                if (player1 != null && player2 != null)
+                {
+                    EventBus.Publish(new ActionSelectedEvent(player1, player2));
+                }
+                else
+                {
+                    Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
+                }
                 EventBus.Publish(new CameraAction(CameraType.Action));
                 EventBus.Publish(new HitAnimation(
                     IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
@@ -295,7 +312,6 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => () =>
             {
-                // C# 9.0+ 부터 'or' 패턴으로 switch 조건 결합 가능 (구버전은 case 2개로 분리)
                 EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
                 return Task.CompletedTask;
             },
@@ -303,8 +319,25 @@ public class MainBattleViewModel : ViewModelBase
             LobbyState.GAME_ROUND_END_PLAYER_KO => async () =>
             {
                 EventBus.Publish(new RoundOver(true));
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
-                _roundRepository.endAck(SceneDataBridge.playerId);
+                if (!GameSetting.DELAY_MAP.TryGetValue(SceneDataBridge.playerCamera, out int cameraDelay))
+                {
+                    Debug.LogWarning($"[MainBattleViewModel] Unknown camera: {SceneDataBridge.playerCamera}. Using 0ms delay.");
+                    cameraDelay = 0;
+                }
+                await Task.Delay(cameraDelay + 5000);
+                
+                Debug.Log("이게 왜 안뜨지");
+                if (string.IsNullOrWhiteSpace(SceneDataBridge.playerId))
+                {
+                    Debug.LogError("[MainBattleViewModel] endAck skipped: playerId is empty.");
+                    return;
+                }
+
+                var response = await _roundRepository.endAck(SceneDataBridge.playerId);
+                if (!response.isSuccess)
+                {
+                    Debug.LogError($"[MainBattleViewModel] endAck failed: code={response.error?.code}, msg={response.error?.message}");
+                }
             },
 
             LobbyState.GAME_ELEMENTAL_CHOICE => async () =>
@@ -459,7 +492,6 @@ public class MainBattleViewModel : ViewModelBase
 
     public async void PutRoundStartAck()
     {
-
         Debug.Log("put round start ack 보내고 있음!");
         await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
         await _roundRepository.startAck(SceneDataBridge.playerId);

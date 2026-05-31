@@ -45,8 +45,15 @@ public class UIManager : MonoBehaviour
 
     private void PerksAndShopUIPOP(PerksAndItemReceiveEvent obj)
     {
-        AllUIDown();
-        PerksAndShop.enabled = true;
+        PerksAndShopUIDocument.enabled = false;
+        MatchStart.enabled = false;
+        IntroduceStation.enabled = false;
+        ChoiceReveal.enabled = false;
+        ElementalHandChoice.enabled = false;
+        RoundOver.enabled = false;
+        PerksAndShop.enabled = false;
+        
+        ItemUI.enabled = true;
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)
@@ -70,9 +77,13 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
+        EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
+        EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
         EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Unsubscribe<HandElementalChoice>(HandElementalChoice);
+        EventBus.Unsubscribe<HandElementalChoiceResult>(FinishAnimation);
+        EventBus.Unsubscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
     }
 
 
@@ -94,6 +105,11 @@ public class UIManager : MonoBehaviour
 
     private void RoundOverUI(RoundOver evt)
     {
+        if (RoundOver == null)
+        {
+            Debug.LogError("[UIManager] RoundOver UI document is not set.");
+            return;
+        }
         RoundOver.enabled = true;
     }
     private void PerksAndShopUIPOP(RoundOver evt)
@@ -162,8 +178,21 @@ public class UIManager : MonoBehaviour
     
     private void ShowRoundResultUI(RoundOver evt)
     {
+        if (RoundResultUI == null)
+        {
+            Debug.LogError("[UIManager] RoundResult UI document is not set.");
+            return;
+        }
+
+        var view = RoundResultUI.GetComponent<RoundResultView>();
+        if (view == null)
+        {
+            Debug.LogError("[UIManager] RoundResultView component is missing.");
+            return;
+        }
+
         RoundResultUI.enabled = true;
-        RoundResultUI.GetComponent<RoundResultView>().ShowResult(evt.isWin);
+        view.ShowResult(evt.isWin);
     }
 
     private void ChoiceAnimation(ChoiceAnimation evt)

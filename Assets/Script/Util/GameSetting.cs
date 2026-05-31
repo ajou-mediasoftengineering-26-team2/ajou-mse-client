@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 //202322158 이준상
 
 
@@ -31,6 +32,58 @@ public class GameSetting
         { CameraType.Camera1, 0 },
         { CameraType.Camera2, 1500 }
     };
+
+    private static readonly Dictionary<string, HandActionType> HandActionAliases =
+        new Dictionary<string, HandActionType>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "left", HandActionType.SINGLE_HAND_FLIP_LEFT },
+            { "right", HandActionType.SINGLE_HAND_FLIP_RIGHT },
+            { "both", HandActionType.BOTH_HANDS_FLIP },
+            { "stab", HandActionType.INSERT_BETWEEN_HANDS },
+            { "defense", HandActionType.INSERT_BETWEEN_HANDS },
+            { "defence", HandActionType.INSERT_BETWEEN_HANDS },
+            { "wave", HandActionType.SHAKE_OVER_HANDS },
+            { "pause", HandActionType.SHAKE_OVER_HANDS },
+            { "ok", HandActionType.SHAKE_OVER_HANDS },
+            { "none", HandActionType.INSERT_BETWEEN_HANDS }
+        };
+
+    public static bool TryParseHandAction(string raw, out HandActionType action)
+    {
+        action = default;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        if (Enum.TryParse(raw, true, out action) &&
+            Enum.IsDefined(typeof(HandActionType), action))
+        {
+            return true;
+        }
+
+        string normalized = NormalizeHandActionKey(raw);
+        if (HandActionAliases.TryGetValue(normalized, out action))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static string NormalizeHandActionKey(string raw)
+    {
+        var builder = new StringBuilder(raw.Length);
+        foreach (char c in raw)
+        {
+            if (char.IsLetterOrDigit(c))
+            {
+                builder.Append(char.ToLowerInvariant(c));
+            }
+        }
+
+        return builder.ToString();
+    }
     
 }
 

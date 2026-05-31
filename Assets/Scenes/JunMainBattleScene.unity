@@ -2711,6 +2711,8 @@ MonoBehaviour:
   PerksAndShopUIDocument: {fileID: 1665555493}
   MainBattle: {fileID: 1512037683}
   MatchStart: {fileID: 1546278199}
+  ItemUI: {fileID: 1849418093}
+  RoundResultUI: {fileID: 1963184868}
   IntroduceStation: {fileID: 388301849}
   ChoiceReveal: {fileID: 872812207}
   ElementalHandChoice: {fileID: 640007200}
@@ -2873,6 +2875,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   sfxSource: {fileID: 642354682}
+  bgmSource: {fileID: 0}
   buttonClickClip: {fileID: 8300000, guid: 70b776858259c1349b0b4b8a41de9b66, type: 3}
   softAttackClip: {fileID: 8300000, guid: e6eadff5091541c4ba3be28ea7b170cf, type: 3}
   hardAttackClip: {fileID: 8300000, guid: e9316f315882f7141a194919f3b35e1c, type: 3}
