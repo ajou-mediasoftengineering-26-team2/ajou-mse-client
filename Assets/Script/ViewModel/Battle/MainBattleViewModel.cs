@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -98,6 +99,9 @@ public class MainBattleViewModel : ViewModelBase
         new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
 
     public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
+    
+    
+    public Observable<List<ItemType>> ItemLists { get; } = new Observable<List<ItemType>>();
 
 
     public MainBattleViewModel()
@@ -235,6 +239,28 @@ public class MainBattleViewModel : ViewModelBase
                     LeftRoundWin.Value = player.wins;
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
+
+                    
+
+                    if (player.itemList == null)
+                    {
+                        ItemLists.Value = new List<ItemType>();
+                        return;
+                    }
+                    
+                    List<ItemType> itms = new  List<ItemType>();
+                    for (int i = 0; i < player.itemList.Count; i++)
+                    {
+                        if (!Enum.TryParse<ItemType>(player.itemList[i], out var itemType))
+                        {
+                            Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                            return;
+                        }
+                        
+                        itms.Add(itemType);
+                    }
+
+                    ItemLists.Value = itms;
                 },
                 onError: (error) => Debug.LogError(error)
             );

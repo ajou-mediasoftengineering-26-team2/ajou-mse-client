@@ -118,6 +118,15 @@ public class MainBattleBindingRenderer
         {
             _uiRefs.ActionName.text = "Current Action : " + name.ToString();
         });
+        
+        _viewModel.ItemLists.Subscribe(name =>
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Items/{name[i]}");
+                _uiRefs.ItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+            }
+        });
     }
 
     private void BindSlotHover()
