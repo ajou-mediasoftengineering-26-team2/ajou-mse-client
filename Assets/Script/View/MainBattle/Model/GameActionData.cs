@@ -62,4 +62,20 @@ public static class ActionDatabase
     {
         return Resources.Load<Sprite>(path);
     }
+
+    public static bool TryGetActionData(bool isAttacker, HandActionType actionCode, out HandActionData data)
+    {
+        List<HandActionData> list = isAttacker ? AttackActions : DefendActions;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i].actionCode == actionCode)
+            {
+                data = list[i];
+                return true;
+            }
+        }
+
+        data = null;
+        return false;
+    }
 }

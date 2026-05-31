@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/AssetDesign/IntroduceStationUSS.uss?fileID=7433441132597879392&amp;guid=9fb753c3479e3eb46bba1c82a1fd21b7&amp;type=3#IntroduceStationUSS"/>
+    <ui:VisualElement class="station-screen-root" style="background-color: rgba(0, 0, 0, 0.75);">
+        <ui:VisualElement class="station-container">
+            <ui:Label name = "first" text="This station is" class="station-line" style="align-self: center; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 100, 0);"/>
+            <ui:Label name = "second" text="Seoul" class="station-line station-bold" style="align-items: stretch; align-self: center; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 200, 0);"/>
+            <ui:Label name = "third" text="The door is on your left" class="station-line" style="align-self: center; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 255, 255);"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

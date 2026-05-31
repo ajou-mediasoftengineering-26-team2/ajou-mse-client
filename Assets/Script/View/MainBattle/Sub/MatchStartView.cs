@@ -6,34 +6,88 @@ public class MatchStartView : MonoBehaviour
 {
     private VisualElement _leftPlayerGroup;
     private VisualElement _rightPlayerGroup;
+    private VisualElement _displayContainer;
 
+
+    private Label name1;
+    private Label name2;
+    private Label position1;
+    private Label position2;
+
+    private MainBattleViewModel _viewModel;
+
+
+    private Label name1;
+    private Label name2;
+    private Label position1;
+    private Label position2;
+
+    private MainBattleViewModel _viewModel;
     void OnEnable()
     {
+        _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
+        var uiDoc = GetComponent<UIDocument>();
+        if (uiDoc == null) return;
+        
+        CacheElements(uiDoc.rootVisualElement);
+    }
+
+    public void StartAnimation(PlayerInfoModel player1, PlayerInfoModel player2)
+    {
+        if (_viewModel == null)
+            _viewModel = ViewModelLocator.Instance.Get<MainBattleViewModel>();
+        
         var uiDoc = GetComponent<UIDocument>();
         if (uiDoc == null) return;
 
         var root = uiDoc.rootVisualElement;
+        CacheElements(root);
 
-        // 1. UXML에서 플레이어 그룹 2개 찾아오기
-        var playerGroups = root.Query<VisualElement>(className: "player-group").ToList();
-        if (playerGroups.Count >= 2)
+        if (_displayContainer != null)
         {
-            _leftPlayerGroup = playerGroups[0];
-            _rightPlayerGroup = playerGroups[1];
+            _displayContainer.style.display = DisplayStyle.Flex;
+            _displayContainer.style.opacity = 1f;
         }
 
-        
-    }
-
-    public void StartAnimation()
+    public void StartAnimation(PlayerInfoModel player1, PlayerInfoModel player2)
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
         // 2. 초기 상태 셋팅 (화면 아래에 숨겨두기)
+        name1.text = player1.username;
+        name2.text = player2.username;
+        position1.text = player1.attacking ? "Attack" :  "Defend";
+        position2.text = player2.attacking ? "Attack" :  "Defend";
+        name1 = root.Q<Label>("left-name");
+        name2 = root.Q<Label>("right-name");
+        position1 = root.Q<Label>("left-status");
+        position2 = root.Q<Label>("right-status");
+        name1.text = player1.username;
+        name2.text = player2.username;
+        position1.text = player1.attacking ? "Attack" :  "Defend";
+        position2.text = player2.attacking ? "Attack" :  "Defend";
         InitInitialState(_leftPlayerGroup);
         InitInitialState(_rightPlayerGroup);
+        
 
         // 테스트: 1초 뒤에 순차 팝업 애니메이션 실행
         root.schedule.Execute(PlaySequenceAnimation).StartingIn(1000);
+    }
+
+    private void CacheElements(VisualElement root)
+    {
+        if (root == null) return;
+
+        _displayContainer = root.Q<VisualElement>(className: "display-container");
+        
+        
+        var playerGroups = root.Query<VisualElement>(className: "player-group").ToList();
+        _leftPlayerGroup = playerGroups.Count > 0 ? playerGroups[0] : null;
+        _rightPlayerGroup = playerGroups.Count > 1 ? playerGroups[1] : null;
+
+        name1 = root.Q<Label>("left-name");
+        name2 = root.Q<Label>("right-name");
+        position1 = root.Q<Label>("left-status");
+        position2 = root.Q<Label>("right-status");
     }
 
     /// <summary>
@@ -74,7 +128,7 @@ public class MatchStartView : MonoBehaviour
             _leftPlayerGroup.style.opacity = 1f;
             _leftPlayerGroup.style.translate = new StyleTranslate(new Translate(0, 0, 0));
             Debug.Log("Player 1 애니메이션 시작");
-        }).StartingIn(50); // 🚨 핵심: 유니티가 초기 설정을 인지할 수 있도록 0.05초 딜레이를 줍니다.
+        }).StartingIn(50);
 
 
         _rightPlayerGroup.schedule.Execute(() =>
@@ -116,6 +170,16 @@ public class MatchStartView : MonoBehaviour
                 Debug.Log("UI 종료 완료");
             }).StartingIn(500);
         }
-
+        
+        
+        _viewModel.PutRoundStartAck();
     }
 }
+
+
+
+
+
+
+
+

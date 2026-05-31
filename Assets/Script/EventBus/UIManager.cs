@@ -9,35 +9,71 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument MatchStart;
     [SerializeField] UIDocument ItemUI;
     [SerializeField] UIDocument RoundResultUI;
+    [SerializeField] UIDocument IntroduceStation;
+    [SerializeField] UIDocument ChoiceReveal;
+    [SerializeField] UIDocument ElementalHandChoice;
+    [SerializeField] UIDocument RoundOver;
+    [SerializeField] UIDocument PerksAndShop;
 
+    private PlayerInfoModel player1;
+    private PlayerInfoModel player2;
+    
     private HitAnimation current;
     private void OnEnable()
     {
         PerksAndShopUIDocument.enabled = false;
         MatchStart.enabled = false;
+        IntroduceStation.enabled = false;
+        ChoiceReveal.enabled = false;
+        ElementalHandChoice.enabled = false;
+        RoundOver.enabled = false;
+        PerksAndShop.enabled = false;
         
-        
-        EventBus.Subscribe<RoundOver>(PerksAndShopUIPOP);
+        EventBus.Subscribe<RoundOver>(RoundOverUI);
         EventBus.Subscribe<HitAnimation>(HitAnimation);
         EventBus.Subscribe<SortHitEvent>(HitUi);
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Subscribe<ItemReceivedEvent>(ShowItemUI);
         EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
+        EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
+        EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
+        EventBus.Subscribe<HandElementalChoice>(HandElementalChoice);
+        EventBus.Subscribe<HandElementalChoiceResult>(FinishAnimation);
     }
-    
+
+    private void FinishAnimation(HandElementalChoiceResult obj)
+    {
+        PerksAndShopUIDocument.enabled = false;
+        MatchStart.enabled = false;
+        IntroduceStation.enabled = false;
+        ChoiceReveal.enabled = false;
+        ElementalHandChoice.enabled = false;
+        RoundOver.enabled = false;
+        PerksAndShop.enabled = false;
+        
+        IntroduceStation.enabled = true;
+    }
+
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<RoundOver>(PerksAndShopUIPOP);
+        EventBus.Unsubscribe<RoundOver>(RoundOverUI);
         EventBus.Unsubscribe<HitAnimation>(HitAnimation);
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
-        EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
-        EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
+        EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
+        EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
+        EventBus.Unsubscribe<HandElementalChoice>(HandElementalChoice);
     }
-    
+
+
+    private void HandElementalChoice(HandElementalChoice evt)
+    {
+        RoundOver.enabled = false;
+        ElementalHandChoice.enabled = true;
+    }
     
     private void HitUi(SortHitEvent obj)
     {
@@ -48,7 +84,11 @@ public class UIManager : MonoBehaviour
     {
         GetAnimatorByPlayer(current.Player, current.Role);
     }
-    
+
+    private void RoundOverUI(RoundOver evt)
+    {
+        RoundOver.enabled = true;
+    }
     private void PerksAndShopUIPOP(RoundOver evt)
     {
         PerksAndShopUIDocument.enabled = true;
@@ -92,9 +132,20 @@ public class UIManager : MonoBehaviour
     private void MatchStartUI(MatchStartEvent evt)
     {
         MatchStart.enabled = true;
-        MatchStart.GetComponent<MatchStartView>().StartAnimation();
+        MatchStart.GetComponent<MatchStartView>().StartAnimation(player1, player2);
     }
 
+    public void ShowStationUI(IntroduceStationEvent evt)
+    {
+        IntroduceStation.enabled = true;
+        var view = IntroduceStation.GetComponent<IntroduceStationView>();
+        player1 = evt.player1;
+        player2 = evt.player2; 
+        if (view != null)
+        {
+            view.StartAnimation(evt.station);
+        }
+    }
     
     private void ShowItemUI(ItemReceivedEvent evt)
     {
@@ -107,4 +158,11 @@ public class UIManager : MonoBehaviour
         RoundResultUI.enabled = true;
         RoundResultUI.GetComponent<RoundResultView>().ShowResult(evt.isWin);
     }
+
+    private void ChoiceAnimation(ChoiceAnimation evt)
+    {
+        ChoiceReveal.enabled = true;
+        ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal();
+    }
+    
 }

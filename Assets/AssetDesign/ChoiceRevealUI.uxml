@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/AssetDesign/RoundWining_UI.uss?fileID=7433441132597879392&amp;guid=2eb5aba4ca98d4f40984ab64df8007a1&amp;type=3#RoundWining_UI"/>
-    <ui:VisualElement class="display-container" style="color: rgba(27, 27, 27, 0.2);">
+    <ui:VisualElement class="display-container" style="color: rgba(27, 27, 27, 0.2); background-color: rgba(20, 20, 20, 0.45);">
         <ui:VisualElement class="score-section">
             <ui:VisualElement class="player-group" style="align-items: center;">
                 <ui:VisualElement name="left-choice-image" class="choice-sprite-frame" style="background-image: none; background-position-x: right 0;"/>
