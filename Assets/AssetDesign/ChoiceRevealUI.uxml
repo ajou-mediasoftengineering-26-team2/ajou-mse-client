@@ -6,12 +6,14 @@
                 <ui:VisualElement name="left-choice-image" class="choice-sprite-frame" style="background-image: none; background-position-x: right 0;"/>
                 <ui:Label name="left-status" text="ATTACK" class="status-badge status-attack" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 200, 0); -unity-text-align: upper-center;"/>
                 <ui:Label name="left-name" text="PLAYER 1" class="player-name" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 200, 0); font-size: 20px;"/>
+                <ui:Label name="left-action" text="ACTION" class="player-action" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 200, 0);"/>
             </ui:VisualElement>
             <ui:Label text="VS" class="vs-text" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
             <ui:VisualElement class="player-group">
                 <ui:VisualElement name="right-choice-image" class="choice-sprite-frame" style="align-items: center; align-self: center;"/>
                 <ui:Label name="right-status" text="DEFENSE" class="status-badge status-defense" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 100, 0); -unity-text-align: upper-center;"/>
                 <ui:Label name="right-name" text="PLAYER 2" class="player-name" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 100, 0); font-size: 20px;"/>
+                <ui:Label name="right-action" text="ACTION" class="player-action" style="-unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 100, 0);"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

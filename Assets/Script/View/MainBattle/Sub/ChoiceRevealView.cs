@@ -12,6 +12,12 @@ public class ChoiceRevealView : MonoBehaviour
 
     private VisualElement _leftChoiceImage;
     private VisualElement _rightChoiceImage;
+    private Label _leftStatusLabel;
+    private Label _rightStatusLabel;
+    private Label _leftNameLabel;
+    private Label _rightNameLabel;
+    private Label _leftActionLabel;
+    private Label _rightActionLabel;
 
     private Coroutine _animationCoroutine; // 실행 중인 코루틴을 제어하기 위한 변수
 
@@ -36,7 +42,7 @@ public class ChoiceRevealView : MonoBehaviour
     /// <summary>
     /// 외부 테스트용 메서드 (무작위 스프라이트 트랩 방지 로그 추가)
     /// </summary>
-    public void StartChoiceReveal()
+    public void StartChoiceReveal(PlayerInfoModel leftPlayer, PlayerInfoModel rightPlayer)
     {
         if (!TryCacheElements())
         {
@@ -47,17 +53,9 @@ public class ChoiceRevealView : MonoBehaviour
         ShowContainer();
         SnapToInitialState();
 
-        var sprites = Resources.FindObjectsOfTypeAll<Sprite>();
-        Debug.Log($"[ChoiceReveal] 찾아낸 스프라이트 개수: {sprites.Length}");
-
-        if (sprites.Length >= 2)
-        {
-            RevealChoices(sprites[0], sprites[1]);
-        }
-        else
-        {
-            Debug.LogError("[ChoiceReveal] 메모리에 스프라이트가 2개 이상 없습니다! 테스트용 스프라이트를 직접 넣어주세요.");
-        }
+        Sprite leftSprite = ConfigurePlayerUI(leftPlayer, isLeft: true);
+        Sprite rightSprite = ConfigurePlayerUI(rightPlayer, isLeft: false);
+        RevealChoices(leftSprite, rightSprite);
     }
 
     /// <summary>
@@ -216,6 +214,12 @@ public class ChoiceRevealView : MonoBehaviour
 
         _leftChoiceImage = root.Q<VisualElement>("left-choice-image");
         _rightChoiceImage = root.Q<VisualElement>("right-choice-image");
+        _leftStatusLabel = root.Q<Label>("left-status");
+        _rightStatusLabel = root.Q<Label>("right-status");
+        _leftNameLabel = root.Q<Label>("left-name");
+        _rightNameLabel = root.Q<Label>("right-name");
+        _leftActionLabel = root.Q<Label>("left-action");
+        _rightActionLabel = root.Q<Label>("right-action");
 
         return true;
     }
@@ -225,5 +229,67 @@ public class ChoiceRevealView : MonoBehaviour
         if (_container == null) return;
         _container.style.display = DisplayStyle.Flex;
         _container.style.opacity = 1f;
+    }
+
+    private Sprite ConfigurePlayerUI(PlayerInfoModel player, bool isLeft)
+    {
+        Label statusLabel = isLeft ? _leftStatusLabel : _rightStatusLabel;
+        Label nameLabel = isLeft ? _leftNameLabel : _rightNameLabel;
+        Label actionLabel = isLeft ? _leftActionLabel : _rightActionLabel;
+
+        if (player == null)
+        {
+            Debug.LogError("[ChoiceReveal] Player info is missing.");
+            SetLabelText(statusLabel, "UNKNOWN");
+            SetLabelText(nameLabel, "UNKNOWN");
+            SetLabelText(actionLabel, "UNKNOWN");
+            return null;
+        }
+
+        bool isAttacking = player.attacking;
+        SetLabelText(statusLabel, isAttacking ? "ATTACK" : "DEFENSE");
+        SetLabelText(nameLabel, string.IsNullOrWhiteSpace(player.username) ? "UNKNOWN" : player.username);
+
+        Sprite sprite = ResolveChoiceSprite(player, isAttacking, out string actionName);
+        SetLabelText(actionLabel, actionName);
+        return sprite;
+    }
+
+    private Sprite ResolveChoiceSprite(PlayerInfoModel player, bool isAttacking, out string actionName)
+    {
+        actionName = "UNKNOWN";
+        if (player == null)
+        {
+            return null;
+        }
+
+        if (!GameSetting.TryParseHandAction(player.handChoice, out HandActionType action))
+        {
+            Debug.LogError($"[ChoiceReveal] Unknown handChoice: {player.handChoice}");
+            return null;
+        }
+
+        List<HandActionData> actions = isAttacking ? ActionDatabase.AttackActions : ActionDatabase.DefendActions;
+        HandActionData actionData = actions.Find(data => data.actionCode == action);
+        if (actionData == null)
+        {
+            Debug.LogError($"[ChoiceReveal] Missing action data for {action} (attacking={isAttacking}).");
+            return null;
+        }
+
+        actionName = actionData.actionName;
+        Sprite sprite = ActionDatabase.GetActionSprite(actionData.imagePath);
+        if (sprite == null)
+        {
+            Debug.LogError($"[ChoiceReveal] Missing sprite at Resources/{actionData.imagePath} for {actionData.actionName}.");
+        }
+
+        return sprite;
+    }
+
+    private void SetLabelText(Label label, string text)
+    {
+        if (label == null) return;
+        label.text = text;
     }
 }

@@ -52,8 +52,8 @@ public class MainBattleView : MonoBehaviour
         }
 
         _uiRefs = new MainBattleUIRefs(mainBattle, perks, toopTip);
-        _dotsRenderer = new MainBattleDotsRenderer(roundItemTemplate);
-        _dotsRenderer.Initialize(_uiRefs.MyRoundWinning, _uiRefs.EnemyRoundWinning);
+        //_dotsRenderer = new MainBattleDotsRenderer(roundItemTemplate);
+        //_dotsRenderer.Initialize(_uiRefs.MyRoundWinning, _uiRefs.EnemyRoundWinning);
         _actionRenderer = new MainBattleActionRenderer(actionItemSelect, OnActionClicked);
         
         _bindingRenderer = new MainBattleBindingRenderer(
