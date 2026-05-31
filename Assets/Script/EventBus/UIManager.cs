@@ -40,6 +40,13 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Subscribe<HandElementalChoice>(HandElementalChoice);
         EventBus.Subscribe<HandElementalChoiceResult>(FinishAnimation);
+        EventBus.Subscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
+    }
+
+    private void PerksAndShopUIPOP(PerksAndItemReceiveEvent obj)
+    {
+        AllUIDown();
+        PerksAndShop.enabled = true;
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)
