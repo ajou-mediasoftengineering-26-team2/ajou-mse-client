@@ -24,8 +24,14 @@ public class MainBattleBindingRenderer
     {
         BindSlotHover();
 
-        _viewModel.LeftRoundWin.Subscribe(_dotsRenderer.RefreshMy);
-        _viewModel.RightRoundWin.Subscribe(_dotsRenderer.RefreshEnemy);
+        _viewModel.LeftRoundWin.Subscribe(data =>
+        {
+            _uiRefs.MyScore.text = data.ToString();
+        });
+        _viewModel.RightRoundWin.Subscribe(data =>
+        {
+            _uiRefs.EnemyScore.text = data.ToString();
+        });
 
         // _viewModel.StationName.Subscribe(station =>
         // {
@@ -33,6 +39,11 @@ public class MainBattleBindingRenderer
         //     label.text = station;
         // });
 
+        _viewModel.IsAttacker.Subscribe(data =>
+        {
+            _uiRefs.MyAttack.text = data ? "Attack" :  "Defend";
+            _uiRefs.EnemyAttack.text = data ? "Defend" : "Attack";
+        });
         _viewModel.HoverTest.Subscribe(test =>
         {
             if (test == null)

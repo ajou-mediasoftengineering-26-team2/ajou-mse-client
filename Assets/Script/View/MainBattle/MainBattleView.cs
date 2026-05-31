@@ -63,8 +63,6 @@ public class MainBattleView : MonoBehaviour
             _actionRenderer
             );
         _bindingRenderer.Bind();
-        
-        
     }
 
     public void UpdateRoundWithDelay()

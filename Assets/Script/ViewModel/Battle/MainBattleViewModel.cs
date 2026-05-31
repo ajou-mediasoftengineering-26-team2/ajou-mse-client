@@ -355,7 +355,15 @@ public class MainBattleViewModel : ViewModelBase
             },
             LobbyState.GAME_PERK_ITEM_RECEIVING => () =>
             {
-                EventBus.Publish(new PerksAndItemReceiveEvent());
+                for (int i = 0; i < player1.receivedItemList.Count; i++)
+                {
+                    EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[0]));   
+                }
+                return Task.CompletedTask;
+            },
+            LobbyState.GAME_PERK_CHOICE => () =>
+            {
+                //EventBus.Publish(new );
                 return Task.CompletedTask;
             },
 

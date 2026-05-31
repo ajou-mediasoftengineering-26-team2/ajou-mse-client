@@ -18,9 +18,13 @@ public class MainBattleUIRefs
     
     public CameraTurnManager CameraManager { get; }
     
-    
+    public Label MyAttack { get; }
+    public Label EnemyAttack { get; }
     public VisualElement LeftHp { get; }
     public VisualElement RightHp { get; }
+    
+    public Label MyScore { get; }
+    public Label EnemyScore { get; }
 
     public MainBattleUIRefs(UIDocument mainBattle, UIDocument perks, UIDocument tooltip)
     {
@@ -35,6 +39,11 @@ public class MainBattleUIRefs
         MyName = MainBattleRoot.Q<Label>("MyName");
         EnemyName = MainBattleRoot.Q<Label>("EnemyName");
         ActionName = MainBattleRoot.Q<Label>("ActionLogText");
+        MyAttack = MainBattleRoot.Q<Label>("MyRoleText");
+        EnemyAttack = MainBattleRoot.Q<Label>("EnemyRoleText");
+        MyScore =  MainBattleRoot.Q<Label>("LeftScore");
+        EnemyScore = MainBattleRoot.Q<Label>("RightScore");
+        
         
         LeftHp = MainBattleRoot.Q<VisualElement>("LeftHp");
         RightHp = MainBattleRoot.Q<VisualElement>("RightHp");

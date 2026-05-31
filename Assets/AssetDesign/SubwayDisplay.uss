@@ -46,7 +46,7 @@
     height: 60px;
     /* 배경색을 투명하게 변경 */
     background-color: rgba(0, 0, 0, 0);
-    background-image: url('project:/Assets/Design/left_arrow.png');
+    background-image: url("project://database/Assets/Design/left_arrow.png");
     /* 이미지가 잘리지 않고 영역에 맞게 들어가도록 설정 */
     -unity-background-scale-mode: scale-to-fit;
     /* 이전 코드에서 넣었던 rotate가 있다면 제거해야 화살표 방향이 제대로 보입니다 */
