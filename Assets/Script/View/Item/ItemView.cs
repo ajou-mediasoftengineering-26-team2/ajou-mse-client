@@ -21,6 +21,7 @@ public class ItemView : MonoBehaviour
             return;
         }
 
+        RepositoryFactory.Instance.Register<IItemRepository, ItemRepository>();
         _itemRepo ??= RepositoryFactory.Instance.Get<IItemRepository>();
     }
 
@@ -38,12 +39,12 @@ public class ItemView : MonoBehaviour
             return;
         }
 
-        Debug.Log("item type" +  itemType);
+        Debug.Log("item type" + itemType);
         _itemTitle.text = ItemInfoProvider.GetDisplayName(itemType);
         _itemInfo.text  = ItemInfoProvider.GetDescription(itemType);
         var sprite = Resources.Load<Sprite>($"Items/{itemType}");
         if (sprite != null) _itemImg.sprite = sprite;
-        //StartCoroutine(AckAndClose());
+        StartCoroutine(AckAndClose()); // 주석 해제
     }
 
     private bool TryCacheElements()
@@ -57,9 +58,9 @@ public class ItemView : MonoBehaviour
         if (!ReferenceEquals(currentRoot, _root) || _itemImg == null || _itemTitle == null || _itemInfo == null)
         {
             _root = currentRoot;
-            _itemImg = _root.Q<Image>("ItemImg");
+            _itemImg   = _root.Q<Image>("ItemImg");
             _itemTitle = _root.Q<Label>("ItemTitle");
-            _itemInfo = _root.Q<Label>("ItemInfo");
+            _itemInfo  = _root.Q<Label>("ItemInfo");
         }
 
         return _itemImg != null && _itemTitle != null && _itemInfo != null;
@@ -67,7 +68,7 @@ public class ItemView : MonoBehaviour
 
     private IEnumerator AckAndClose()
     {
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(3f);
         _ = _itemRepo.PutAck(SceneDataBridge.playerId);
         GetComponent<UIDocument>().enabled = false;
     }
