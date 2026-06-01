@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -98,6 +99,9 @@ public class MainBattleViewModel : ViewModelBase
         new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
 
     public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
+    
+    
+    public Observable<List<ItemType>> ItemLists { get; } = new Observable<List<ItemType>>();
 
 
     public MainBattleViewModel()
@@ -200,12 +204,17 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     if (match == null) return;
                     StationName.Value = match.station;
-                    if (Enum.TryParse(match.state, true, out LobbyState result))
+                    string stateText = match.state?.Trim();
+                    if (Enum.TryParse(stateText, true, out LobbyState result))
                     {
                         MatchState.Value = result;
                     }
+                    else
+                    {
+                        Debug.LogWarning($"[MainBattleViewModel] Unknown lobby state: '{match.state}'");
+                    }
 
-                    Debug.Log("current state = " + result.ToString());
+                    Debug.Log("current state = " + MatchState.Value.ToString());
                     ChangePlayByState(match);
                     GetStatusText();
                     CurrentRound.Value = match.currentRound;
@@ -230,6 +239,28 @@ public class MainBattleViewModel : ViewModelBase
                     LeftRoundWin.Value = player.wins;
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
+
+                    
+
+                    if (player.itemList == null)
+                    {
+                        ItemLists.Value = new List<ItemType>();
+                        return;
+                    }
+                    
+                    List<ItemType> itms = new  List<ItemType>();
+                    for (int i = 0; i < player.itemList.Count; i++)
+                    {
+                        if (!Enum.TryParse<ItemType>(player.itemList[i], out var itemType))
+                        {
+                            Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                            return;
+                        }
+                        
+                        itms.Add(itemType);
+                    }
+
+                    ItemLists.Value = itms;
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -301,13 +332,16 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.END_RESULT => () =>
             {
-                EventBus.Publish(new RoundOver(true));
+                /*EventBus.Publish(new RoundOver(true));
+                return Task.CompletedTask;*/
+                //게임 엔드로 수정했슴다
+                bool isP1Winner = player1.finalWinner;
+                EventBus.Publish(new GameEndEvent(player1, player2, isP1Winner));
                 return Task.CompletedTask;
             },
 
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => () =>
             {
-                // C# 9.0+ 부터 'or' 패턴으로 switch 조건 결합 가능 (구버전은 case 2개로 분리)
                 EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
                 return Task.CompletedTask;
             },
@@ -315,8 +349,27 @@ public class MainBattleViewModel : ViewModelBase
             LobbyState.GAME_ROUND_END_PLAYER_KO => async () =>
             {
                 EventBus.Publish(new RoundOver(true));
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
-                _roundRepository.endAck(SceneDataBridge.playerId);
+                //결과창 이벤트 버스 추가
+                EventBus.Publish(new RoundResultEvent(isWin: player1.hp > 0, currentRound: match.currentRound));
+                if (!GameSetting.DELAY_MAP.TryGetValue(SceneDataBridge.playerCamera, out int cameraDelay))
+                {
+                    Debug.LogWarning($"[MainBattleViewModel] Unknown camera: {SceneDataBridge.playerCamera}. Using 0ms delay.");
+                    cameraDelay = 0;
+                }
+                await Task.Delay(cameraDelay + 5000);
+                
+                Debug.Log("이게 왜 안뜨지");
+                if (string.IsNullOrWhiteSpace(SceneDataBridge.playerId))
+                {
+                    Debug.LogError("[MainBattleViewModel] endAck skipped: playerId is empty.");
+                    return;
+                }
+
+                var response = await _roundRepository.endAck(SceneDataBridge.playerId);
+                if (!response.isSuccess)
+                {
+                    Debug.LogError($"[MainBattleViewModel] endAck failed: code={response.error?.code}, msg={response.error?.message}");
+                }
             },
 
             LobbyState.GAME_ELEMENTAL_CHOICE => async () =>
@@ -334,7 +387,15 @@ public class MainBattleViewModel : ViewModelBase
             },
             LobbyState.GAME_PERK_ITEM_RECEIVING => () =>
             {
-                EventBus.Publish(new PerksAndItemReceiveEvent());
+                for (int i = 0; i < player1.receivedItemList.Count; i++)
+                {
+                    EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[0]));   
+                }
+                return Task.CompletedTask;
+            },
+            LobbyState.GAME_PERK_CHOICE => () =>
+            {
+                //EventBus.Publish(new );
                 return Task.CompletedTask;
             },
 

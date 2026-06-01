@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument ElementalHandChoice;
     [SerializeField] UIDocument RoundOver;
     [SerializeField] UIDocument PerksAndShop;
+    [SerializeField] UIDocument GameEndUI;
 
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
@@ -21,13 +22,8 @@ public class UIManager : MonoBehaviour
     private HitAnimation current;
     private void OnEnable()
     {
-        PerksAndShopUIDocument.enabled = false;
-        MatchStart.enabled = false;
-        IntroduceStation.enabled = false;
-        ChoiceReveal.enabled = false;
-        ElementalHandChoice.enabled = false;
-        RoundOver.enabled = false;
-        PerksAndShop.enabled = false;
+        // 개별적으로 끄던 코드를 AllUIDown 하나로 대체
+        AllUIDown();
         
         EventBus.Subscribe<RoundOver>(RoundOverUI);
         EventBus.Subscribe<HitAnimation>(HitAnimation);
@@ -35,22 +31,24 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Subscribe<ItemReceivedEvent>(ShowItemUI);
-        EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
+        //EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
+        EventBus.Subscribe<RoundResultEvent>(ShowRoundResultUI);
         EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Subscribe<HandElementalChoice>(HandElementalChoice);
         EventBus.Subscribe<HandElementalChoiceResult>(FinishAnimation);
+        EventBus.Subscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
+        EventBus.Subscribe<GameEndEvent>(ShowGameEndUI);
+    }
+
+    private void PerksAndShopUIPOP(PerksAndItemReceiveEvent obj)
+    {
+        
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)
     {
-        PerksAndShopUIDocument.enabled = false;
-        MatchStart.enabled = false;
-        IntroduceStation.enabled = false;
-        ChoiceReveal.enabled = false;
-        ElementalHandChoice.enabled = false;
-        RoundOver.enabled = false;
-        PerksAndShop.enabled = false;
+        AllUIDown();
         
         IntroduceStation.enabled = true;
     }
@@ -63,15 +61,21 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
+        EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
+        //EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
+        EventBus.Unsubscribe<RoundResultEvent>(ShowRoundResultUI);
         EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Unsubscribe<HandElementalChoice>(HandElementalChoice);
+        EventBus.Unsubscribe<HandElementalChoiceResult>(FinishAnimation);
+        EventBus.Unsubscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
+        EventBus.Unsubscribe<GameEndEvent>(ShowGameEndUI);
     }
 
 
     private void HandElementalChoice(HandElementalChoice evt)
     {
-        RoundOver.enabled = false;
+        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         ElementalHandChoice.enabled = true;
     }
     
@@ -87,10 +91,17 @@ public class UIManager : MonoBehaviour
 
     private void RoundOverUI(RoundOver evt)
     {
+        if (RoundOver == null)
+        {
+            Debug.LogError("[UIManager] RoundOver UI document is not set.");
+            return;
+        }
+        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         RoundOver.enabled = true;
     }
     private void PerksAndShopUIPOP(RoundOver evt)
     {
+        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         PerksAndShopUIDocument.enabled = true;
     }
 
@@ -131,12 +142,14 @@ public class UIManager : MonoBehaviour
     
     private void MatchStartUI(MatchStartEvent evt)
     {
+        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         MatchStart.enabled = true;
         MatchStart.GetComponent<MatchStartView>().StartAnimation(player1, player2);
     }
 
     public void ShowStationUI(IntroduceStationEvent evt)
     {
+        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         IntroduceStation.enabled = true;
         var view = IntroduceStation.GetComponent<IntroduceStationView>();
         player1 = evt.player1;
@@ -149,20 +162,73 @@ public class UIManager : MonoBehaviour
     
     private void ShowItemUI(ItemReceivedEvent evt)
     {
+        AllUIDown(); // (기존 코드 유지) UI 켜기 전에 모두 끄기
         ItemUI.enabled = true;
         ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
     }
     
-    private void ShowRoundResultUI(RoundOver evt)
+    private void ShowRoundResultUI(RoundResultEvent evt)
     {
+        if (RoundResultUI == null)
+        {
+            Debug.LogError("[UIManager] RoundResult UI document is not set.");
+            return;
+        }
+
+        var view = RoundResultUI.GetComponent<RoundResultView>();
+        if (view == null)
+        {
+            Debug.LogError("[UIManager] RoundResultView component is missing.");
+            return;
+        }
+
+        AllUIDown();
         RoundResultUI.enabled = true;
-        RoundResultUI.GetComponent<RoundResultView>().ShowResult(evt.isWin);
+        view.ShowResult(evt);
     }
 
     private void ChoiceAnimation(ChoiceAnimation evt)
     {
+        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         ChoiceReveal.enabled = true;
         ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal();
     }
     
+    private void ShowGameEndUI(GameEndEvent evt)
+    {
+        if (GameEndUI == null)
+        {
+            Debug.LogError("[UIManager] GameEnd UI document is not set.");
+            return;
+        }
+
+        var view = GameEndUI.GetComponent<GameEndView>();
+        if (view == null)
+        {
+            Debug.LogError("[UIManager] GameEndView component is missing.");
+            return;
+        }
+
+        AllUIDown();
+        GameEndUI.enabled = true;
+        view.ShowResult(evt);
+    }
+
+    /// <summary>
+    /// 상단에 선언된 모든 10개의 UIDocument를 안전하게 비활성화합니다.
+    /// </summary>
+    private void AllUIDown()
+    {
+        if (PerksAndShopUIDocument != null) PerksAndShopUIDocument.enabled = false;
+        //if (MainBattle != null) MainBattle.enabled = false;
+        if (MatchStart != null) MatchStart.enabled = false;
+        if (ItemUI != null) ItemUI.enabled = false;
+        if (RoundResultUI != null) RoundResultUI.enabled = false;
+        if (IntroduceStation != null) IntroduceStation.enabled = false;
+        if (ChoiceReveal != null) ChoiceReveal.enabled = false;
+        if (ElementalHandChoice != null) ElementalHandChoice.enabled = false;
+        if (RoundOver != null) RoundOver.enabled = false;
+        if (PerksAndShop != null) PerksAndShop.enabled = false;
+        if (GameEndUI != null) GameEndUI.enabled = false;
+    }
 }

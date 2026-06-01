@@ -87,9 +87,10 @@ public class PerkAndShopViewModel : ViewModelBase
             $"matches/{_lobbyId}/players/{_playerId}",
             onValueChanged: player =>
             {
-                // if (player?.perkChoiceList == null || player.perkChoiceList.Count == 0) return;
-                // _perkChoices = player.perkChoiceList;
+                if (player?.perkChoiceList == null || player.perkChoiceList.Count == 0) return;
+                _perkChoices = player.perkChoiceList;
                 RefreshPerkCards();
+                CanSelect.Value = true;
 
                 // 서버팀 확인 후 추가
                 // BeforeStat.Value  = player.currentStat;
@@ -136,6 +137,7 @@ public class PerkAndShopViewModel : ViewModelBase
                 CanSelect.Value = true;
                 return;
             }
+            _ = _perkAndShopRepo.PutAck(_playerId);
             EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
         }
         catch (Exception e)

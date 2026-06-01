@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 //202322158 이준상
 
 
@@ -29,49 +30,61 @@ public class GameSetting
     public static readonly Dictionary<CameraType, int> DELAY_MAP = new Dictionary<CameraType, int>()
     {
         { CameraType.Camera1, 0 },
-        { CameraType.Camera2, 1500 }
+        { CameraType.Camera2, 500 }
     };
-    
-    public static bool TryParseHandAction(string handChoice, out HandActionType action)
-    {
-        if (string.IsNullOrWhiteSpace(handChoice))
+
+    private static readonly Dictionary<string, HandActionType> HandActionAliases =
+        new Dictionary<string, HandActionType>(StringComparer.OrdinalIgnoreCase)
         {
-            action = HandActionType.SHAKE_OVER_HANDS;
+            { "left", HandActionType.SINGLE_HAND_FLIP_LEFT },
+            { "right", HandActionType.SINGLE_HAND_FLIP_RIGHT },
+            { "both", HandActionType.BOTH_HANDS_FLIP },
+            { "stab", HandActionType.INSERT_BETWEEN_HANDS },
+            { "defense", HandActionType.INSERT_BETWEEN_HANDS },
+            { "defence", HandActionType.INSERT_BETWEEN_HANDS },
+            { "wave", HandActionType.SHAKE_OVER_HANDS },
+            { "pause", HandActionType.SHAKE_OVER_HANDS },
+            { "ok", HandActionType.SHAKE_OVER_HANDS },
+            { "none", HandActionType.INSERT_BETWEEN_HANDS }
+        };
+
+    public static bool TryParseHandAction(string raw, out HandActionType action)
+    {
+        action = default;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
             return false;
         }
 
-        if (Enum.TryParse(handChoice, true, out action))
+        if (Enum.TryParse(raw, true, out action) &&
+            Enum.IsDefined(typeof(HandActionType), action))
         {
             return true;
         }
 
-        switch (handChoice.Trim().ToLowerInvariant())
+        string normalized = NormalizeHandActionKey(raw);
+        if (HandActionAliases.TryGetValue(normalized, out action))
         {
-            case "left":
-                action = HandActionType.SINGLE_HAND_FLIP_LEFT;
-                return true;
-            case "right":
-                action = HandActionType.SINGLE_HAND_FLIP_RIGHT;
-                return true;
-            case "both":
-                action = HandActionType.BOTH_HANDS_FLIP;
-                return true;
-            case "stab":
-            case "slice":
-            case "defense":
-                action = HandActionType.INSERT_BETWEEN_HANDS;
-                return true;
-            case "wave":
-            case "pause":
-            case "ok":
-            case "none":
-                action = HandActionType.SHAKE_OVER_HANDS;
-                return true;
-            default:
-                action = HandActionType.SHAKE_OVER_HANDS;
-                return false;
+            return true;
         }
+
+        return false;
     }
+
+    private static string NormalizeHandActionKey(string raw)
+    {
+        var builder = new StringBuilder(raw.Length);
+        foreach (char c in raw)
+        {
+            if (char.IsLetterOrDigit(c))
+            {
+                builder.Append(char.ToLowerInvariant(c));
+            }
+        }
+
+        return builder.ToString();
+    }
+    
 }
 
 /// <summary>

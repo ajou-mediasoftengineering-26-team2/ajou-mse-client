@@ -249,3 +249,16 @@ CSS
     50% { translate: 2px 0; }
     100% { translate: 0 0; }
 }
+
+.info-grid-layout {
+    flex-direction: column; /* 세로로 행을 쌓음 */
+    margin-left: 5px;
+    flex-shrink: 0;
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+}
+
+.grid-row {
+    flex-direction: row; /* 행 내부 아이템은 가로 배치 */
+}

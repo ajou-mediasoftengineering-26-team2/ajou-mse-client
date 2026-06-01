@@ -26,11 +26,11 @@ public class MainBattleBindingRenderer
 
         _viewModel.LeftRoundWin.Subscribe(data =>
         {
-            _uiRefs.LeftScore.text = data + "";
+            _uiRefs.MyScore.text = data.ToString();
         });
         _viewModel.RightRoundWin.Subscribe(data =>
         {
-            _uiRefs.RightScore.text = data + "";
+            _uiRefs.EnemyScore.text = data.ToString();
         });
 
         // _viewModel.StationName.Subscribe(station =>
@@ -39,6 +39,11 @@ public class MainBattleBindingRenderer
         //     label.text = station;
         // });
 
+        _viewModel.IsAttacker.Subscribe(data =>
+        {
+            _uiRefs.MyAttack.text = data ? "Attack" :  "Defend";
+            _uiRefs.EnemyAttack.text = data ? "Defend" : "Attack";
+        });
         _viewModel.HoverTest.Subscribe(test =>
         {
             if (test == null)
@@ -114,6 +119,14 @@ public class MainBattleBindingRenderer
             _uiRefs.ActionName.text = "Current Action : " + name.ToString();
         });
         
+        _viewModel.ItemLists.Subscribe(name =>
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Items/{name[i]}");
+                _uiRefs.ItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+            }
+        });
     }
 
     private void BindSlotHover()
