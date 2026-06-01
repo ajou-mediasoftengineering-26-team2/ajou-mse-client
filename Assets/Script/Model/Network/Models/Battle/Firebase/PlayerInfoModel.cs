@@ -20,6 +20,7 @@ public class PlayerInfoModel
     // 리스트 타입 매칭
     public List<string> itemList;
     public List<string> receivedItemList;
+    public List<string> perkChoiceList;
     
     public PlayerInfoModel()
     {

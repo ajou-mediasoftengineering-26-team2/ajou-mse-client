@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument ElementalHandChoice;
     [SerializeField] UIDocument RoundOver;
     [SerializeField] UIDocument PerksAndShop;
+    [SerializeField] UIDocument GameEndUI;
 
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
@@ -30,12 +31,14 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Subscribe<ItemReceivedEvent>(ShowItemUI);
-        EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
+        //EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
+        EventBus.Subscribe<RoundResultEvent>(ShowRoundResultUI);
         EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Subscribe<HandElementalChoice>(HandElementalChoice);
         EventBus.Subscribe<HandElementalChoiceResult>(FinishAnimation);
         EventBus.Subscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
+        EventBus.Subscribe<GameEndEvent>(ShowGameEndUI);
     }
 
     private void PerksAndShopUIPOP(PerksAndItemReceiveEvent obj)
@@ -59,12 +62,14 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
-        EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
+        //EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
+        EventBus.Unsubscribe<RoundResultEvent>(ShowRoundResultUI);
         EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Unsubscribe<HandElementalChoice>(HandElementalChoice);
         EventBus.Unsubscribe<HandElementalChoiceResult>(FinishAnimation);
         EventBus.Unsubscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
+        EventBus.Unsubscribe<GameEndEvent>(ShowGameEndUI);
     }
 
 
@@ -162,7 +167,7 @@ public class UIManager : MonoBehaviour
         ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
     }
     
-    private void ShowRoundResultUI(RoundOver evt)
+    private void ShowRoundResultUI(RoundResultEvent evt)
     {
         if (RoundResultUI == null)
         {
@@ -177,9 +182,9 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
+        AllUIDown();
         RoundResultUI.enabled = true;
-        view.ShowResult(evt.isWin);
+        view.ShowResult(evt);
     }
 
     private void ChoiceAnimation(ChoiceAnimation evt)
@@ -187,6 +192,26 @@ public class UIManager : MonoBehaviour
         AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         ChoiceReveal.enabled = true;
         ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal(evt.Player1, evt.Player2);
+    }
+    
+    private void ShowGameEndUI(GameEndEvent evt)
+    {
+        if (GameEndUI == null)
+        {
+            Debug.LogError("[UIManager] GameEnd UI document is not set.");
+            return;
+        }
+
+        var view = GameEndUI.GetComponent<GameEndView>();
+        if (view == null)
+        {
+            Debug.LogError("[UIManager] GameEndView component is missing.");
+            return;
+        }
+
+        AllUIDown();
+        GameEndUI.enabled = true;
+        view.ShowResult(evt);
     }
 
     /// <summary>
@@ -204,5 +229,6 @@ public class UIManager : MonoBehaviour
         if (ElementalHandChoice != null) ElementalHandChoice.enabled = false;
         if (RoundOver != null) RoundOver.enabled = false;
         if (PerksAndShop != null) PerksAndShop.enabled = false;
+        if (GameEndUI != null) GameEndUI.enabled = false;
     }
 }

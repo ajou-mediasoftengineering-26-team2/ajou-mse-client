@@ -332,7 +332,11 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.END_RESULT => () =>
             {
-                EventBus.Publish(new RoundOver(true));
+                /*EventBus.Publish(new RoundOver(true));
+                return Task.CompletedTask;*/
+                //게임 엔드로 수정했슴다
+                bool isP1Winner = player1.finalWinner;
+                EventBus.Publish(new GameEndEvent(player1, player2, isP1Winner));
                 return Task.CompletedTask;
             },
 
@@ -345,6 +349,8 @@ public class MainBattleViewModel : ViewModelBase
             LobbyState.GAME_ROUND_END_PLAYER_KO => async () =>
             {
                 EventBus.Publish(new RoundOver(true));
+                //결과창 이벤트 버스 추가
+                EventBus.Publish(new RoundResultEvent(isWin: player1.hp > 0, currentRound: match.currentRound));
                 if (!GameSetting.DELAY_MAP.TryGetValue(SceneDataBridge.playerCamera, out int cameraDelay))
                 {
                     Debug.LogWarning($"[MainBattleViewModel] Unknown camera: {SceneDataBridge.playerCamera}. Using 0ms delay.");
