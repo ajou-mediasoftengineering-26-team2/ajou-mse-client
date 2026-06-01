@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -17,8 +18,16 @@ public class EffectRouter : MonoBehaviour
     [SerializeField] private Animator player2Animator;
     private const string HandActionParameter = "HandAction";
 
+    
+    private Dictionary<Player, Animator> _playerAnimatorMap;
+    
     private void OnEnable()
     {
+        _playerAnimatorMap = new Dictionary<Player, Animator>
+        {
+            { Player.First, player1Animator },
+            { Player.Second, player2Animator }
+        };
         EventBus.Subscribe<ActionSelectedEvent>(OnSelectFinished);
         EventBus.Subscribe<RoundWonEvent>(OnRoundWon);
         EventBus.Subscribe<HitAnimation>(OnHitAnimation);
@@ -64,11 +73,12 @@ public class EffectRouter : MonoBehaviour
         var role1 = evt.Player1.attacking ? BattleRole.Attack : BattleRole.Defense;
         var role2 = evt.Player2.attacking ? BattleRole.Attack : BattleRole.Defense;
 
+        
         int handActionValue1 = GetHandActionValue(role1, action1);
         int handActionValue2 = GetHandActionValue(role2, action2);
 
-        player1Animator.SetInteger(HandActionParameter, handActionValue1);
-        player2Animator.SetInteger(HandActionParameter, handActionValue2);
+        _playerAnimatorMap[SceneDataBridge.myPlayer].SetInteger(HandActionParameter, handActionValue1);
+        _playerAnimatorMap[SceneDataBridge.enemyPlayer].SetInteger(HandActionParameter, handActionValue2);
         StartCoroutine(ResetHandActionNextFrame(player1Animator));
         StartCoroutine(ResetHandActionNextFrame(player2Animator));
     }
@@ -77,25 +87,20 @@ public class EffectRouter : MonoBehaviour
 
     private Animator GetAnimatorByPlayer(Player player, BattleRole role)
     {
-        switch (player, role)
+        if (!_playerAnimatorMap.TryGetValue(player, out var baseAnimator))
         {
-            // 1. First(왼쪽)가 공격하는 상황 -> 당연히 Second(오른쪽)가 맞으므로 오른쪽 팝업!
-            case (Player.First, BattleRole.Attack):
-                return player1Animator;
-
-            // 2. First(왼쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(왼쪽)에 팝업!
-            case (Player.First, BattleRole.Defense):
-                return player2Animator;
-
-            // 3. Second(오른쪽)가 공격하는 상황 -> First(왼쪽)가 맞으므로 왼쪽 팝업!
-            case (Player.Second, BattleRole.Attack):
-                return player2Animator;
-            // 4. Second(오른쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(오른쪽)에 팝업!
-            case (Player.Second, BattleRole.Defense):
-                return player1Animator;
+            Debug.LogError($"[EffectRouter] 플레이어 {player}에 매핑된 애니메이터가 없습니다.");
+            return null;
         }
 
-        return null;
+        if (role == BattleRole.Defense)
+        {
+            return baseAnimator == player1Animator ? player2Animator : player1Animator;
+        }
+        else
+        {
+            return baseAnimator;
+        }
     }
 
     private int GetHandActionValue(BattleRole role, HandActionType actionCode)

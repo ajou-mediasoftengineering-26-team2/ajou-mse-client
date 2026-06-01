@@ -395,7 +395,7 @@ public class MainBattleViewModel : ViewModelBase
             },
             LobbyState.GAME_PERK_CHOICE => () =>
             {
-                //EventBus.Publish(new );
+                EventBus.Publish(new PerkChoiceEvent());
                 return Task.CompletedTask;
             },
 

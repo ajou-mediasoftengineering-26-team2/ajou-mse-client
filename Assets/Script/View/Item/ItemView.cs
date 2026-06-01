@@ -44,7 +44,7 @@ public class ItemView : MonoBehaviour
         _itemInfo.text  = ItemInfoProvider.GetDescription(itemType);
         var sprite = Resources.Load<Sprite>($"Items/{itemType}");
         if (sprite != null) _itemImg.sprite = sprite;
-        StartCoroutine(AckAndClose()); // 주석 해제
+        StartCoroutine(AckAndClose());
     }
 
     private bool TryCacheElements()

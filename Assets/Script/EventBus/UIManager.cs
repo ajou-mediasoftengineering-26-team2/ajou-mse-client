@@ -191,7 +191,7 @@ public class UIManager : MonoBehaviour
     {
         AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         ChoiceReveal.enabled = true;
-        ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal();
+        ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal(evt.Player1, evt.Player2);
     }
     
     private void ShowGameEndUI(GameEndEvent evt)
