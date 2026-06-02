@@ -104,6 +104,7 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<List<ItemType>> ItemLists { get; } = new Observable<List<ItemType>>();
 
 
+    public Observable<HandElementalType> MyHandElemental { get; } = new Observable<HandElementalType>();
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -125,6 +126,7 @@ public class MainBattleViewModel : ViewModelBase
 
     private void eventJunsang()
     {
+        EventBus.Publish(new MainBattleEvent());
         EventBus.Subscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
     }
 
@@ -240,8 +242,8 @@ public class MainBattleViewModel : ViewModelBase
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
 
-                    
 
+                    MyHandElemental.Value = HandInfoProvider.FromString(player.handElemental);
                     if (player.itemList == null)
                     {
                         ItemLists.Value = new List<ItemType>();
@@ -391,6 +393,7 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[0]));   
                 }
+                
                 return Task.CompletedTask;
             },
             LobbyState.GAME_PERK_CHOICE => () =>

@@ -119,9 +119,17 @@ public class MainBattleBindingRenderer
             _uiRefs.ActionName.text = "Current Action : " + name.ToString();
         });
         
+        _viewModel.MyHandElemental.Subscribe(data =>
+        {
+            Debug.Log("hand elemental data HANDLED" + data);
+            _uiRefs.HandElemental.style.backgroundImage =
+                new StyleBackground(Resources.Load<Sprite>(HandInfoProvider.GetImagePath(data)));
+        });
+        
+        
         _viewModel.ItemLists.Subscribe(name =>
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < name.Count; i++)
             {
                 var sprite = Resources.Load<Sprite>($"Items/{name[i]}");
                 _uiRefs.ItemSlots[i].style.backgroundImage = new StyleBackground(sprite);

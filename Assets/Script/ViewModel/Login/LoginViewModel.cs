@@ -60,6 +60,7 @@ public class LoginViewModel : ViewModelBase
             onError: (error) => Debug.LogError(error)
         );
         IsLobbyCountDown.Value = false;
+        EventBus.Publish(new LoginBGMEvent());
     }
 
     /// <summary>
@@ -84,6 +85,7 @@ public class LoginViewModel : ViewModelBase
 
                 Debug.Log(response.data.matchId + "????????");
                 //if submit id success, firebase setting
+                EventBus.Publish(new LoginSubwaySoundEvent());
                 await EnsureMatchSubscriptionAsync(response.data.matchId);
             }
             else

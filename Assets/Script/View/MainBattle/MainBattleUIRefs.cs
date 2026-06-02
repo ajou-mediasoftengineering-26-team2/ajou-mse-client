@@ -28,7 +28,7 @@ public class MainBattleUIRefs
     public Label EnemyScore { get; }
     
     
-    
+    public VisualElement HandElemental { get; }
     //item 6 slot
     public VisualElement[] PerkSlots { get; } = new VisualElement[3];
     
@@ -52,7 +52,7 @@ public class MainBattleUIRefs
         MyScore =  MainBattleRoot.Q<Label>("LeftScore");
         EnemyScore = MainBattleRoot.Q<Label>("RightScore");
         
-        
+        HandElemental = MainBattleRoot.Q<VisualElement>("Profile");
         LeftHp = MainBattleRoot.Q<VisualElement>("LeftHp");
         RightHp = MainBattleRoot.Q<VisualElement>("RightHp");
         if (MainBattleRoot == null) Debug.LogError("MainBattle root is null.");

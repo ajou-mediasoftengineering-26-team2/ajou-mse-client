@@ -35,6 +35,13 @@ public class MainBattleActionRenderer
         }
 
         container.Clear();
+        
+        container.style.flexDirection = FlexDirection.Row;   
+        container.style.justifyContent = Justify.Center;       
+        container.style.alignItems = Align.FlexEnd;         
+        container.style.width = Length.Percent(100);       
+        container.style.height = Length.Auto();
+        
         _actionElements.Clear();
         _isActionAnimatingOut = false;
 
