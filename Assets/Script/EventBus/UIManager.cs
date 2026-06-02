@@ -31,17 +31,17 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<HardHitEvent>(HitUi);
         EventBus.Subscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Subscribe<ItemReceivedEvent>(ShowItemUI);
-        //EventBus.Subscribe<RoundOver>(ShowRoundResultUI);
         EventBus.Subscribe<RoundResultEvent>(ShowRoundResultUI);
         EventBus.Subscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Subscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Subscribe<HandElementalChoice>(HandElementalChoice);
         EventBus.Subscribe<HandElementalChoiceResult>(FinishAnimation);
-        EventBus.Subscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
+        EventBus.Subscribe<PerkChoiceEvent>(PerksAndShopUIPOP);
         EventBus.Subscribe<GameEndEvent>(ShowGameEndUI);
+        
     }
 
-    private void PerksAndShopUIPOP(PerksAndItemReceiveEvent obj)
+    private void PerksAndShopUIPOP(PerkChoiceEvent obj)
     {
         AllUIDown();
         PerksAndShopUIDocument.enabled = true;
@@ -63,13 +63,12 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
         EventBus.Unsubscribe<MatchStartEvent>(MatchStartUI);
         EventBus.Unsubscribe<ItemReceivedEvent>(ShowItemUI);
-        //EventBus.Unsubscribe<RoundOver>(ShowRoundResultUI);
         EventBus.Unsubscribe<RoundResultEvent>(ShowRoundResultUI);
         EventBus.Unsubscribe<IntroduceStationEvent>(ShowStationUI);
         EventBus.Unsubscribe<ChoiceAnimation>(ChoiceAnimation);
         EventBus.Unsubscribe<HandElementalChoice>(HandElementalChoice);
         EventBus.Unsubscribe<HandElementalChoiceResult>(FinishAnimation);
-        EventBus.Unsubscribe<PerksAndItemReceiveEvent>(PerksAndShopUIPOP);
+        EventBus.Unsubscribe<PerkChoiceEvent>(PerksAndShopUIPOP);
         EventBus.Unsubscribe<GameEndEvent>(ShowGameEndUI);
     }
 
