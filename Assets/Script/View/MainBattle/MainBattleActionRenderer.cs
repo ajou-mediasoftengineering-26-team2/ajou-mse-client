@@ -51,12 +51,15 @@ public class MainBattleActionRenderer
         for (int i = 0; i < actionCount; i++)
         {
             var item = _actionItemSelect.Instantiate();
+            item.style.width = 100; 
+            item.style.height = 100;
+            
             item.style.scale = new StyleScale(Vector3.zero);
             item.style.transitionProperty = new StyleList<StylePropertyName>(new List<StylePropertyName> { "scale" });
             item.style.transitionDuration = new StyleList<TimeValue>(new List<TimeValue> { ActionScaleAnimationMs / 1000f });
             item.style.transitionTimingFunction = new StyleList<EasingFunction>(new List<EasingFunction> { new EasingFunction(EasingMode.EaseOut) });
             container.Add(item);
-
+            
             HandActionData actionData = handActionDatas[i];
             if (actionData == null)
             {
