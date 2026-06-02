@@ -162,8 +162,8 @@ public class UIManager : MonoBehaviour
     
     private void ShowItemUI(ItemReceivedEvent evt)
     {
-        AllUIDown(); // (기존 코드 유지) UI 켜기 전에 모두 끄기
-        ItemUI.enabled = true;
+        if (!ItemUI.enabled)
+            ItemUI.enabled = true;
         ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
     }
     
