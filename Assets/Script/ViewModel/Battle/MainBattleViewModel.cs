@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Script.Util;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -30,6 +31,10 @@ public class MainBattleViewModel : ViewModelBase
     private CancellationTokenSource _timerCts;
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
+
+
+    private PlayerInfoModel player1Snap;
+    private PlayerInfoModel player2Snap;
 
 
     // ── HP ──────────────────────────────────────────────────────────
@@ -102,9 +107,22 @@ public class MainBattleViewModel : ViewModelBase
     
     
     public Observable<List<ItemType>> ItemLists { get; } = new Observable<List<ItemType>>();
-
+    public Observable<List<ItemType>> EnemyItemLists { get; } = new Observable<List<ItemType>>();
+ 
 
     public Observable<HandElementalType> MyHandElemental { get; } = new Observable<HandElementalType>();
+    public Observable<HandElementalType> EnemyHandElemental { get; } = new Observable<HandElementalType>();
+    
+    
+    
+    private readonly Dictionary<HitActionType, int> _hitDelayMap = new()
+    {
+        { HitActionType.Both5,    6000 }, // Both5는 6초
+        { HitActionType.Both7,   8000 }, // 일반 타격은 3초
+        { HitActionType.Both1, 2500 },  // 크리티컬은 4.5초
+        { HitActionType.Left, 2500 },  // 크리티컬은 4.5초
+        { HitActionType.Right, 2500 }  // 크리티컬은 4.5초
+    };
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -262,6 +280,7 @@ public class MainBattleViewModel : ViewModelBase
                         itms.Add(itemType);
                     }
 
+                    if (itms.Count == 0) return;
                     ItemLists.Value = itms;
                 },
                 onError: (error) => Debug.LogError(error)
@@ -278,7 +297,31 @@ public class MainBattleViewModel : ViewModelBase
                     EnemyName.Value = player.username;
                     RightRoundWin.Value = player.wins;
                     player2 = player;
+                    EnemyHandElemental.Value = HandInfoProvider.FromString(player.handElemental);
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
+                    
+                    if (player.itemList == null)
+                    {
+                        EnemyItemLists.Value = new List<ItemType>();
+                    }
+                    else
+                    {
+                        List<ItemType> enemyItems = new List<ItemType>();
+                        for (int i = 0; i < player.itemList.Count; i++)
+                        {
+                            if (!Enum.TryParse<ItemType>(player.itemList[i], out var itemType))
+                            {
+                                Debug.LogError($"[EnemyItemView] Unknown item code: {player.itemList[i]}");
+                                continue; 
+                            }
+        
+                            enemyItems.Add(itemType);
+                        }
+
+                        if (enemyItems.Count == 0) return;
+                        EnemyItemLists.Value = enemyItems;
+                        Debug.Log(EnemyItemLists.Value[0] + "enemyItemList 구조");
+                    }
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -308,12 +351,14 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.GAME_TURN_ANIMATION => async () =>
             {
+                if (!GameSetting.TryParseHandAction(player1.handChoice, out HandActionType player1Action)) ;
+                if (!GameSetting.TryParseHandAction(player2.handChoice, out HandActionType player2Action)) ;
                 EventBus.Publish(new ChoiceAnimation(player1, player2));
                 if (player1 == null || player2 == null)
                 {
                     Debug.LogWarning("[MainBattleViewModel] ChoiceAnimation: player info not ready.");
                 }
-                await Task.Delay(5000);
+                await Task.Delay(7000);
                 if (player1 != null && player2 != null)
                 {
                     EventBus.Publish(new ActionSelectedEvent(player1, player2));
@@ -322,13 +367,27 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
                 }
-                EventBus.Publish(new CameraAction(CameraType.Action));
+
+
+                //if two player action is same, animation is not load.
+                if (player1Action == player2Action)
+                {
+                    await _repository.PutAck(_playerId);
+                    return;
+                }
+                
+                
+                //if two player action is different, animation will be load.
                 EventBus.Publish(new HitAnimation(
                     IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
                     SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-                    HitActionType.Both5,
+                    BattleConverter.GetHitType(IsAttacker.Value ? player1Action : player2Action),
                     null));
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6000);
+                if (!_hitDelayMap.TryGetValue(BattleConverter.GetHitType(IsAttacker.Value ? player1Action : player2Action), out int additionalDelay))
+                {
+                    additionalDelay = 6000; 
+                }
+                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + additionalDelay);
                 await _repository.PutAck(_playerId);
             },
 
