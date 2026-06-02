@@ -43,7 +43,8 @@ public class UIManager : MonoBehaviour
 
     private void PerksAndShopUIPOP(PerksAndItemReceiveEvent obj)
     {
-        
+        AllUIDown();
+        PerksAndShopUIDocument.enabled = true;
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)

@@ -14,6 +14,8 @@ public class SelectHandsView : MonoBehaviour
     private void OnEnable()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
+        var timer = root.Q<VisualElement>("Timer");
+        var timerImg = root.Q<Image>("TimerImg");
 
         _hand1Sel = root.Q<Button>("Hand1Sel");
         _hand2Sel = root.Q<Button>("Hand2Sel");
@@ -62,6 +64,18 @@ public class SelectHandsView : MonoBehaviour
             _hand4Sel.SetEnabled(can);
             _hand5Sel.SetEnabled(can);
             _hand6Sel.SetEnabled(can);
+        });
+        
+        if (timerImg != null)
+            timerImg.sprite = Resources.Load<Sprite>("Pixel Clock/TimerImg");
+
+        _viewModel.IsVisible.Subscribe(visible =>
+            root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None);
+
+        _viewModel.TimerRatio.Subscribe(ratio =>
+        {
+            if (timer != null)
+                timer.style.width = new Length(ratio * 100, LengthUnit.Percent);
         });
 
         _hand1Sel.clicked += () => _viewModel.OnSelectHand(1);

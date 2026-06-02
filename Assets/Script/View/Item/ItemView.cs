@@ -20,8 +20,6 @@ public class ItemView : MonoBehaviour
             Debug.LogError("[ItemView] UI Toolkit root is not ready.");
             return;
         }
-
-        RepositoryFactory.Instance.Register<IItemRepository, ItemRepository>();
         _itemRepo ??= RepositoryFactory.Instance.Get<IItemRepository>();
     }
 
