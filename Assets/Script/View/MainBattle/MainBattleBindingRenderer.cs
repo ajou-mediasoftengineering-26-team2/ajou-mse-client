@@ -119,12 +119,37 @@ public class MainBattleBindingRenderer
             _uiRefs.ActionName.text = "Current Action : " + name.ToString();
         });
         
-        _viewModel.ItemLists.Subscribe(name =>
+        _viewModel.MyHandElemental.Subscribe(data =>
         {
-            for (int i = 0; i < 3; i++)
+            Debug.Log("hand elemental data HANDLED" + data);
+            _uiRefs.MyHandElemental.style.backgroundImage =
+                new StyleBackground(Resources.Load<Sprite>(HandInfoProvider.GetImagePath(data)));
+        });
+        
+        
+        _viewModel.EnemyHandElemental.Subscribe(data =>
+        {
+            _uiRefs.EnemyHandElemental.style.backgroundImage =
+                new  StyleBackground(Resources.Load<Sprite>(HandInfoProvider.GetImagePath(data)));
+        });
+        
+        _viewModel.EnemyItemLists.Subscribe(data =>
+        {
+            if (data == null) return;
+            for (int i = 0; i < data.Count; i++)
             {
-                var sprite = Resources.Load<Sprite>($"Items/{name[i]}");
-                _uiRefs.ItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                var sprite = Resources.Load<Sprite>($"Items/{data[i]}");
+                Debug.Log("sprite : " + sprite.name);
+                _uiRefs.EnemyItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+            }
+        });
+        _viewModel.ItemLists.Subscribe(data =>
+        {
+            if (data == null) return;
+            for (int i = 0; i < data.Count; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Items/{data[i]}");
+                _uiRefs.MyItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
             }
         });
     }

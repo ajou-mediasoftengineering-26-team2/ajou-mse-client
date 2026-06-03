@@ -1,4 +1,7 @@
 // 202422170 주형준
+
+using System;
+
 public static class HandInfoProvider
 {
     public static string GetDisplayName(HandElementalType hand) => hand switch
@@ -25,4 +28,16 @@ public static class HandInfoProvider
 
     // 파일명이 enum 이름과 동일하므로 ToString() 그대로 사용
     public static string GetImagePath(HandElementalType hand) => $"Hands/{hand}";
+    
+    public static HandElementalType FromString(string handStr)
+    {
+        
+        if (Enum.TryParse<HandElementalType>(handStr, true, out var result))
+        {
+            return result;
+        }
+
+        UnityEngine.Debug.LogError($"this type is not elemental type.");
+        return HandElementalType.NONE; 
+    }
 }

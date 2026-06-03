@@ -16,6 +16,7 @@ public class PlayerInfoModel
     public bool selecting;
     public bool finalWinner;
     public string handChoice;
+    public string handElemental;
     public int coin;
     
     // 리스트 타입 매칭

@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Serialization;
+
 //202322158 이준상
 
 
@@ -15,14 +17,22 @@ public class AudioManager : MonoBehaviour
     
     [Header("BGM Output")]
     [SerializeField] private AudioSource bgmSource;
+    
+    [Header ("Third Output")]
+    [SerializeField] private AudioSource thirdSource;
+    
+    
+    [Header ("BGM Clips")]
+    [SerializeField] private AudioClip loginBgmClip;
+    [SerializeField] private AudioClip mainBattleClip;
 
     [Header("SFX Clips")]
     [SerializeField] private AudioClip buttonClickClip;
     [SerializeField] private AudioClip softAttackClip;
     [SerializeField] private AudioClip hardAttackClip;
-    [SerializeField] private AudioClip RoundWinClip;
+    [FormerlySerializedAs("RoundWinClip")] [SerializeField] private AudioClip roundWinClip;
     [SerializeField] private AudioClip enemyRoundWinClip;
-
+    [SerializeField] private AudioClip subwaySound;
     /// <summary>
     /// Use SingleTon
     /// </summary>
@@ -49,21 +59,13 @@ public class AudioManager : MonoBehaviour
         EventBus.Subscribe<ButtonEvent>(OnButton);
         EventBus.Subscribe<SortHitEvent>(OnPlaySortSfx);
         EventBus.Subscribe<HardHitEvent>(OnPlayHardSfx);
+        EventBus.Subscribe<LoginBGMEvent>(OnPlayBGM);
+        EventBus.Subscribe<LoginSubwaySoundEvent>(OnSubwaySoundEvent);
+        EventBus.Subscribe<MainBattleEvent>(OnMainBattle);
     }
 
-    private void OnPlayHardSfx(HardHitEvent obj)
-    {
-        Play(hardAttackClip);
-    }
+    
 
-    private void OnPlaySortSfx(SortHitEvent evt)
-    {
-        Play(softAttackClip);
-    }
-
-    /// <summary>
-    /// Unsubscribe EventBus
-    /// </summary>
     private void OnDisable()
     {
         EventBus.Unsubscribe<ButtonEvent>(OnButton);
@@ -72,7 +74,59 @@ public class AudioManager : MonoBehaviour
         // EventBus.Unsubscribe<AttackStartedEvent>(OnAttackStarted);
         // EventBus.Unsubscribe<RoundWonEvent>(OnRoundWon);
         // EventBus.Unsubscribe<PlaySfxEvent>(OnPlaySfx);
+        EventBus.Unsubscribe<LoginSubwaySoundEvent>(OnSubwaySoundEvent);
+        EventBus.Unsubscribe<MainBattleEvent>(OnMainBattle);
     }
+    
+    
+    private void OnMainBattle(MainBattleEvent obj)
+    {
+        thirdSource.Stop();
+        PlayBGM(mainBattleClip);
+    }
+    
+    
+    private void OnSubwaySoundEvent(LoginSubwaySoundEvent obj)
+    {
+        PlayThirdAudio(subwaySound);
+    }
+
+    private void PlayThirdAudio(AudioClip clip)
+    {
+        thirdSource.loop = true;
+        thirdSource.clip = clip;
+        thirdSource.Play();
+    }
+
+    private void OnPlayBGM(LoginBGMEvent obj)
+    {
+        PlayBGM(loginBgmClip);
+    }
+
+    private void PlayBGM(AudioClip clip)
+    {
+        bgmSource.loop = true;
+        bgmSource.clip = clip;
+        bgmSource.Play();
+    }
+
+    private void OnPlayHardSfx(HardHitEvent obj)
+    {
+        Debug.Log("event is Done? (OnPlayHardSfx");
+        Play(hardAttackClip);
+    }
+
+    private void OnPlaySortSfx(SortHitEvent evt)
+    {
+        
+        Debug.Log("event is Done? (OnPlaySoftSfx");
+        Play(softAttackClip);
+    }
+
+    /// <summary>
+    /// Unsubscribe EventBus
+    /// </summary>
+    
 
     private void OnButton(ButtonEvent evt) => Play(buttonClickClip);
 
@@ -107,7 +161,11 @@ public class AudioManager : MonoBehaviour
     /// <param name="clip"></param>
     private void Play(AudioClip clip)
    {
-        if (sfxSource == null || clip == null) return;
+        if (sfxSource == null || clip == null)
+        {
+            Debug.Log("feww" + sfxSource + " " + clip);
+            return;
+        }
         sfxSource.PlayOneShot(clip);
     }
     

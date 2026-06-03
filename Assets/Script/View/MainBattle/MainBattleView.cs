@@ -34,6 +34,7 @@ public class MainBattleView : MonoBehaviour
     public VisualTreeAsset actionItemSelect;
     public UIDocument toopTip;
     public CameraTurnManager cameraManager;
+    
 
     private void OnEnable()
     {
