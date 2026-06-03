@@ -317,7 +317,8 @@ public class MainBattleViewModel : ViewModelBase
         
                             enemyItems.Add(itemType);
                         }
-
+                        
+                        
                         if (enemyItems.Count == 0) return;
                         EnemyItemLists.Value = enemyItems;
                         Debug.Log(EnemyItemLists.Value[0] + "enemyItemList 구조");
