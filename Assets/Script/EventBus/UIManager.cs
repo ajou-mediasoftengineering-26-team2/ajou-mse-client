@@ -77,6 +77,7 @@ public class UIManager : MonoBehaviour
     {
         AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         ElementalHandChoice.enabled = true;
+        ElementalHandChoice.GetComponent<SelectHandsView>().StartScene();
     }
     
     private void HitUi(SortHitEvent obj)

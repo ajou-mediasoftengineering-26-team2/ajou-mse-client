@@ -1260,6 +1260,7 @@ GameObject:
   m_Component:
   - component: {fileID: 640007199}
   - component: {fileID: 640007200}
+  - component: {fileID: 640007201}
   m_Layer: 0
   m_Name: HandElemental
   m_TagString: Untagged
@@ -1289,14 +1290,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 640007198}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
   m_PanelSettings: {fileID: 11400000, guid: 680eb5afc2f831646956d26f4c15eb73, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: fbd8ae65f6ceed04aaed1929ae844009, type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 735b3a21d8e70e648be4464d36d31b2f, type: 3}
   m_SortingOrder: 50
   m_Position: 0
   m_WorldSpaceSizeMode: 1
@@ -1305,6 +1306,18 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &640007201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640007198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d9a03952751a9c429e329851bc52998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectHandsView
 --- !u!1 &642354681
 GameObject:
   m_ObjectHideFlags: 0
@@ -2873,6 +2886,7 @@ MonoBehaviour:
   ElementalHandChoice: {fileID: 640007200}
   RoundOver: {fileID: 1963184868}
   PerksAndShop: {fileID: 58868126}
+  GameEndUI: {fileID: 0}
 --- !u!1 &1947275571
 GameObject:
   m_ObjectHideFlags: 0
@@ -3045,11 +3059,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   sfxSource: {fileID: 642354682}
   bgmSource: {fileID: 0}
+  thirdSource: {fileID: 0}
+  loginBgmClip: {fileID: 0}
+  mainBattleClip: {fileID: 0}
   buttonClickClip: {fileID: 8300000, guid: 70b776858259c1349b0b4b8a41de9b66, type: 3}
   softAttackClip: {fileID: 8300000, guid: e6eadff5091541c4ba3be28ea7b170cf, type: 3}
   hardAttackClip: {fileID: 8300000, guid: e9316f315882f7141a194919f3b35e1c, type: 3}
-  RoundWinClip: {fileID: 0}
+  roundWinClip: {fileID: 0}
   enemyRoundWinClip: {fileID: 0}
+  subwaySound: {fileID: 0}
 --- !u!1 &2032002595
 GameObject:
   m_ObjectHideFlags: 0
