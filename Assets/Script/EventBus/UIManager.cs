@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] UIDocument PerksAndShopUIDocument;
+    //[SerializeField] UIDocument PerksAndShopUIDocument;
     [SerializeField] UIDocument MainBattle;
     [SerializeField] UIDocument MatchStart;
     [SerializeField] UIDocument ItemUI;
@@ -12,7 +12,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument IntroduceStation;
     [SerializeField] UIDocument ChoiceReveal;
     [SerializeField] UIDocument ElementalHandChoice;
-    [SerializeField] UIDocument RoundOver;
+    //[SerializeField] UIDocument RoundOver;
     [SerializeField] UIDocument PerksAndShop;
     [SerializeField] UIDocument GameEndUI;
 
@@ -25,7 +25,7 @@ public class UIManager : MonoBehaviour
         // 개별적으로 끄던 코드를 AllUIDown 하나로 대체
         AllUIDown();
         
-        EventBus.Subscribe<RoundOver>(RoundOverUI);
+        //EventBus.Subscribe<RoundOver>(RoundOverUI);
         EventBus.Subscribe<HitAnimation>(HitAnimation);
         EventBus.Subscribe<SortHitEvent>(HitUi);
         EventBus.Subscribe<HardHitEvent>(HitUi);
@@ -44,7 +44,7 @@ public class UIManager : MonoBehaviour
     private void PerksAndShopUIPOP(PerkChoiceEvent obj)
     {
         AllUIDown();
-        PerksAndShopUIDocument.enabled = true;
+        PerksAndShop.enabled = true;
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)
@@ -57,7 +57,7 @@ public class UIManager : MonoBehaviour
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<RoundOver>(RoundOverUI);
+        //EventBus.Unsubscribe<RoundOver>(RoundOverUI);
         EventBus.Unsubscribe<HitAnimation>(HitAnimation);
         EventBus.Unsubscribe<SortHitEvent>(HitUi);
         EventBus.Unsubscribe<HardHitEvent>(HitUi);
@@ -89,6 +89,7 @@ public class UIManager : MonoBehaviour
         GetAnimatorByPlayer(current.Player, current.Role);
     }
 
+    /*
     private void RoundOverUI(RoundOver evt)
     {
         if (RoundOver == null)
@@ -104,12 +105,12 @@ public class UIManager : MonoBehaviour
         AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         PerksAndShopUIDocument.enabled = true;
     }
-
+    
     private void PerksAndShopUIDown(RoundOver evt)
     {
-        PerksAndShopUIDocument.enabled = false;
+        PerksAndShop.enabled = false;
     }
-
+    */
 
     private void HitAnimation(HitAnimation evt)
     {
@@ -219,7 +220,7 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void AllUIDown()
     {
-        if (PerksAndShopUIDocument != null) PerksAndShopUIDocument.enabled = false;
+        //if (PerksAndShopUIDocument != null) PerksAndShopUIDocument.enabled = false;
         //if (MainBattle != null) MainBattle.enabled = false;
         if (MatchStart != null) MatchStart.enabled = false;
         if (ItemUI != null) ItemUI.enabled = false;
@@ -227,7 +228,7 @@ public class UIManager : MonoBehaviour
         if (IntroduceStation != null) IntroduceStation.enabled = false;
         if (ChoiceReveal != null) ChoiceReveal.enabled = false;
         if (ElementalHandChoice != null) ElementalHandChoice.enabled = false;
-        if (RoundOver != null) RoundOver.enabled = false;
+        //if (RoundOver != null) RoundOver.enabled = false;
         if (PerksAndShop != null) PerksAndShop.enabled = false;
         if (GameEndUI != null) GameEndUI.enabled = false;
     }
