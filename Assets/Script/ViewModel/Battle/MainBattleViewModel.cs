@@ -437,8 +437,8 @@ public class MainBattleViewModel : ViewModelBase
             LobbyState.GAME_ELEMENTAL_CHOICE => async () =>
             {
                 EventBus.Publish(new HandElementalChoice());
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
-                _elementalRepository.PutChoice(_playerId, ElementalHand.FIRE.ToString());
+                //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
+                //_elementalRepository.PutChoice(_playerId, ElementalHand.FIRE.ToString());
             },
 
             LobbyState.GAME_ELEMENTAL_RECEIVING => async () =>
