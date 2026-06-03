@@ -66,12 +66,18 @@ public class PerkAndShopViewModel : ViewModelBase
                 if (match == null) return;
                 bool isPerkPhase = match.state == "GAME_PERK_CHOICE";
                 IsVisible.Value = isPerkPhase;
-                CanSelect.Value = isPerkPhase && _perkChoices.Count > 0;
 
                 if (isPerkPhase)
+                {
+                    if (_perkChoices.Count > 0 && !CanSelect.Value)
+                        CanSelect.Value = true;
                     StartTimer(match.countdownStartTime, match.countdownSec);
+                }
                 else
+                {
+                    CanSelect.Value = false;
                     _timerCts?.Cancel();
+                }
             },
             onError: err => Debug.LogError(err)
         );
@@ -153,7 +159,7 @@ public class PerkAndShopViewModel : ViewModelBase
                 CanSelect.Value = true;
                 return;
             }
-            _ = _perkAndShopRepo.PutAck(_playerId);
+            //_ = _perkAndShopRepo.PutAck(_playerId);
             EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
         }
         catch (Exception e)

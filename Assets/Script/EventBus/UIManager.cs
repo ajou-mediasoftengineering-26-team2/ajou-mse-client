@@ -45,6 +45,7 @@ public class UIManager : MonoBehaviour
     {
         AllUIDown();
         PerksAndShop.enabled = true;
+        PerksAndShop.GetComponent<PerkAndShopView>().Setup();  
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)

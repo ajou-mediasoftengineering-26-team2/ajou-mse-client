@@ -58,6 +58,7 @@ public class ItemView : MonoBehaviour
             if (sprite != null) _itemImg.sprite = sprite;
 
             yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] / 1000f);
             _ = _itemRepo.PutAck(SceneDataBridge.playerId);
         }
         _isShowing = false;

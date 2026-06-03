@@ -9,8 +9,14 @@ public class PerkAndShopView : MonoBehaviour
 
     private void OnEnable()
     {
+        Setup();
+    }
+
+    public void Setup()
+    {
         _viewModel?.Dispose();
-        _viewModel = null; 
+        _viewModel = null;
+
         var root = GetComponent<UIDocument>().rootVisualElement;
 
         var selectBtn1 = root.Q<Button>("SelectBtn1");
@@ -74,7 +80,7 @@ public class PerkAndShopView : MonoBehaviour
         selectBtn2.clicked += () => _viewModel.OnSelectPerk(2);
         selectBtn3.clicked += () => _viewModel.OnSelectPerk(3);
     }
-    
+
     private void OnDisable()
     {
         _viewModel?.Dispose();

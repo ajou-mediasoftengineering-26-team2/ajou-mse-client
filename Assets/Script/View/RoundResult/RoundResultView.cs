@@ -18,6 +18,11 @@ public class RoundResultView : MonoBehaviour
 
     public void ShowResult(RoundResultEvent evt)
     {
+        var root      = GetComponent<UIDocument>().rootVisualElement;
+        _currentRound = root.Q<Label>("CurrentRound");
+        _roundResult  = root.Q<Label>("RoundResult");
+        _getMoney     = root.Q<Label>("GetMoney");
+        
         _currentRound.text = $"Round {evt.currentRound}";
         _roundResult.text  = evt.isWin ? "WIN" : "LOSE";
         _getMoney.text     = "-";
