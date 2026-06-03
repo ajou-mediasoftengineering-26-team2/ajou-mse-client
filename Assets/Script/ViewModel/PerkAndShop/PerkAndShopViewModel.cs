@@ -99,10 +99,11 @@ public class PerkAndShopViewModel : ViewModelBase
         SetPerkCard(_perkChoices, 3, Perk3Title, Perk3Desc, Perk3Raw);
     }
 
-    private void SetPerkCard(List<string> choices, int index,
+    private void SetPerkCard(List<string> choices, int slot,
         Observable<string> title, Observable<string> desc, Observable<string> raw)
     {
-        if (choices.Count <= index) return;
+        int index = slot - 1;
+        if (index >= choices.Count) return;
         if (!Enum.TryParse<PerkType>(choices[index], out var perkType)) return;
 
         title.Value = PerkInfoProvider.GetDisplayName(perkType);
