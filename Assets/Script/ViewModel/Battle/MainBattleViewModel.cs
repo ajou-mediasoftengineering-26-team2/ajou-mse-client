@@ -120,11 +120,11 @@ public class MainBattleViewModel : ViewModelBase
     
     private readonly Dictionary<HitActionType, int> _hitDelayMap = new()
     {
-        { HitActionType.Both5,    6000 }, // Both5는 6초
-        { HitActionType.Both7,   8000 }, // 일반 타격은 3초
-        { HitActionType.Both1, 2500 },  // 크리티컬은 4.5초
-        { HitActionType.Left, 2500 },  // 크리티컬은 4.5초
-        { HitActionType.Right, 2500 }  // 크리티컬은 4.5초
+        { HitActionType.Both5,    6000 }, 
+        { HitActionType.Both7,   6000 }, 
+        { HitActionType.Both1, 2500 }, 
+        { HitActionType.Left, 2500 },  
+        { HitActionType.Right, 2500 }  
     };
     public MainBattleViewModel()
     {
@@ -640,24 +640,63 @@ public class MainBattleViewModel : ViewModelBase
     /// </summary>
     private void GetStatusText()
     {
-        // waiting
-        if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        switch (MatchState.Value)
         {
-            LabelState.Value = "START SOON..";
-        }
-        // game over
-        else if (MatchState.Value == LobbyState.END_RESULT)
-        {
-            LabelState.Value = "GAME OVER!";
-        }
-        // my turn or enemy turn
-        else if (MySelecting.Value)
-        {
-            LabelState.Value = "YOUR TURN";
-        }
-        else
-        {
-            LabelState.Value = "ENEMY TURN";
+            // 1. 로비 & 카운트다운
+            case LobbyState.LOBBY_WAITING:
+                LabelState.Value = "WAITING FOR PLAYERS..";
+                break;
+
+            case LobbyState.GAME_ROUND_START_ANIMATION:
+            case LobbyState.LOBBY_START_COUNTDOWN:
+                LabelState.Value = "START SOON..";
+                break;
+
+            case LobbyState.MATCH_START:
+            case LobbyState.GAME_ITEM_ANIMATION:
+            case LobbyState.GAME_PERK_ITEM_RECEIVING:
+            case LobbyState.GAME_ELEMENTAL_RECEIVING:
+                LabelState.Value = "READY.."; 
+                break;
+
+            case LobbyState.GAME_TURN_ANIMATION:
+                LabelState.Value = "AHHHH!!!!!!";
+                break;
+            // 3. 실제 플레이어 행동 선택 구간 (여기서 턴을 체크합니다)
+            case LobbyState.GAME_PLAYER_CHOICE:
+            case LobbyState.GAME_ATK_CHOICE:
+            case LobbyState.GAME_DEF_CHOICE:
+                LabelState.Value = "CHOOSE YOUR ACTION!";
+                break;
+
+            case LobbyState.GAME_CHOICE_FINISHED:
+                LabelState.Value = "WAITING FOR OTHER PLAYER..";
+                break;
+
+            // 4. 퍽(특성) 및 원소 선택 구간
+            case LobbyState.GAME_PERK_CHOICE:
+                LabelState.Value = "SELECT YOUR PERK";
+                break;
+
+            case LobbyState.GAME_ELEMENTAL_CHOICE:
+                LabelState.Value = "SELECT YOUR ELEMENT";
+                break;
+
+            // 5. 게임 종료 및 아웃
+            case LobbyState.END_RESULT:
+                LabelState.Value = "GAME OVER!";
+                break;
+
+            case LobbyState.END_PLAYER_DISCONNECTED:
+                LabelState.Value = "PLAYER DISCONNECTED";
+                break;
+
+            case LobbyState.GAME_ROUND_END_PLAYER_KO:
+                LabelState.Value = "ROUND END!";
+                break;
+            default:
+                LabelState.Value = "UNKNOWN STATE";
+                break;
         }
     }
 

@@ -54,7 +54,7 @@ public class MainBattleBindingRenderer
             }
 
             _uiRefs.TooltipRoot.Q<Label>("ItemTitle").text = test;
-            _uiRefs.TooltipRoot.Q<Label>("ItemDescription").text = "LEE JUN SANG";
+            _uiRefs.TooltipRoot.Q<Label>("ItemDescription").text = "test";
             _uiRefs.TooltipRoot.style.display = DisplayStyle.Flex;
         });
 
@@ -178,6 +178,7 @@ public class MainBattleBindingRenderer
     {
         _uiRefs.MainBattleRoot.Query<VisualElement>(className: "slot").ForEach(slot =>
         {
+            Debug.Log("slot에 log가 뜸");
             slot.RegisterCallback<MouseEnterEvent>(evt =>
             {
                 _viewModel.HoverTesttest("test");

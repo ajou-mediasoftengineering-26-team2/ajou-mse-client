@@ -154,7 +154,7 @@ public class PerkAndShopViewModel : ViewModelBase
                 CanSelect.Value = true;
                 return;
             }
-            _ = _perkAndShopRepo.PutAck(_playerId);
+            //_ = _perkAndShopRepo.PutAck(_playerId);
             EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
         }
         catch (Exception e)

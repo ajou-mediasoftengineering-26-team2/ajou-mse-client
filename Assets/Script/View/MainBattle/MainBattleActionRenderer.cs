@@ -12,7 +12,6 @@ public class MainBattleActionRenderer
     private readonly VisualTreeAsset _actionItemSelect;
     private readonly List<VisualElement> _actionElements = new();
     private readonly Action<HandActionType, String> _onActionClicked;
-    private bool _isActionAnimatingOut;
 
     public MainBattleActionRenderer(VisualTreeAsset actionItemSelect, Action<HandActionType, String> onActionClicked = null)
     {
@@ -43,7 +42,6 @@ public class MainBattleActionRenderer
         container.style.height = Length.Auto();
         
         _actionElements.Clear();
-        _isActionAnimatingOut = false;
 
         List<HandActionData> handActionDatas = isAttacker ? ActionDatabase.AttackActions : ActionDatabase.DefendActions;
         int actionCount = Mathf.Min(GameSetting.ATTACK, handActionDatas.Count);
@@ -99,8 +97,6 @@ public class MainBattleActionRenderer
 
     private void OnActionClicked(HandActionType actionType, string actionDataActionName)
     {
-        if (_isActionAnimatingOut) return;
-        _isActionAnimatingOut = true;
         _onActionClicked?.Invoke(actionType, actionDataActionName);
     }
 }
