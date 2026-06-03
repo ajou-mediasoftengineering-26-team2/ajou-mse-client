@@ -451,7 +451,9 @@ public class MainBattleViewModel : ViewModelBase
             {
                 for (int i = 0; i < player1.receivedItemList.Count; i++)
                 {
-                    EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[0]));   
+                    EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[i]));   
+                    //EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[0])); 
+                    //0->i로 수정했습니다.
                 }
                 
                 return Task.CompletedTask;
