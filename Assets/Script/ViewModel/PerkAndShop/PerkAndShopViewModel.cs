@@ -140,9 +140,8 @@ public class PerkAndShopViewModel : ViewModelBase
     public async void OnSelectPerk(int slot)
     {
         if (!CanSelect.Value) return;
-        if (_perkChoices.Count <= slot) return;
-
-        string selectedPerk = _perkChoices[slot];
+        if (_perkChoices.Count <= slot - 1) return;
+        string selectedPerk = _perkChoices[slot - 1];
         CanSelect.Value = false;
 
         try
