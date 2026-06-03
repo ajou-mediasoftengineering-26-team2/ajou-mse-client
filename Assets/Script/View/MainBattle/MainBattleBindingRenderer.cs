@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -100,7 +101,7 @@ public class MainBattleBindingRenderer
         {
             if (CameraTurnManager.Instance != null)
             {
-                EventBus.Publish(new CameraAction(camera));
+                EventBus.Publish(new HitEndAction(camera));
             }
         });
 
@@ -126,7 +127,6 @@ public class MainBattleBindingRenderer
                 new StyleBackground(Resources.Load<Sprite>(HandInfoProvider.GetImagePath(data)));
         });
         
-        
         _viewModel.EnemyHandElemental.Subscribe(data =>
         {
             _uiRefs.EnemyHandElemental.style.backgroundImage =
@@ -150,6 +150,26 @@ public class MainBattleBindingRenderer
             {
                 var sprite = Resources.Load<Sprite>($"Items/{data[i]}");
                 _uiRefs.MyItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+            }
+        });
+        
+        _viewModel.EnemyPerkList.Subscribe(data =>
+        {
+            if (data == null) return;
+            for (int i = 0; i < data.Count; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Perks/{data[i]}");
+                _uiRefs.EnemyPerkSlots[i].style.backgroundImage = new StyleBackground(sprite);
+            }
+        });
+        
+        _viewModel.MyPerkList.Subscribe(data =>
+        {
+            if (data == null) return;
+            for (int i = 0; i < data.Count; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Perks/{data[i]}");
+                _uiRefs.MyPerkSlots[i].style.backgroundImage = new StyleBackground(sprite);
             }
         });
     }

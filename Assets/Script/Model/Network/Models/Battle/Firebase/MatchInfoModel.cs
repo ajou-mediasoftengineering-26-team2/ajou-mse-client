@@ -16,4 +16,5 @@ public class MatchInfoModel
     public int currentTurn;
     public int currentRound;
     public Dictionary<string, PlayerInfoModel> players;
+    public List<Damage> damageList;
 }

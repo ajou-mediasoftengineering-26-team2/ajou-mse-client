@@ -112,8 +112,11 @@ public class MainBattleViewModel : ViewModelBase
 
     public Observable<HandElementalType> MyHandElemental { get; } = new Observable<HandElementalType>();
     public Observable<HandElementalType> EnemyHandElemental { get; } = new Observable<HandElementalType>();
-    
-    
+
+    public Observable<List<PerkType>> MyPerkList { get; } = new Observable<List<PerkType>>();
+    public Observable<List<PerkType>> EnemyPerkList { get; } = new Observable<List<PerkType>>();
+
+    public Observable<List<Damage>> DamageList { get; } = new Observable<List<Damage>>();
     
     private readonly Dictionary<HitActionType, int> _hitDelayMap = new()
     {
@@ -146,10 +149,54 @@ public class MainBattleViewModel : ViewModelBase
     {
         EventBus.Publish(new MainBattleEvent());
         EventBus.Subscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
+        EventBus.Subscribe<HardHitEvent>(HitUI);
+        EventBus.Subscribe<SortHitEvent>(HitUI);
+        EventBus.Subscribe<HitEndAction>(action =>
+        {
+            damageIndex = 0;
+        });
+    }
+
+
+    private int damageIndex = 0;
+    private void HitUI(SortHitEvent obj)
+    {
+        GetAnimatorByPlayer(SceneDataBridge.myPlayer,
+            IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[damageIndex]);
+    }
+
+    private void HitUI(HardHitEvent obj)
+    {
+        GetAnimatorByPlayer(SceneDataBridge.myPlayer,
+            IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[damageIndex]);
     }
 
     private void GRSAAckEvent(GameRoundStartAnimationAckEvent obj)
     {
+    }
+    
+    private void GetAnimatorByPlayer(Player player, BattleRole role, Damage damage)
+    {
+        switch (player, role)
+        {
+            case (Player.First, BattleRole.Attack):
+                Toast.ShowDamagePopupLeft(damage.damage);
+                RightHp.Value -= damage.damage;
+                break;
+            case (Player.First, BattleRole.Defense):
+                Toast.ShowDamagePopupRight(damage.damage);
+                LeftHp.Value -= damage.damage;
+                break;
+            case (Player.Second, BattleRole.Attack):
+                Toast.ShowDamagePopupRight(damage.damage);
+                RightHp.Value -= damage.damage;
+                break;
+            case (Player.Second, BattleRole.Defense):
+                Toast.ShowDamagePopupLeft(damage.damage);
+                LeftHp.Value -= damage.damage;
+                break;
+        }
+        damageIndex++;
     }
 
     /// <summary>
@@ -216,7 +263,7 @@ public class MainBattleViewModel : ViewModelBase
                 return;
             }
 
-
+            
             // matches/{lobbyId} subscribe
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
                 $"matches/{_lobbyId}",
@@ -240,6 +287,8 @@ public class MainBattleViewModel : ViewModelBase
                     CurrentRound.Value = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
+
+                    DamageList.Value = match.damageList;
                     //lobby data changing mean timer start again.
                 },
                 onError: (error) => Debug.LogError(error)
@@ -251,7 +300,7 @@ public class MainBattleViewModel : ViewModelBase
                 onValueChanged: (player) =>
                 {
                     if (player == null) return;
-                    LeftHp.Value = player.hp;
+                    //LeftHp.Value = player.hp;
                     IsAttacker.Value = player.attacking;
                     MySelecting.Value = player.selecting;
                     MySelectingE.Value = player.selecting;
@@ -282,6 +331,18 @@ public class MainBattleViewModel : ViewModelBase
 
                     if (itms.Count == 0) return;
                     ItemLists.Value = itms;
+                    
+                    
+                    List<PerkType> perks =new  List<PerkType>();
+                    for (int i = 0; i < player.perkList.Count; i++)
+                    {
+                        var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
+                        
+                        perks.Add(data);
+                    }
+
+                    if (perks.Count == 0) return;
+                    MyPerkList.Value = perks;
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -292,7 +353,7 @@ public class MainBattleViewModel : ViewModelBase
                 onValueChanged: (player) =>
                 {
                     if (player == null) return;
-                    RightHp.Value = player.hp;
+                    //RightHp.Value = player.hp;
                     EnemySelecting.Value = player.selecting;
                     EnemyName.Value = player.username;
                     RightRoundWin.Value = player.wins;
@@ -323,6 +384,18 @@ public class MainBattleViewModel : ViewModelBase
                         EnemyItemLists.Value = enemyItems;
                         Debug.Log(EnemyItemLists.Value[0] + "enemyItemList 구조");
                     }
+                    
+                    
+                    List<PerkType> perks =new  List<PerkType>();
+                    for (int i = 0; i < player.perkList.Count; i++)
+                    {
+                        var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
+                        
+                        perks.Add(data);
+                    }
+
+                    if (perks.Count == 0) return;
+                    EnemyPerkList.Value = perks;
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -368,8 +441,7 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
                 }
-
-
+                
                 //if two player action is same, animation is not load.
                 if (player1Action == player2Action)
                 {
@@ -381,7 +453,8 @@ public class MainBattleViewModel : ViewModelBase
                 //if two player action is different, animation will be load.
                 EventBus.Publish(new HitAnimation(
                     IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
-                    SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                    SceneDataBridge.myPlayer,
+                    //SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
                     BattleConverter.GetHitType(IsAttacker.Value ? player1Action : player2Action),
                     null));
                 if (!_hitDelayMap.TryGetValue(BattleConverter.GetHitType(IsAttacker.Value ? player1Action : player2Action), out int additionalDelay))
@@ -389,6 +462,8 @@ public class MainBattleViewModel : ViewModelBase
                     additionalDelay = 6000; 
                 }
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + additionalDelay);
+                
+                
                 await _repository.PutAck(_playerId);
             },
 
@@ -404,6 +479,7 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => () =>
             {
+                _ = GetHPByFirebase();
                 EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
                 return Task.CompletedTask;
             },
@@ -469,6 +545,26 @@ public class MainBattleViewModel : ViewModelBase
 
         // 매칭된 비동기/동기 액션 실행
         await action();
+    }
+
+    private async Task GetHPByFirebase()
+    {
+        string myPath = $"matches/{_lobbyId}/players/{_playerId}";
+        string enemyPath = $"matches/{_lobbyId}/players/{_enemyId}";
+    
+        // GetAsync를 통해 딱 한 번만 스냅샷을 찍어옴
+        PlayerInfoModel player1 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>(myPath);
+        PlayerInfoModel player2 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>(enemyPath);
+
+        if (player1 != null)
+        {
+            LeftHp.Value = player1.hp;
+        }
+
+        if (player2 != null)
+        {
+            RightHp.Value = player2.hp;
+        }
     }
 
     /// <summary>
@@ -574,6 +670,8 @@ public class MainBattleViewModel : ViewModelBase
         _timerCts?.Cancel();
         _timerCts?.Dispose();
         _firebaseSubscribed = false;
+        EventBus.Unsubscribe<SortHitEvent>(HitUI);
+        EventBus.Unsubscribe<HardHitEvent>(HitUI);
         EventBus.Unsubscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
         base.Dispose();
     }
