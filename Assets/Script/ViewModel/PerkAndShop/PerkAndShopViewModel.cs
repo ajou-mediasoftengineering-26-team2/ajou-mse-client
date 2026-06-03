@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -13,8 +15,10 @@ public class PerkAndShopViewModel : ViewModelBase
     private string _matchSubId;
     private string _playerSubId;
     private List<string> _perkChoices = new List<string>();
+    private CancellationTokenSource _timerCts;
 
     public Observable<bool>   IsVisible   { get; } = new Observable<bool>();
+    public Observable<float>  TimerRatio  { get; } = new Observable<float>(1f);
     public Observable<string> Perk1Title  { get; } = new Observable<string>();
     public Observable<string> Perk1Desc   { get; } = new Observable<string>();
     public Observable<string> Perk1Raw    { get; } = new Observable<string>();
@@ -25,15 +29,10 @@ public class PerkAndShopViewModel : ViewModelBase
     public Observable<string> Perk3Desc   { get; } = new Observable<string>();
     public Observable<string> Perk3Raw    { get; } = new Observable<string>();
     public Observable<bool>   CanSelect   { get; } = new Observable<bool>(false);
-    //public Observable<bool>   CanUpgrade  { get; } = new Observable<bool>(false);
-    //public Observable<string> BeforeStat  { get; } = new Observable<string>();
-    //public Observable<string> AfterStat   { get; } = new Observable<string>();
-    //public Observable<string> UpgradeCost { get; } = new Observable<string>();
     public Observable<string> ErrorMsg    { get; } = new Observable<string>();
 
     public PerkAndShopViewModel()
     {
-        RepositoryFactory.Instance.Register<IPerkAndShopRepository, PerkAndShopRepository>();
         _perkAndShopRepo = RepositoryFactory.Instance.Get<IPerkAndShopRepository>();
     }
 
@@ -46,14 +45,6 @@ public class PerkAndShopViewModel : ViewModelBase
     public override async void Initialize()
     {
         base.Initialize();
-        //테스트용 -> 나중에 지우기
-        /*
-        IsVisible.Value = true;
-        _perkChoices = new List<string> { "UPGRADE", "IRON_FIST", "VAMPIRISM", "GRIT" };
-        RefreshPerkCards();
-        CanSelect.Value = true;
-        */
-        //테스트용 -> 나중에 지우기
         try
         {
             await FirebaseInitializer.EnsureInitializedAsync();
@@ -76,6 +67,11 @@ public class PerkAndShopViewModel : ViewModelBase
                 bool isPerkPhase = match.state == "GAME_PERK_CHOICE";
                 IsVisible.Value = isPerkPhase;
                 CanSelect.Value = isPerkPhase && _perkChoices.Count > 0;
+
+                if (isPerkPhase)
+                    StartTimer(match.countdownStartTime, match.countdownSec);
+                else
+                    _timerCts?.Cancel();
             },
             onError: err => Debug.LogError(err)
         );
@@ -91,12 +87,6 @@ public class PerkAndShopViewModel : ViewModelBase
                 _perkChoices = player.perkChoiceList;
                 RefreshPerkCards();
                 CanSelect.Value = true;
-
-                // 서버팀 확인 후 추가
-                // BeforeStat.Value  = player.currentStat;
-                // AfterStat.Value   = player.nextStat;
-                // UpgradeCost.Value = player.upgradeCost.ToString();
-                // CanUpgrade.Value  = player.money >= player.upgradeCost;
             },
             onError: err => Debug.LogError(err)
         );
@@ -118,6 +108,32 @@ public class PerkAndShopViewModel : ViewModelBase
         title.Value = PerkInfoProvider.GetDisplayName(perkType);
         desc.Value  = PerkInfoProvider.GetDescription(perkType);
         raw.Value   = choices[index];
+    }
+
+    private async void StartTimer(string startTimeStr, int durationSec)
+    {
+        _timerCts?.Cancel();
+        _timerCts?.Dispose();
+        _timerCts = new CancellationTokenSource();
+        var token = _timerCts.Token;
+
+        string format = "yyyy-MM-dd'T'HH:mm:ss.fff";
+        if (!DateTime.TryParseExact(startTimeStr, format,
+            CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime)) return;
+
+        DateTime endTime = startTime.AddSeconds(durationSec);
+        try
+        {
+            while (!token.IsCancellationRequested)
+            {
+                double remaining = (endTime - DateTime.Now).TotalSeconds;
+                if (remaining <= 0) { TimerRatio.Value = 0f; break; }
+                TimerRatio.Value = (float)(remaining / durationSec);
+                await Task.Delay(50, token);
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception e) { Debug.LogException(e); }
     }
 
     public async void OnSelectPerk(int slot)
@@ -147,35 +163,11 @@ public class PerkAndShopViewModel : ViewModelBase
             Debug.LogException(e);
         }
     }
-/*
-    public async void OnUpgrade()
-    {
-        if (!CanUpgrade.Value) return;
-        if (_perkChoices.Count == 0) return;
-
-        CanUpgrade.Value = false;
-        try
-        {
-            var res = await _perkAndShopRepo.PutChoice(_playerId, _perkChoices[0]);
-            if (!res.isSuccess)
-            {
-                ErrorMsg.Value   = res.error.message;
-                CanUpgrade.Value = true;
-                return;
-            }
-            EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
-        }
-        catch (Exception e)
-        {
-            ErrorMsg.Value   = e.Message;
-            CanUpgrade.Value = true;
-            Debug.LogException(e);
-        }
-    }
-*/
 
     public override void Dispose()
     {
+        _timerCts?.Cancel();
+        _timerCts?.Dispose();
         if (!string.IsNullOrEmpty(_matchSubId))
             FirebaseClient.Instance.Unsubscribe(_matchSubId);
         if (!string.IsNullOrEmpty(_playerSubId))

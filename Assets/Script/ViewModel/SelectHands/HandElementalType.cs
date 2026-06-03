@@ -6,5 +6,6 @@ public enum HandElementalType
     WIND,
     LIGHTNING,
     POISON,
-    PLANT
+    PLANT,
+    NONE
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +14,9 @@ public class ItemView : MonoBehaviour
     private Label _itemInfo;
     private IItemRepository _itemRepo;
 
+    private Queue<string> _queue = new Queue<string>();
+    private bool _isShowing = false;
+
     private void OnEnable()
     {
         if (!TryCacheElements())
@@ -20,8 +24,6 @@ public class ItemView : MonoBehaviour
             Debug.LogError("[ItemView] UI Toolkit root is not ready.");
             return;
         }
-
-        RepositoryFactory.Instance.Register<IItemRepository, ItemRepository>();
         _itemRepo ??= RepositoryFactory.Instance.Get<IItemRepository>();
     }
 
@@ -33,18 +35,33 @@ public class ItemView : MonoBehaviour
             return;
         }
 
-        if (!Enum.TryParse<ItemType>(itemCode, out var itemType))
-        {
-            Debug.LogError($"[ItemView] Unknown item code: {itemCode}");
-            return;
-        }
+        _queue.Enqueue(itemCode);
+        if (!_isShowing)
+            StartCoroutine(ProcessQueue());
+    }
 
-        Debug.Log("item type" + itemType);
-        _itemTitle.text = ItemInfoProvider.GetDisplayName(itemType);
-        _itemInfo.text  = ItemInfoProvider.GetDescription(itemType);
-        var sprite = Resources.Load<Sprite>($"Items/{itemType}");
-        if (sprite != null) _itemImg.sprite = sprite;
-        StartCoroutine(AckAndClose());
+    private IEnumerator ProcessQueue()
+    {
+        _isShowing = true;
+        while (_queue.Count > 0)
+        {
+            string itemCode = _queue.Dequeue();
+            if (!Enum.TryParse<ItemType>(itemCode, out var itemType))
+            {
+                Debug.LogError($"[ItemView] Unknown item code: {itemCode}");
+                continue;
+            }
+            Debug.Log("item type" + itemType);
+            _itemTitle.text = ItemInfoProvider.GetDisplayName(itemType);
+            _itemInfo.text  = ItemInfoProvider.GetDescription(itemType);
+            var sprite = Resources.Load<Sprite>($"Items/{itemType}");
+            if (sprite != null) _itemImg.sprite = sprite;
+
+            yield return new WaitForSeconds(3f);
+            _ = _itemRepo.PutAck(SceneDataBridge.playerId);
+        }
+        _isShowing = false;
+        GetComponent<UIDocument>().enabled = false;
     }
 
     private bool TryCacheElements()
@@ -57,19 +74,12 @@ public class ItemView : MonoBehaviour
 
         if (!ReferenceEquals(currentRoot, _root) || _itemImg == null || _itemTitle == null || _itemInfo == null)
         {
-            _root = currentRoot;
+            _root      = currentRoot;
             _itemImg   = _root.Q<Image>("ItemImg");
             _itemTitle = _root.Q<Label>("ItemTitle");
             _itemInfo  = _root.Q<Label>("ItemInfo");
         }
 
         return _itemImg != null && _itemTitle != null && _itemInfo != null;
-    }
-
-    private IEnumerator AckAndClose()
-    {
-        yield return new WaitForSeconds(3f);
-        _ = _itemRepo.PutAck(SceneDataBridge.playerId);
-        GetComponent<UIDocument>().enabled = false;
     }
 }
