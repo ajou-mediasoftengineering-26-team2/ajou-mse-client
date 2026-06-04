@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Script.Util;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -30,6 +31,10 @@ public class MainBattleViewModel : ViewModelBase
     private CancellationTokenSource _timerCts;
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
+
+
+    private PlayerInfoModel player1Snap;
+    private PlayerInfoModel player2Snap;
 
 
     // ── HP ──────────────────────────────────────────────────────────
@@ -102,8 +107,25 @@ public class MainBattleViewModel : ViewModelBase
     
     
     public Observable<List<ItemType>> ItemLists { get; } = new Observable<List<ItemType>>();
+    public Observable<List<ItemType>> EnemyItemLists { get; } = new Observable<List<ItemType>>();
+ 
 
+    public Observable<HandElementalType> MyHandElemental { get; } = new Observable<HandElementalType>();
+    public Observable<HandElementalType> EnemyHandElemental { get; } = new Observable<HandElementalType>();
 
+    public Observable<List<PerkType>> MyPerkList { get; } = new Observable<List<PerkType>>();
+    public Observable<List<PerkType>> EnemyPerkList { get; } = new Observable<List<PerkType>>();
+
+    public Observable<List<Damage>> DamageList { get; } = new Observable<List<Damage>>();
+    
+    private readonly Dictionary<HitActionType, int> _hitDelayMap = new()
+    {
+        { HitActionType.Both5,    6000 }, 
+        { HitActionType.Both7,   6000 }, 
+        { HitActionType.Both1, 2500 }, 
+        { HitActionType.Left, 2500 },  
+        { HitActionType.Right, 2500 }  
+    };
     public MainBattleViewModel()
     {
         // _playerId = playerId;
@@ -125,11 +147,56 @@ public class MainBattleViewModel : ViewModelBase
 
     private void eventJunsang()
     {
+        EventBus.Publish(new MainBattleEvent());
         EventBus.Subscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
+        EventBus.Subscribe<HardHitEvent>(HitUI);
+        EventBus.Subscribe<SortHitEvent>(HitUI);
+        EventBus.Subscribe<HitEndAction>(action =>
+        {
+            damageIndex = 0;
+        });
+    }
+
+
+    private int damageIndex = 0;
+    private void HitUI(SortHitEvent obj)
+    {
+        GetAnimatorByPlayer(SceneDataBridge.myPlayer,
+            IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[damageIndex]);
+    }
+
+    private void HitUI(HardHitEvent obj)
+    {
+        GetAnimatorByPlayer(SceneDataBridge.myPlayer,
+            IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[damageIndex]);
     }
 
     private void GRSAAckEvent(GameRoundStartAnimationAckEvent obj)
     {
+    }
+    
+    private void GetAnimatorByPlayer(Player player, BattleRole role, Damage damage)
+    {
+        switch (player, role)
+        {
+            case (Player.First, BattleRole.Attack):
+                Toast.ShowDamagePopupLeft(damage.damage);
+                RightHp.Value -= damage.damage;
+                break;
+            case (Player.First, BattleRole.Defense):
+                Toast.ShowDamagePopupRight(damage.damage);
+                LeftHp.Value -= damage.damage;
+                break;
+            case (Player.Second, BattleRole.Attack):
+                Toast.ShowDamagePopupRight(damage.damage);
+                RightHp.Value -= damage.damage;
+                break;
+            case (Player.Second, BattleRole.Defense):
+                Toast.ShowDamagePopupLeft(damage.damage);
+                LeftHp.Value -= damage.damage;
+                break;
+        }
+        damageIndex++;
     }
 
     /// <summary>
@@ -196,7 +263,7 @@ public class MainBattleViewModel : ViewModelBase
                 return;
             }
 
-
+            
             // matches/{lobbyId} subscribe
             await FirebaseClient.Instance.SubscribeAsync<MatchInfoModel>(
                 $"matches/{_lobbyId}",
@@ -220,6 +287,8 @@ public class MainBattleViewModel : ViewModelBase
                     CurrentRound.Value = match.currentRound;
                     WinnerPlayerIdx.Value = match.winnerPlayerIdx;
                     CurrentTurn.Value = match.currentTurn;
+
+                    DamageList.Value = match.damageList;
                     //lobby data changing mean timer start again.
                 },
                 onError: (error) => Debug.LogError(error)
@@ -231,7 +300,7 @@ public class MainBattleViewModel : ViewModelBase
                 onValueChanged: (player) =>
                 {
                     if (player == null) return;
-                    LeftHp.Value = player.hp;
+                    //LeftHp.Value = player.hp;
                     IsAttacker.Value = player.attacking;
                     MySelecting.Value = player.selecting;
                     MySelectingE.Value = player.selecting;
@@ -240,8 +309,8 @@ public class MainBattleViewModel : ViewModelBase
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
 
-                    
 
+                    MyHandElemental.Value = HandInfoProvider.FromString(player.handElemental);
                     if (player.itemList == null)
                     {
                         ItemLists.Value = new List<ItemType>();
@@ -260,7 +329,20 @@ public class MainBattleViewModel : ViewModelBase
                         itms.Add(itemType);
                     }
 
+                    if (itms.Count == 0) return;
                     ItemLists.Value = itms;
+                    
+                    
+                    List<PerkType> perks =new  List<PerkType>();
+                    for (int i = 0; i < player.perkList.Count; i++)
+                    {
+                        var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
+                        
+                        perks.Add(data);
+                    }
+
+                    if (perks.Count == 0) return;
+                    MyPerkList.Value = perks;
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -271,12 +353,49 @@ public class MainBattleViewModel : ViewModelBase
                 onValueChanged: (player) =>
                 {
                     if (player == null) return;
-                    RightHp.Value = player.hp;
+                    //RightHp.Value = player.hp;
                     EnemySelecting.Value = player.selecting;
                     EnemyName.Value = player.username;
                     RightRoundWin.Value = player.wins;
                     player2 = player;
+                    EnemyHandElemental.Value = HandInfoProvider.FromString(player.handElemental);
                     Debug.Log(player.hp + " " + player.username + player.hp + "Enemy");
+                    
+                    if (player.itemList == null)
+                    {
+                        EnemyItemLists.Value = new List<ItemType>();
+                    }
+                    else
+                    {
+                        List<ItemType> enemyItems = new List<ItemType>();
+                        for (int i = 0; i < player.itemList.Count; i++)
+                        {
+                            if (!Enum.TryParse<ItemType>(player.itemList[i], out var itemType))
+                            {
+                                Debug.LogError($"[EnemyItemView] Unknown item code: {player.itemList[i]}");
+                                continue; 
+                            }
+        
+                            enemyItems.Add(itemType);
+                        }
+                        
+                        
+                        if (enemyItems.Count == 0) return;
+                        EnemyItemLists.Value = enemyItems;
+                        Debug.Log(EnemyItemLists.Value[0] + "enemyItemList 구조");
+                    }
+                    
+                    
+                    List<PerkType> perks =new  List<PerkType>();
+                    for (int i = 0; i < player.perkList.Count; i++)
+                    {
+                        var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
+                        
+                        perks.Add(data);
+                    }
+
+                    if (perks.Count == 0) return;
+                    EnemyPerkList.Value = perks;
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -306,12 +425,14 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.GAME_TURN_ANIMATION => async () =>
             {
+                if (!GameSetting.TryParseHandAction(player1.handChoice, out HandActionType player1Action)) ;
+                if (!GameSetting.TryParseHandAction(player2.handChoice, out HandActionType player2Action)) ;
                 EventBus.Publish(new ChoiceAnimation(player1, player2));
                 if (player1 == null || player2 == null)
                 {
                     Debug.LogWarning("[MainBattleViewModel] ChoiceAnimation: player info not ready.");
                 }
-                await Task.Delay(5000);
+                await Task.Delay(7000);
                 if (player1 != null && player2 != null)
                 {
                     EventBus.Publish(new ActionSelectedEvent(player1, player2));
@@ -320,24 +441,45 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
                 }
-                EventBus.Publish(new CameraAction(CameraType.Action));
+                
+                //if two player action is same, animation is not load.
+                if (player1Action == player2Action)
+                {
+                    await _repository.PutAck(_playerId);
+                    return;
+                }
+                
+                
+                //if two player action is different, animation will be load.
                 EventBus.Publish(new HitAnimation(
                     IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense,
-                    SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-                    HitActionType.Both5,
+                    SceneDataBridge.myPlayer,
+                    //SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
+                    BattleConverter.GetHitType(IsAttacker.Value ? player1Action : player2Action),
                     null));
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6000);
+                if (!_hitDelayMap.TryGetValue(BattleConverter.GetHitType(IsAttacker.Value ? player1Action : player2Action), out int additionalDelay))
+                {
+                    additionalDelay = 6000; 
+                }
+                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + additionalDelay);
+                
+                
                 await _repository.PutAck(_playerId);
             },
 
             LobbyState.END_RESULT => () =>
             {
-                EventBus.Publish(new RoundOver(true));
+                /*EventBus.Publish(new RoundOver(true));
+                return Task.CompletedTask;*/
+                //게임 엔드로 수정했슴다
+                bool isP1Winner = player1.finalWinner;
+                EventBus.Publish(new GameEndEvent(player1, player2, isP1Winner));
                 return Task.CompletedTask;
             },
 
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => () =>
             {
+                _ = GetHPByFirebase();
                 EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
                 return Task.CompletedTask;
             },
@@ -345,6 +487,8 @@ public class MainBattleViewModel : ViewModelBase
             LobbyState.GAME_ROUND_END_PLAYER_KO => async () =>
             {
                 EventBus.Publish(new RoundOver(true));
+                //결과창 이벤트 버스 추가
+                EventBus.Publish(new RoundResultEvent(isWin: player1.hp > 0, currentRound: match.currentRound));
                 if (!GameSetting.DELAY_MAP.TryGetValue(SceneDataBridge.playerCamera, out int cameraDelay))
                 {
                     Debug.LogWarning($"[MainBattleViewModel] Unknown camera: {SceneDataBridge.playerCamera}. Using 0ms delay.");
@@ -369,8 +513,8 @@ public class MainBattleViewModel : ViewModelBase
             LobbyState.GAME_ELEMENTAL_CHOICE => async () =>
             {
                 EventBus.Publish(new HandElementalChoice());
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
-                _elementalRepository.PutChoice(_playerId, ElementalHand.FIRE.ToString());
+                //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
+                //_elementalRepository.PutChoice(_playerId, ElementalHand.FIRE.ToString());
             },
 
             LobbyState.GAME_ELEMENTAL_RECEIVING => async () =>
@@ -383,8 +527,11 @@ public class MainBattleViewModel : ViewModelBase
             {
                 for (int i = 0; i < player1.receivedItemList.Count; i++)
                 {
-                    EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[0]));   
+                    EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[i]));   
+                    //EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[0])); 
+                    //0->i로 수정했습니다.
                 }
+                
                 return Task.CompletedTask;
             },
             LobbyState.GAME_PERK_CHOICE => () =>
@@ -398,6 +545,26 @@ public class MainBattleViewModel : ViewModelBase
 
         // 매칭된 비동기/동기 액션 실행
         await action();
+    }
+
+    private async Task GetHPByFirebase()
+    {
+        string myPath = $"matches/{_lobbyId}/players/{_playerId}";
+        string enemyPath = $"matches/{_lobbyId}/players/{_enemyId}";
+    
+        // GetAsync를 통해 딱 한 번만 스냅샷을 찍어옴
+        PlayerInfoModel player1 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>(myPath);
+        PlayerInfoModel player2 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>(enemyPath);
+
+        if (player1 != null)
+        {
+            LeftHp.Value = player1.hp;
+        }
+
+        if (player2 != null)
+        {
+            RightHp.Value = player2.hp;
+        }
     }
 
     /// <summary>
@@ -473,24 +640,63 @@ public class MainBattleViewModel : ViewModelBase
     /// </summary>
     private void GetStatusText()
     {
-        // waiting
-        if (MatchState.Value == LobbyState.LOBBY_START_COUNTDOWN)
+        switch (MatchState.Value)
         {
-            LabelState.Value = "START SOON..";
-        }
-        // game over
-        else if (MatchState.Value == LobbyState.END_RESULT)
-        {
-            LabelState.Value = "GAME OVER!";
-        }
-        // my turn or enemy turn
-        else if (MySelecting.Value)
-        {
-            LabelState.Value = "YOUR TURN";
-        }
-        else
-        {
-            LabelState.Value = "ENEMY TURN";
+            // 1. 로비 & 카운트다운
+            case LobbyState.LOBBY_WAITING:
+                LabelState.Value = "WAITING FOR PLAYERS..";
+                break;
+
+            case LobbyState.GAME_ROUND_START_ANIMATION:
+            case LobbyState.LOBBY_START_COUNTDOWN:
+                LabelState.Value = "START SOON..";
+                break;
+
+            case LobbyState.MATCH_START:
+            case LobbyState.GAME_ITEM_ANIMATION:
+            case LobbyState.GAME_PERK_ITEM_RECEIVING:
+            case LobbyState.GAME_ELEMENTAL_RECEIVING:
+                LabelState.Value = "READY.."; 
+                break;
+
+            case LobbyState.GAME_TURN_ANIMATION:
+                LabelState.Value = "AHHHH!!!!!!";
+                break;
+            // 3. 실제 플레이어 행동 선택 구간 (여기서 턴을 체크합니다)
+            case LobbyState.GAME_PLAYER_CHOICE:
+            case LobbyState.GAME_ATK_CHOICE:
+            case LobbyState.GAME_DEF_CHOICE:
+                LabelState.Value = "CHOOSE YOUR ACTION!";
+                break;
+
+            case LobbyState.GAME_CHOICE_FINISHED:
+                LabelState.Value = "WAITING FOR OTHER PLAYER..";
+                break;
+
+            // 4. 퍽(특성) 및 원소 선택 구간
+            case LobbyState.GAME_PERK_CHOICE:
+                LabelState.Value = "SELECT YOUR PERK";
+                break;
+
+            case LobbyState.GAME_ELEMENTAL_CHOICE:
+                LabelState.Value = "SELECT YOUR ELEMENT";
+                break;
+
+            // 5. 게임 종료 및 아웃
+            case LobbyState.END_RESULT:
+                LabelState.Value = "GAME OVER!";
+                break;
+
+            case LobbyState.END_PLAYER_DISCONNECTED:
+                LabelState.Value = "PLAYER DISCONNECTED";
+                break;
+
+            case LobbyState.GAME_ROUND_END_PLAYER_KO:
+                LabelState.Value = "ROUND END!";
+                break;
+            default:
+                LabelState.Value = "UNKNOWN STATE";
+                break;
         }
     }
 
@@ -503,6 +709,8 @@ public class MainBattleViewModel : ViewModelBase
         _timerCts?.Cancel();
         _timerCts?.Dispose();
         _firebaseSubscribed = false;
+        EventBus.Unsubscribe<SortHitEvent>(HitUI);
+        EventBus.Unsubscribe<HardHitEvent>(HitUI);
         EventBus.Unsubscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
         base.Dispose();
     }

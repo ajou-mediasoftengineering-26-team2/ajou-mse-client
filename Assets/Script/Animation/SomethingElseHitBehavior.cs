@@ -6,5 +6,8 @@ public class SomethingElseHitBehavior : StateMachineBehaviour
     {
         EventBus.Publish(new HitAnimationZoomIn());
         EventBus.Publish(new SortHitEvent());
+        
+        //here
+        //EventBus.Publish(new HitDamageEvent(damage[index]));
     }
 }

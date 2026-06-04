@@ -68,5 +68,23 @@
         <ui:VisualElement name="Middle" style="flex-grow: 1; width: 100%; height: 55%; min-width: auto; min-height: auto; max-width: none; max-height: none; align-items: flex-end; justify-content: flex-end; -unity-text-outline-width: 0; background-color: rgba(0, 0, 0, 0); -unity-background-image-tint-color: rgba(255, 255, 255, 0.59);">
             <ui:VisualElement name="ChooseAction" style="flex-grow: 0; width: 20%; flex-direction: column; align-items: flex-end; justify-content: flex-end;"/>
         </ui:VisualElement>
+        <ui:VisualElement name="BottomRightSafeZone" style="position: absolute; bottom: 0; right: 0; width: 30%; min-width: 250px; height: auto; flex-direction: column; align-items: flex-end; padding: 20px;">
+            <ui:VisualElement name="EnemyProfileAndInfo" style="flex-direction: row-reverse; align-items: flex-end; justify-content: flex-start; width: auto;">
+                <ui:VisualElement name="EnemyProfile" style="width: 90px; height: 90px; background-color: rgba(255, 255, 255, 0.4); flex-shrink: 0;" />
+                
+                <ui:VisualElement name="EnemyInfoGrid" class="info-grid-layout" style="margin-right: 5px; margin-left: 0;">
+                    <ui:VisualElement class="grid-row" style="flex-direction: row;">
+                        <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);" />
+                        <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);" />
+                        <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="grid-row" style="flex-direction: row;">
+                        <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);" />
+                        <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);" />
+                        <ui:VisualElement class="slot" style="width: 45px; height: 45px; margin: 2px; background-color: rgba(55, 55, 55, 0.8);" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

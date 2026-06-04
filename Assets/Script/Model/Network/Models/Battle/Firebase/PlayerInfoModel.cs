@@ -16,10 +16,15 @@ public class PlayerInfoModel
     public bool selecting;
     public bool finalWinner;
     public string handChoice;
+    public string handElemental;
+    public int coin;
     
     // 리스트 타입 매칭
     public List<string> itemList;
     public List<string> receivedItemList;
+    public List<string> perkChoiceList;
+    public List<string> perkList;
+    public List<Damage> damageList;
     
     public PlayerInfoModel()
     {

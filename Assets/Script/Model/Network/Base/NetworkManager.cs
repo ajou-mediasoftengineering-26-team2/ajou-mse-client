@@ -143,7 +143,7 @@ public class NetworkManager : MonoBehaviour
             {
                 await Task.Yield();
             }
-
+            
             return HandleResponse<T>(request);
         }
     }

@@ -12,7 +12,6 @@ public class MainBattleActionRenderer
     private readonly VisualTreeAsset _actionItemSelect;
     private readonly List<VisualElement> _actionElements = new();
     private readonly Action<HandActionType, String> _onActionClicked;
-    private bool _isActionAnimatingOut;
 
     public MainBattleActionRenderer(VisualTreeAsset actionItemSelect, Action<HandActionType, String> onActionClicked = null)
     {
@@ -35,8 +34,14 @@ public class MainBattleActionRenderer
         }
 
         container.Clear();
+        
+        container.style.flexDirection = FlexDirection.Row;   
+        container.style.justifyContent = Justify.Center;       
+        container.style.alignItems = Align.FlexEnd;         
+        container.style.width = Length.Percent(100);       
+        container.style.height = Length.Auto();
+        
         _actionElements.Clear();
-        _isActionAnimatingOut = false;
 
         List<HandActionData> handActionDatas = isAttacker ? ActionDatabase.AttackActions : ActionDatabase.DefendActions;
         int actionCount = Mathf.Min(GameSetting.ATTACK, handActionDatas.Count);
@@ -44,12 +49,15 @@ public class MainBattleActionRenderer
         for (int i = 0; i < actionCount; i++)
         {
             var item = _actionItemSelect.Instantiate();
+            item.style.width = 100; 
+            item.style.height = 100;
+            
             item.style.scale = new StyleScale(Vector3.zero);
             item.style.transitionProperty = new StyleList<StylePropertyName>(new List<StylePropertyName> { "scale" });
             item.style.transitionDuration = new StyleList<TimeValue>(new List<TimeValue> { ActionScaleAnimationMs / 1000f });
             item.style.transitionTimingFunction = new StyleList<EasingFunction>(new List<EasingFunction> { new EasingFunction(EasingMode.EaseOut) });
             container.Add(item);
-
+            
             HandActionData actionData = handActionDatas[i];
             if (actionData == null)
             {
@@ -89,8 +97,6 @@ public class MainBattleActionRenderer
 
     private void OnActionClicked(HandActionType actionType, string actionDataActionName)
     {
-        if (_isActionAnimatingOut) return;
-        _isActionAnimatingOut = true;
         _onActionClicked?.Invoke(actionType, actionDataActionName);
     }
 }

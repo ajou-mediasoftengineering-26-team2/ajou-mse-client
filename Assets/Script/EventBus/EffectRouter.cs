@@ -13,6 +13,8 @@ public class EffectRouter : MonoBehaviour
     private static readonly int LeftHitAction = Animator.StringToHash("LeftHitAction");
     private static readonly int RightHitAction = Animator.StringToHash("RightHitAction");
     private static readonly int RepeatCountHash = Animator.StringToHash("RepeatCount");
+    private static readonly int Both1HitAction = Animator.StringToHash("Both1HitAction");
+    private static readonly int Both7HitAction = Animator.StringToHash("Both7HitAction");
 
     [FormerlySerializedAs("fxAnimator")] [SerializeField] private Animator player1Animator;
     [SerializeField] private Animator player2Animator;
@@ -120,8 +122,7 @@ public class EffectRouter : MonoBehaviour
     private void OnHitAnimation(HitAnimation evt)
     {
         Animator targetAnimator = GetAnimatorByPlayer(evt.Player,  evt.Role);
-
-
+        Debug.Log("애니메이션이 실행됨!!!!!! ********");
         switch (evt.hitAction)
         {
             case HitActionType.Left:
@@ -130,8 +131,16 @@ public class EffectRouter : MonoBehaviour
             case HitActionType.Right:
                 targetAnimator.SetTrigger(RightHitAction);
                 break;
+            case HitActionType.Both1:
+                targetAnimator.SetTrigger(Both1HitAction);
+                targetAnimator.SetInteger(RepeatCountHash, 0);
+                break;
             case HitActionType.Both5:
                 targetAnimator.SetTrigger(HitAction);
+                targetAnimator.SetInteger(RepeatCountHash, 0);
+                break;
+            case HitActionType.Both7:
+                targetAnimator.SetTrigger(Both7HitAction);
                 targetAnimator.SetInteger(RepeatCountHash, 0);
                 break;
         }

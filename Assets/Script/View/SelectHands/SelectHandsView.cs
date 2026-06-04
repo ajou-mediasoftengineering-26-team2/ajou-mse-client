@@ -11,9 +11,21 @@ public class SelectHandsView : MonoBehaviour
     private Label  _hand1Title, _hand2Title, _hand3Title, _hand4Title, _hand5Title, _hand6Title;
     private Label  _hand1Info,  _hand2Info,  _hand3Info,  _hand4Info,  _hand5Info,  _hand6Info;
 
+    private VisualElement root;
+    private VisualElement timer;
+    private Image timerImg;
     private void OnEnable()
     {
-        var root = GetComponent<UIDocument>().rootVisualElement;
+        
+
+        //StartScene();
+    }
+
+    public void StartScene()
+    {
+        root = GetComponent<UIDocument>().rootVisualElement;
+        timer = root.Q<VisualElement>("Timer");
+        timerImg = root.Q<Image>("TimerImg");
 
         _hand1Sel = root.Q<Button>("Hand1Sel");
         _hand2Sel = root.Q<Button>("Hand2Sel");
@@ -42,7 +54,7 @@ public class SelectHandsView : MonoBehaviour
         _hand4Info = root.Q<Label>("Hand4Info");
         _hand5Info = root.Q<Label>("Hand5Info");
         _hand6Info = root.Q<Label>("Hand6Info");
-
+        
         SetHandCard(_hand1Img, _hand1Title, _hand1Info, HandElementalType.FIRE);
         SetHandCard(_hand2Img, _hand2Title, _hand2Info, HandElementalType.WATER);
         SetHandCard(_hand3Img, _hand3Title, _hand3Info, HandElementalType.WIND);
@@ -62,6 +74,18 @@ public class SelectHandsView : MonoBehaviour
             _hand4Sel.SetEnabled(can);
             _hand5Sel.SetEnabled(can);
             _hand6Sel.SetEnabled(can);
+        });
+        
+        if (timerImg != null)
+            timerImg.sprite = Resources.Load<Sprite>("Pixel Clock/TimerImg");
+
+        _viewModel.IsVisible.Subscribe(visible =>
+            root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None);
+
+        _viewModel.TimerRatio.Subscribe(ratio =>
+        {
+            if (timer != null)
+                timer.style.width = new Length(ratio * 100, LengthUnit.Percent);
         });
 
         _hand1Sel.clicked += () => _viewModel.OnSelectHand(1);

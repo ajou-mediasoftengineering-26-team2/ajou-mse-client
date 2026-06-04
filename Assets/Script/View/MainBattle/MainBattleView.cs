@@ -34,6 +34,7 @@ public class MainBattleView : MonoBehaviour
     public VisualTreeAsset actionItemSelect;
     public UIDocument toopTip;
     public CameraTurnManager cameraManager;
+    
 
     private void OnEnable()
     {
@@ -48,7 +49,7 @@ public class MainBattleView : MonoBehaviour
         var activeCameraManager = cameraManager != null ? cameraManager : CameraTurnManager.Instance;
         if (activeCameraManager != null)
         {
-            EventBus.Publish(new CameraAction(SceneDataBridge.playerCamera));
+            EventBus.Publish(new HitEndAction(SceneDataBridge.playerCamera));
         }
 
         _uiRefs = new MainBattleUIRefs(mainBattle, perks, toopTip);

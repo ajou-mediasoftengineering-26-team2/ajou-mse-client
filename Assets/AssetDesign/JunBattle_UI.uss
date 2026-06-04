@@ -134,6 +134,14 @@
     flex-direction: row;
 }
 
+.info-grid-layout {
+    flex-direction: column;
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    flex-shrink: 0;
+}
+
 /* 기본 상태 */
 .turn-indicator {
     border-width: 2px;

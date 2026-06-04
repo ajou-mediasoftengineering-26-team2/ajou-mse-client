@@ -4,5 +4,5 @@ public enum HitActionType
     Right,
     Both1,
     Both5,
-    Both10
+    Both7
 }
