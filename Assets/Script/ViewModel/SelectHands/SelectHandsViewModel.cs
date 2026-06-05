@@ -62,9 +62,17 @@ public class SelectHandsViewModel : ViewModelBase
                     StartTimer(match.countdownStartTime, match.countdownSec);
                 }
                 // RECEIVING: 선택값 전송
-                else if (isReceiving && !string.IsNullOrEmpty(_selectedHandType))
+                else if (isReceiving)
                 {
                     IsVisible.Value = false;
+                    if (string.IsNullOrEmpty(_selectedHandType))
+                    {
+                        var hands = new[] {
+                            HandElementalType.FIRE,  HandElementalType.WATER, HandElementalType.WIND,
+                            HandElementalType.LIGHTNING, HandElementalType.POISON, HandElementalType.PLANT
+                        };
+                        _selectedHandType = hands[UnityEngine.Random.Range(0, hands.Length)].ToString();
+                    }
                     _ = SendSelection();
                 }
                 // 그 외 state엔 아무것도 안 함 (타이머는 자체적으로 끝남)

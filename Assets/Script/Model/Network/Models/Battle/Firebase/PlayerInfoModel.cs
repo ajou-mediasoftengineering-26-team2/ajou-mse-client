@@ -18,6 +18,8 @@ public class PlayerInfoModel
     public string handChoice;
     public string handElemental;
     public int coin;
+    public int elementalLevel;
+    public int upgradeCost;
     
     // 리스트 타입 매칭
     public List<string> itemList;
