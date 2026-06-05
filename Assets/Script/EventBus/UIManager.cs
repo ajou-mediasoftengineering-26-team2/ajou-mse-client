@@ -43,6 +43,7 @@ public class UIManager : MonoBehaviour
 
     private void PerksAndShopUIPOP(PerkChoiceEvent obj)
     {
+        if (PerksAndShop.enabled) return;
         AllUIDown();
         PerksAndShop.enabled = true;
         PerksAndShop.GetComponent<PerkAndShopView>().Setup();  
@@ -76,6 +77,7 @@ public class UIManager : MonoBehaviour
 
     private void HandElementalChoice(HandElementalChoice evt)
     {
+        if (ElementalHandChoice.enabled) return;
         AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         ElementalHandChoice.enabled = true;
         ElementalHandChoice.GetComponent<SelectHandsView>().StartScene();

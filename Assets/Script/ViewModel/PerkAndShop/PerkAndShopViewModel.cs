@@ -19,36 +19,36 @@ public class PerkAndShopViewModel : ViewModelBase
     private List<string> _perkChoices = new List<string>();
     private CancellationTokenSource _timerCts;
 
-
-    private string _pendingPerkSelection = null;
+    private bool   _inPerkPhase          = false;
+    private bool   _perkSelected         = false;
+    private string _pendingPerkSelection  = null;
 
     private bool              _upgradeInProgress  = false;
     private HandElementalType _currentHand        = HandElementalType.FIRE;
     private int               _displayCoin        = 0;
     private int               _currentLevel       = 0;
     private int               _currentUpgradeCost = 0;
-    
-    public Observable<bool>   IsVisible   { get; } = new Observable<bool>();
-    public Observable<float>  TimerRatio  { get; } = new Observable<float>(1f);
-    public Observable<string> Perk1Title  { get; } = new Observable<string>();
-    public Observable<string> Perk1Desc   { get; } = new Observable<string>();
-    public Observable<string> Perk1Raw    { get; } = new Observable<string>();
-    public Observable<string> Perk2Title  { get; } = new Observable<string>();
-    public Observable<string> Perk2Desc   { get; } = new Observable<string>();
-    public Observable<string> Perk2Raw    { get; } = new Observable<string>();
-    public Observable<string> Perk3Title  { get; } = new Observable<string>();
-    public Observable<string> Perk3Desc   { get; } = new Observable<string>();
-    public Observable<string> Perk3Raw    { get; } = new Observable<string>();
-    public Observable<bool>   CanSelect   { get; } = new Observable<bool>(false);
-    public Observable<string> ErrorMsg    { get; } = new Observable<string>();
-    
-    public Observable<string> HandElementalName  { get; } = new Observable<string>();
-    public Observable<string> BeforeInfo         { get; } = new Observable<string>();
-    public Observable<string> AfterInfo          { get; } = new Observable<string>();
-    public Observable<string> UpgradeCostLabel   { get; } = new Observable<string>();
-    public Observable<bool>   CanUpgrade         { get; } = new Observable<bool>(false);
-    public Observable<string> CoinLabel          { get; } = new Observable<string>("0");
-    public Observable<string> RoundLabel         { get; } = new Observable<string>("Round: 1");
+
+    public Observable<bool>   IsVisible        { get; } = new Observable<bool>();
+    public Observable<float>  TimerRatio       { get; } = new Observable<float>(1f);
+    public Observable<string> Perk1Title       { get; } = new Observable<string>();
+    public Observable<string> Perk1Desc        { get; } = new Observable<string>();
+    public Observable<string> Perk1Raw         { get; } = new Observable<string>();
+    public Observable<string> Perk2Title       { get; } = new Observable<string>();
+    public Observable<string> Perk2Desc        { get; } = new Observable<string>();
+    public Observable<string> Perk2Raw         { get; } = new Observable<string>();
+    public Observable<string> Perk3Title       { get; } = new Observable<string>();
+    public Observable<string> Perk3Desc        { get; } = new Observable<string>();
+    public Observable<string> Perk3Raw         { get; } = new Observable<string>();
+    public Observable<bool>   CanSelect        { get; } = new Observable<bool>(false);
+    public Observable<string> ErrorMsg         { get; } = new Observable<string>();
+    public Observable<string> HandElementalName { get; } = new Observable<string>();
+    public Observable<string> BeforeInfo       { get; } = new Observable<string>();
+    public Observable<string> AfterInfo        { get; } = new Observable<string>();
+    public Observable<string> UpgradeCostLabel { get; } = new Observable<string>();
+    public Observable<bool>   CanUpgrade       { get; } = new Observable<bool>(false);
+    public Observable<string> CoinLabel        { get; } = new Observable<string>("0");
+    public Observable<string> RoundLabel       { get; } = new Observable<string>("Round: 1");
 
     public PerkAndShopViewModel()
     {
@@ -71,12 +71,10 @@ public class PerkAndShopViewModel : ViewModelBase
             await SubscribeMatchStateAsync();
             await SubscribePlayerInfoAsync();
         }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
+        catch (Exception e) { Debug.LogException(e); }
     }
-    
+
+    private int _lastPerkRound = -1;
 
     private async Task SubscribeMatchStateAsync()
     {
@@ -85,23 +83,37 @@ public class PerkAndShopViewModel : ViewModelBase
             onValueChanged: match =>
             {
                 if (match == null) return;
-
+                Debug.Log($"[PerkVM] state={match.state} round={match.currentRound} inPerk={_inPerkPhase} selected={_perkSelected}");
+                
                 bool isPerkPhase = match.state == "GAME_PERK_CHOICE";
                 IsVisible.Value  = isPerkPhase;
                 RoundLabel.Value = $"Round: {match.currentRound}";
 
                 if (isPerkPhase)
                 {
-                    if (_perkChoices.Count > 0 && !CanSelect.Value && _pendingPerkSelection == null)
+                    bool isNewRound = match.currentRound != _lastPerkRound;
+                    if (isNewRound)
+                    {
+                        // 진짜 새 라운드일 때만 초기화
+                        _lastPerkRound        = match.currentRound;
+                        _inPerkPhase          = false;
+                        _perkSelected         = false;
+                        _pendingPerkSelection = null;
+                        _timerCts?.Cancel();
+                    }
+                    if (!_inPerkPhase)
+                    {
+                        _inPerkPhase = true;
+                        StartTimer(match.countdownStartTime, match.countdownSec);
+                    }
+                    if (_perkChoices.Count > 0 && !CanSelect.Value && !_perkSelected)
                         CanSelect.Value = true;
-                    StartTimer(match.countdownStartTime, match.countdownSec);
                 }
                 else
                 {
-                    CanSelect.Value       = false;
-                    CanUpgrade.Value      = false;
-                    _pendingPerkSelection = null;
-                    _timerCts?.Cancel();
+                    // 상태가 잠깐 바뀌는 거일 수 있으니 _inPerkPhase/_perkSelected 건드리지 않음
+                    CanSelect.Value  = false;
+                    CanUpgrade.Value = false;
                 }
             },
             onError: err => Debug.LogError(err)
@@ -116,17 +128,14 @@ public class PerkAndShopViewModel : ViewModelBase
             {
                 if (player == null) return;
 
-                // 퍽 선택지
                 if (player.perkChoiceList != null && player.perkChoiceList.Count > 0)
                 {
                     _perkChoices = player.perkChoiceList;
                     RefreshPerkCards();
-                    if (_pendingPerkSelection == null)  // 이미 선택했으면 다시 활성화 안 함
+                    if (_inPerkPhase && !_perkSelected)
                         CanSelect.Value = true;
                 }
 
-                // 업그레이드 진행 중이면 Firebase 레벨이 올라온 것 확인 후 해제
-                // → 그 전까지는 로컬 coin 유지
                 if (_upgradeInProgress && player.elementalLevel > _currentLevel)
                     _upgradeInProgress = false;
 
@@ -136,7 +145,6 @@ public class PerkAndShopViewModel : ViewModelBase
                     CoinLabel.Value = _displayCoin.ToString();
                 }
 
-                // 손 속성 및 업그레이드 패널
                 if (!string.IsNullOrEmpty(player.handElemental) &&
                     player.handElemental != "NONE" &&
                     Enum.TryParse<HandElementalType>(player.handElemental, out var hand))
@@ -154,7 +162,9 @@ public class PerkAndShopViewModel : ViewModelBase
 
     private void RefreshUpgradePanel()
     {
-        BeforeInfo.Value = HandUpgradeInfoProvider.GetEffectDescription(_currentHand, _currentLevel);
+        BeforeInfo.Value = _currentLevel == 0
+            ? HandInfoProvider.GetDescription(_currentHand)
+            : HandUpgradeInfoProvider.GetEffectDescription(_currentHand, _currentLevel);
 
         if (_currentLevel >= 5)
         {
@@ -164,11 +174,11 @@ public class PerkAndShopViewModel : ViewModelBase
             return;
         }
 
-        AfterInfo.Value        = HandUpgradeInfoProvider.GetEffectDescription(_currentHand, _currentLevel + 1);
+        int nextLevel = _currentLevel == 0 ? 1 : _currentLevel + 1;
+        AfterInfo.Value        = HandUpgradeInfoProvider.GetEffectDescription(_currentHand, nextLevel);
         UpgradeCostLabel.Value = _currentUpgradeCost.ToString();
         CanUpgrade.Value       = _displayCoin >= _currentUpgradeCost && !_upgradeInProgress;
     }
-    
 
     private void RefreshPerkCards()
     {
@@ -183,16 +193,13 @@ public class PerkAndShopViewModel : ViewModelBase
         int index = slot - 1;
         if (index >= choices.Count) return;
         if (!Enum.TryParse<PerkType>(choices[index], out var perkType)) return;
-
         title.Value = PerkInfoProvider.GetDisplayName(perkType);
         desc.Value  = PerkInfoProvider.GetDescription(perkType);
         raw.Value   = choices[index];
     }
-    
 
     private async void StartTimer(string startTimeStr, int durationSec)
     {
-        _timerCts?.Cancel();
         _timerCts?.Dispose();
         _timerCts = new CancellationTokenSource();
         var token = _timerCts.Token;
@@ -221,36 +228,30 @@ public class PerkAndShopViewModel : ViewModelBase
         catch (Exception e) { Debug.LogException(e); }
     }
 
-
     public void OnSelectPerk(int slot)
     {
         if (!CanSelect.Value) return;
         if (_perkChoices.Count <= slot - 1) return;
 
+        _perkSelected         = true;
         _pendingPerkSelection = _perkChoices[slot - 1];
-        CanSelect.Value = false;
+        CanSelect.Value       = false;
         EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
     }
 
     private async Task FlushPerkSelectionAsync()
     {
         if (_perkChoices.Count == 0) return;
-
         if (string.IsNullOrEmpty(_pendingPerkSelection))
             _pendingPerkSelection = _perkChoices[UnityEngine.Random.Range(0, _perkChoices.Count)];
-
         try
         {
             var res = await _perkAndShopRepo.PutChoice(_playerId, _pendingPerkSelection);
             if (!res.isSuccess)
                 ErrorMsg.Value = res.error.message;
         }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
+        catch (Exception e) { Debug.LogException(e); }
     }
-    
 
     public async void OnUpgrade()
     {
@@ -258,35 +259,33 @@ public class PerkAndShopViewModel : ViewModelBase
 
         _upgradeInProgress = true;
         CanUpgrade.Value   = false;
-
-        _displayCoin    -= _currentUpgradeCost;
-        CoinLabel.Value = _displayCoin.ToString();
+        _displayCoin      -= _currentUpgradeCost;
+        CoinLabel.Value    = _displayCoin.ToString();
 
         try
         {
             var res = await _elementalRepo.PutUpgrade(_playerId, _currentHand.ToString());
             if (!res.isSuccess)
             {
-                _displayCoin    += _currentUpgradeCost;
-                CoinLabel.Value = _displayCoin.ToString();
-                ErrorMsg.Value  = res.error?.message ?? "Upgrade failed";
+                _displayCoin      += _currentUpgradeCost;
+                CoinLabel.Value    = _displayCoin.ToString();
+                ErrorMsg.Value     = res.error?.message ?? "Upgrade failed";
                 _upgradeInProgress = false;
                 RefreshUpgradePanel();
             }
         }
         catch (Exception e)
         {
-            _displayCoin    += _currentUpgradeCost;
-            CoinLabel.Value = _displayCoin.ToString();
+            _displayCoin      += _currentUpgradeCost;
+            CoinLabel.Value    = _displayCoin.ToString();
             _upgradeInProgress = false;
             RefreshUpgradePanel();
             Debug.LogException(e);
         }
     }
-    
+
     public override void Dispose()
     {
-        _timerCts?.Cancel();
         _timerCts?.Dispose();
         if (!string.IsNullOrEmpty(_matchSubId))
             FirebaseClient.Instance.Unsubscribe(_matchSubId);

@@ -13,7 +13,8 @@ public class SelectHandsViewModel : ViewModelBase
     private string _matchSubId;
     private CancellationTokenSource _timerCts;
     private string _selectedHandType; // 추가: 로컬 선택값 저장
-
+    private bool _inChoicePhase = false;
+    
     public Observable<bool>   IsVisible   { get; } = new Observable<bool>(false);
     public Observable<bool>   CanSelect   { get; } = new Observable<bool>(false);
     public Observable<float>  TimerRatio  { get; } = new Observable<float>(1f);
@@ -58,15 +59,17 @@ public class SelectHandsViewModel : ViewModelBase
                 if (isChoice)
                 {
                     IsVisible.Value = true;
-                    CanSelect.Value = true;
-                    StartTimer(match.countdownStartTime, match.countdownSec);
-                }/*
-                // RECEIVING: 선택값 전송
-                else if (isReceiving && !string.IsNullOrEmpty(_selectedHandType))
+                    if (!_inChoicePhase)
+                    {
+                        _inChoicePhase  = true;
+                        CanSelect.Value = true;
+                        StartTimer(match.countdownStartTime, match.countdownSec);
+                    }
+                }
+                else
                 {
-                    IsVisible.Value = false;
-                    _ = SendSelection();
-                }*/
+                    _inChoicePhase = false;
+                }
             },
             onError: err => Debug.LogError(err)
         );

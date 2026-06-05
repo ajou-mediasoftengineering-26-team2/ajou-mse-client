@@ -9,7 +9,7 @@ public class PerkAndShopView : MonoBehaviour
 
     private void OnEnable()
     {
-        Setup();
+        //Setup();
     }
 
     public void Setup()
@@ -44,6 +44,9 @@ public class PerkAndShopView : MonoBehaviour
         _viewModel = new PerkAndShopViewModel();
         _viewModel.SetPlayerInfo(SceneDataBridge.playerId, SceneDataBridge.MatchId);
         _viewModel.Initialize();
+        root.style.display = DisplayStyle.None;
+        _viewModel.IsVisible.Subscribe(visible =>
+            root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None);
 
         if (timerImg != null)
             timerImg.sprite = Resources.Load<Sprite>("Pixel Clock/TimerImg");
