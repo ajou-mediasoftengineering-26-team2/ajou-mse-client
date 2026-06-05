@@ -25,6 +25,6 @@ public class RoundResultView : MonoBehaviour
         
         _currentRound.text = $"Round {evt.currentRound}";
         _roundResult.text  = evt.isWin ? "WIN" : "LOSE";
-        _getMoney.text     = "-";
+        _getMoney.text     = $"Coin: {evt.coin}";
     }
 }

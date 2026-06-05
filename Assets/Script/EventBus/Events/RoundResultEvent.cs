@@ -3,10 +3,12 @@ public readonly struct RoundResultEvent
 {
     public readonly bool isWin;
     public readonly int currentRound;
+    public readonly int coin;
 
-    public RoundResultEvent(bool isWin, int currentRound)
+    public RoundResultEvent(bool isWin, int currentRound, int coin)
     {
-        this.isWin = isWin;
+        this.isWin        = isWin;
         this.currentRound = currentRound;
+        this.coin         = coin;
     }
 }

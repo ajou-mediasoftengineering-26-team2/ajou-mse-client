@@ -412,7 +412,7 @@ public class MainBattleViewModel : ViewModelBase
             {
                 EventBus.Publish(new RoundOver(true));
                 //결과창 이벤트 버스 추가
-                EventBus.Publish(new RoundResultEvent(isWin: player1.hp > 0, currentRound: match.currentRound));
+                EventBus.Publish(new RoundResultEvent(isWin: player1.hp > 0, currentRound: match.currentRound, coin: player1.coin));
                 if (!GameSetting.DELAY_MAP.TryGetValue(SceneDataBridge.playerCamera, out int cameraDelay))
                 {
                     Debug.LogWarning($"[MainBattleViewModel] Unknown camera: {SceneDataBridge.playerCamera}. Using 0ms delay.");
