@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 public interface ILoginRepository
 {
     Task<ApiResponse<PostLoginResponse>> PostUserID(string playerName);
+    Task<ApiResponse<EmptyResponse>> DeletePlayer(string playerId);
 }
 
 public class LoginRepository : BaseRepository, ILoginRepository 
@@ -23,6 +24,12 @@ public class LoginRepository : BaseRepository, ILoginRepository
         body.playerName = playerName;
         //PostLoginRequest body = new PostLoginRequest { playerName = playerName };
         return await networkManager.Post<PostLoginResponse>(EndpointBase, body);
+    }
+    
+    public async Task<ApiResponse<EmptyResponse>> DeletePlayer(string playerId)
+    {
+        var body = new DeletePlayerRequest { playerId = playerId };
+        return await networkManager.Delete<EmptyResponse>(EndpointBase, body);
     }
     
 }
