@@ -60,22 +60,13 @@ public class SelectHandsViewModel : ViewModelBase
                     IsVisible.Value = true;
                     CanSelect.Value = true;
                     StartTimer(match.countdownStartTime, match.countdownSec);
-                }
+                }/*
                 // RECEIVING: 선택값 전송
-                else if (isReceiving)
+                else if (isReceiving && !string.IsNullOrEmpty(_selectedHandType))
                 {
                     IsVisible.Value = false;
-                    if (string.IsNullOrEmpty(_selectedHandType))
-                    {
-                        var hands = new[] {
-                            HandElementalType.FIRE,  HandElementalType.WATER, HandElementalType.WIND,
-                            HandElementalType.LIGHTNING, HandElementalType.POISON, HandElementalType.PLANT
-                        };
-                        _selectedHandType = hands[UnityEngine.Random.Range(0, hands.Length)].ToString();
-                    }
                     _ = SendSelection();
-                }
-                // 그 외 state엔 아무것도 안 함 (타이머는 자체적으로 끝남)
+                }*/
             },
             onError: err => Debug.LogError(err)
         );
@@ -117,6 +108,7 @@ public class SelectHandsViewModel : ViewModelBase
                     TimerRatio.Value = 0f;
                     CanSelect.Value  = false;
                     IsVisible.Value  = false;
+                    await FlushHandSelectionAsync(); 
                     break;
                 }
                 TimerRatio.Value = (float)(remaining / durationSec);
@@ -125,6 +117,19 @@ public class SelectHandsViewModel : ViewModelBase
         }
         catch (OperationCanceledException) { }
         catch (Exception e) { Debug.LogException(e); }
+    }
+    private async Task FlushHandSelectionAsync()
+    {
+        if (string.IsNullOrEmpty(_selectedHandType))
+        {
+            var hands = new[] {
+                HandElementalType.FIRE,      HandElementalType.WATER,
+                HandElementalType.WIND,      HandElementalType.LIGHTNING,
+                HandElementalType.POISON,    HandElementalType.PLANT
+            };
+            _selectedHandType = hands[UnityEngine.Random.Range(0, hands.Length)].ToString();
+        }
+        await SendSelection();
     }
 
     // async 제거, 로컬 저장만
