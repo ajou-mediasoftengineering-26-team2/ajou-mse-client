@@ -26,7 +26,7 @@ public class PlayerInfoModel
     public List<string> receivedItemList;
     public List<string> perkChoiceList;
     public List<string> perkList;
-    public List<Damage> damageList;
+    public List<string> statusEffectList;
     
     public PlayerInfoModel()
     {

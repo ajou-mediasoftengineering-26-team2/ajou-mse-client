@@ -189,6 +189,30 @@ public class MainBattleBindingRenderer
                 _uiRefs.MyPerkSlots[i].style.backgroundImage = new StyleBackground(sprite);
             }
         });
+        
+        _viewModel.MyStatusList.Subscribe(data =>
+        {
+            ClearAllStatusEffects(false);
+            if (data == null) return;
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Condition/{data[i]}");
+                ApplyStatusEffect(sprite , data[i].ToString(), true);
+            }
+        });
+        
+        _viewModel.EnemyStatusList.Subscribe(data =>
+        {
+            ClearAllStatusEffects(false);
+            if (data == null) return;
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Condition/{data[i]}");
+                ApplyStatusEffect(sprite , data[i].ToString(), false);
+            }
+        });
     }
 
     private void BindSlotHover()
@@ -312,5 +336,63 @@ public class MainBattleBindingRenderer
 
             slot.RegisterCallback<MouseLeaveEvent>(_ => _viewModel.HoverItem.Value = null);
         });
+    }
+    
+    public void ApplyStatusEffect(Sprite effectIcon, string effectName, bool isMy)
+    {
+        // 1.isMy 값에 따라 어떤 컨테이너를 쓸지 결정합니다.
+        VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;
+        
+        if (targetContainer == null)
+        {
+            Debug.LogWarning($"{(isMy ? "내" : "적")} 상태이상 컨테이너를 찾을 수 없습니다.");
+            return;
+        }
+
+        if (targetContainer.Q<VisualElement>(effectName) != null) return;
+
+        VisualElement newIcon = new VisualElement();
+        newIcon.name = effectName; 
+        
+        newIcon.style.width = 36f;
+        newIcon.style.height = 36f;
+        newIcon.style.marginRight = 5f;
+        // newIcon.style.borderRightWidth = 1f;
+        // newIcon.style.borderBottomWidth = 1f;
+        // newIcon.style.borderLeftWidth = 1f;
+        // newIcon.style.borderTopWidth = 1f;
+        // newIcon.style.borderRightColor = Color.white;
+        // newIcon.style.borderBottomColor = Color.white;
+        // newIcon.style.borderLeftColor = Color.white;
+        // newIcon.style.borderTopColor = Color.white;
+        newIcon.style.backgroundImage = new StyleBackground(effectIcon);
+
+        targetContainer.Add(newIcon);
+    }
+
+    /// <summary>
+    /// 상태이상이 해제되었을 때 제거하는 함수
+    /// </summary>
+    public void RemoveStatusEffect(string effectName, bool isMy)
+    {
+        VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;
+        if (targetContainer == null) return;
+
+        VisualElement targetIcon = targetContainer.Q<VisualElement>(effectName);
+        if (targetIcon != null)
+        {
+            targetContainer.Remove(targetIcon);
+        }
+    }
+    
+    public void ClearAllStatusEffects(bool isMy)
+    {
+        VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;
+        
+    
+        if (targetContainer != null)
+        {
+            targetContainer.Clear();
+        }
     }
 }

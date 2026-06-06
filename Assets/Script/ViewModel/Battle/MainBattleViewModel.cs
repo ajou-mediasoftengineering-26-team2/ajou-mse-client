@@ -122,6 +122,10 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<List<PerkType>> EnemyPerkList { get; } = new Observable<List<PerkType>>();
 
     public Observable<List<Damage>> DamageList { get; } = new Observable<List<Damage>>();
+
+
+    public Observable<List<StatusType>> MyStatusList { get; } = new Observable<List<StatusType>>();
+    public Observable<List<StatusType>> EnemyStatusList { get; } = new Observable<List<StatusType>>();
     
     private readonly Dictionary<HitActionType, int> _hitDelayMap = new()
     {
@@ -179,7 +183,8 @@ public class MainBattleViewModel : ViewModelBase
     private void GetAnimatorByPlayer(Player player, BattleRole role, Damage damage)
     {
         bool isLeftOwner = false;
-
+        
+        
         switch (player, role)
         {
             case (Player.First, BattleRole.Attack):
@@ -333,38 +338,61 @@ public class MainBattleViewModel : ViewModelBase
 
 
                     MyHandElemental.Value = HandInfoProvider.FromString(player.handElemental);
-                    if (player.itemList == null)
-                    {
-                        ItemLists.Value = new List<ItemType>();
-                        return;
-                    }
+                    ItemLists.Value = new List<ItemType>();
                     
                     List<ItemType> itms = new  List<ItemType>();
-                    for (int i = 0; i < player.itemList.Count; i++)
+
+                    if (player.itemList == null)
                     {
-                        if (!Enum.TryParse<ItemType>(player.itemList[i], out var itemType))
+                        itms = new  List<ItemType>();
+                    }
+                    else
+                    {
+                        for (int i = 0; i < player.itemList.Count; i++)
                         {
-                            Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
-                            return;
-                        }
+                            if (!Enum.TryParse<ItemType>(player.itemList[i], out var itemType))
+                            {
+                                Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                                return;
+                            }
                         
-                        itms.Add(itemType);
+                            itms.Add(itemType);
+                        }
                     }
 
-                    if (itms.Count == 0) return;
                     ItemLists.Value = itms;
                     
                     
                     List<PerkType> perks =new  List<PerkType>();
-                    for (int i = 0; i < player.perkList.Count; i++)
-                    {
-                        var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
-                        
-                        perks.Add(data);
-                    }
 
-                    if (perks.Count == 0) return;
-                    MyPerkList.Value = perks;
+                    if (player.perkList != null)
+                    {
+                        for (int i = 0; i < player.perkList.Count; i++)
+                        {
+                            var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
+                        
+                            perks.Add(data);
+                        }
+                        
+                        MyPerkList.Value = perks;   
+                    }
+                    
+                    
+                    List<StatusType> status = new List<StatusType>();
+                    if (player.statusEffectList != null)
+                    {
+                        for (int i = 0; i < player.statusEffectList.Count; i++)
+                        {
+                            if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
+                            {
+                                Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                                continue;
+                            }
+                            status.Add(type);
+                        }
+                        
+                        MyStatusList.Value = status;
+                    }
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -408,6 +436,8 @@ public class MainBattleViewModel : ViewModelBase
                     }
                     
                     
+                    
+                    
                     List<PerkType> perks =new  List<PerkType>();
                     for (int i = 0; i < player.perkList.Count; i++)
                     {
@@ -418,6 +448,24 @@ public class MainBattleViewModel : ViewModelBase
 
                     if (perks.Count == 0) return;
                     EnemyPerkList.Value = perks;
+
+                    
+                    List<StatusType> status = new List<StatusType>();
+                    if (player.statusEffectList != null)
+                    {
+                        for (int i = 0; i < player.statusEffectList.Count; i++)
+                        {
+                            if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
+                            {
+                                Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                                continue;
+                            }
+                            status.Add(type);
+                        }
+                        
+                        EnemyStatusList.Value = status;
+                    }
+                    
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -487,6 +535,7 @@ public class MainBattleViewModel : ViewModelBase
                 
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + additionalDelay);
                 await _repository.PutAck(_playerId);
+                await GetHPByFirebase();
             },
 
             LobbyState.END_RESULT => () =>

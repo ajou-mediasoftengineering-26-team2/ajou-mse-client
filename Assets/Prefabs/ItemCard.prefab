@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35d26bb988f742f6aac02cb3d29e77fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemCard
-  animator: {fileID: 7598515807786739293}
+  animator: {fileID: 4020638373263309640}
   title: {fileID: 5622100245304177147}
   des: {fileID: 5533191453151606169}
   img: {fileID: 8127421973938225226}

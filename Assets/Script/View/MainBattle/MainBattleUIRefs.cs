@@ -78,6 +78,9 @@ public class MainBattleUIRefs
         ItemTitle = TooltipRoot.Q<Label>("ItemTitle");
         ItemDescription = TooltipRoot.Q<Label>("ItemDescription");
         
+        MyEffectContainer = MainBattleRoot.Q<VisualElement>("StatusEffectContainer");
+        EnemyEffectContainer = MainBattleRoot.Q<VisualElement>("EnemyStatusEffectContainer");
+        
         //item slot parsing
         VisualElement infoGrid = MainBattleRoot.Q<VisualElement>("InfoGrid");
         if (infoGrid != null)
