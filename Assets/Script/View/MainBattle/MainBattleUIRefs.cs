@@ -38,6 +38,15 @@ public class MainBattleUIRefs
     public VisualElement EnemyHandElemental { get; }
     public VisualElement[] EnemyPerkSlots { get; } = new VisualElement[3];
     public VisualElement[] EnemyItemSlots { get; } = new VisualElement[3];
+    
+    
+    public VisualElement MyEffectContainer { get; }
+    public VisualElement EnemyEffectContainer { get; }
+    
+    public VisualElement ItemIcon;
+    public Label ItemTitle;
+    public Label ItemDescription;
+    
 
     public MainBattleUIRefs(UIDocument mainBattle, UIDocument perks, UIDocument tooltip)
     {
@@ -65,6 +74,13 @@ public class MainBattleUIRefs
         if (TooltipRoot == null) Debug.LogError("Tooltip root is null.");
         
         
+        ItemIcon = TooltipRoot.Q<VisualElement>("ItemIcon");
+        ItemTitle = TooltipRoot.Q<Label>("ItemTitle");
+        ItemDescription = TooltipRoot.Q<Label>("ItemDescription");
+        
+        MyEffectContainer = MainBattleRoot.Q<VisualElement>("StatusEffectContainer");
+        EnemyEffectContainer = MainBattleRoot.Q<VisualElement>("EnemyStatusEffectContainer");
+        
         //item slot parsing
         VisualElement infoGrid = MainBattleRoot.Q<VisualElement>("InfoGrid");
         if (infoGrid != null)
@@ -82,7 +98,7 @@ public class MainBattleUIRefs
                 }
 
                 // 2. 두 번째 줄 (아래쪽 - 아이템) 내부의 slot 3개 파싱
-                List<VisualElement> itemElements = rows[1].Query<VisualElement>(className: "slot").ToList();
+                List<VisualElement> itemElements = rows[1].Query<VisualElement>(className: "slot-item").ToList();
                 for (int i = 0; i < MyItemSlots.Length && i < itemElements.Count; i++)
                 {
                     MyItemSlots[i] = itemElements[i];
@@ -106,7 +122,7 @@ public class MainBattleUIRefs
                 }
 
                 // 2. 두 번째 줄 (아래쪽 - 적 아이템) 내부의 slot 3개 파싱
-                List<VisualElement> enemyItemElements = enemyRows[1].Query<VisualElement>(className: "slot").ToList();
+                List<VisualElement> enemyItemElements = enemyRows[1].Query<VisualElement>(className: "slot-item").ToList();
                 for (int i = 0; i < EnemyItemSlots.Length && i < enemyItemElements.Count; i++)
                 {
                     EnemyItemSlots[i] = enemyItemElements[i];

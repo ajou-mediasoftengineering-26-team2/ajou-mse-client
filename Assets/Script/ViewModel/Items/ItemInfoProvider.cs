@@ -29,4 +29,5 @@ public static class ItemInfoProvider
         ItemType.PANACEA             => "Remove all status effects",
         _                            => ""
     };  
+    
 }
