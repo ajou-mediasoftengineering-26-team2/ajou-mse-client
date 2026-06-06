@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class Damage
@@ -10,10 +11,13 @@ public class Damage
     public int damageIndex;
     public bool ko;
     public int recoveredHp;
-
+    public List<string> statusEffects;
+    public List<string> usedItems;
+    public List<string> usedPerks;
     public Damage() { }
 
-    public Damage(string attackType, int coin, int damage, int damageIndex, bool ko, int recoveredHp)
+
+    public Damage(string attackType, int coin, int damage, int damageIndex, bool ko, int recoveredHp, List<string> statusEffects, List<string> usedItems, List<string> usedPerks)
     {
         this.attackType = attackType;
         this.coin = coin;
@@ -21,5 +25,8 @@ public class Damage
         this.damageIndex = damageIndex;
         this.ko = ko;
         this.recoveredHp = recoveredHp;
+        this.statusEffects = statusEffects;
+        this.usedItems = usedItems;
+        this.usedPerks = usedPerks;
     }
 }

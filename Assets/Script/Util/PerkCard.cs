@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Image = UnityEngine.UIElements.Image;
 
 public class PerkCard : MonoBehaviour
 {
@@ -10,15 +12,22 @@ public class PerkCard : MonoBehaviour
     public Text des;
 
     public RawImage img;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+
+
+    public void SetUpAndAnimationCard(PerkType perkType, bool isLeft)
     {
-        
+        title.text = PerkInfoProvider.GetDisplayName(perkType);
+        des.text = PerkInfoProvider.GetDisplayName(perkType);
+        img.texture = Resources.Load<Texture>($"Perks/{perkType}");
+
+        if (isLeft)
+        {
+            animator.SetTrigger("PerkCardLeft");   
+        }
+        else
+        {
+            animator.SetTrigger("PerkCardRight");
+        }
     }
 }

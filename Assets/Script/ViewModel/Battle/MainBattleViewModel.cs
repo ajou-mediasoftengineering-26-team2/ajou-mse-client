@@ -148,7 +148,6 @@ public class MainBattleViewModel : ViewModelBase
     private void eventJunsang()
     {
         EventBus.Publish(new MainBattleEvent());
-        EventBus.Subscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
         EventBus.Subscribe<HardHitEvent>(HitUI);
         EventBus.Subscribe<SortHitEvent>(HitUI);
         EventBus.Subscribe<HitEndAction>(action =>
@@ -170,35 +169,40 @@ public class MainBattleViewModel : ViewModelBase
         GetAnimatorByPlayer(SceneDataBridge.myPlayer,
             IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[damageIndex]);
     }
-
-    private void GRSAAckEvent(GameRoundStartAnimationAckEvent obj)
-    {
-    }
+    
     
     private void GetAnimatorByPlayer(Player player, BattleRole role, Damage damage)
     {
+        bool isLeftOwner = false;
+
         switch (player, role)
         {
             case (Player.First, BattleRole.Attack):
                 Toast.ShowDamagePopupLeft(damage.damage);
                 RightHp.Value -= damage.damage;
+                isLeftOwner = true;
                 break;
             case (Player.First, BattleRole.Defense):
                 Toast.ShowDamagePopupRight(damage.damage);
                 LeftHp.Value -= damage.damage;
+                isLeftOwner = false;
                 break;
             case (Player.Second, BattleRole.Attack):
                 Toast.ShowDamagePopupRight(damage.damage);
                 RightHp.Value -= damage.damage;
+                isLeftOwner = false;
                 break;
             case (Player.Second, BattleRole.Defense):
                 Toast.ShowDamagePopupLeft(damage.damage);
                 LeftHp.Value -= damage.damage;
+                isLeftOwner = true;
                 break;
         }
+    
         damageIndex++;
-    }
 
+        EventBus.Publish(new HitDamageEvent(damage, isLeftOwner));
+    }
     /// <summary>
     /// Sends player's chosen action to the server and publishes local AttackStartedEvent.
     /// Validates presence of playerId before sending.
@@ -711,7 +715,6 @@ public class MainBattleViewModel : ViewModelBase
         _firebaseSubscribed = false;
         EventBus.Unsubscribe<SortHitEvent>(HitUI);
         EventBus.Unsubscribe<HardHitEvent>(HitUI);
-        EventBus.Unsubscribe<GameRoundStartAnimationAckEvent>(GRSAAckEvent);
         base.Dispose();
     }
 
