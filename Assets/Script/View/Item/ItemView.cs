@@ -37,6 +37,7 @@ public class ItemView : MonoBehaviour
 
     public void ShowItem(string itemCode)
     {
+        Debug.Log("itemCode : "  + itemCode);
         if (!TryCacheElements())
         {
             Debug.LogError("[ItemView] UI elements are missing. ShowItem aborted.");

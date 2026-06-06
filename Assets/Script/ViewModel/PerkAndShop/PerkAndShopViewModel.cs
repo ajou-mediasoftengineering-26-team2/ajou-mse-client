@@ -246,6 +246,7 @@ public class PerkAndShopViewModel : ViewModelBase
             _pendingPerkSelection = _perkChoices[UnityEngine.Random.Range(0, _perkChoices.Count)];
         try
         {
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
             var res = await _perkAndShopRepo.PutChoice(_playerId, _pendingPerkSelection);
             if (!res.isSuccess)
                 ErrorMsg.Value = res.error.message;

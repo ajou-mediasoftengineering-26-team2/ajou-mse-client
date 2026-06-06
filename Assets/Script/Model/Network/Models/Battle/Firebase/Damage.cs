@@ -29,4 +29,13 @@ public class Damage
         this.usedItems = usedItems;
         this.usedPerks = usedPerks;
     }
+    
+    public override string ToString()
+    {
+        string effects = statusEffects != null && statusEffects.Count > 0 ? string.Join(", ", statusEffects) : "None";
+        string items = usedItems != null && usedItems.Count > 0 ? string.Join(", ", usedItems) : "None";
+        string perks = usedPerks != null && usedPerks.Count > 0 ? string.Join(", ", usedPerks) : "None";
+
+        return $"[Damage] Index: {damageIndex} | Type: {attackType} | Dmg: {damage} (KO: {ko}) | Coin: {coin} | RecHP: {recoveredHp} | Effects: [{effects}] | Items: [{items}] | Perks: [{perks}]";
+    }
 }

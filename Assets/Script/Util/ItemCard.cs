@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Reflection.Emit;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class ItemCard : MonoBehaviour
@@ -16,7 +17,7 @@ public class ItemCard : MonoBehaviour
     {
         title.text = ItemInfoProvider.GetDisplayName(itemType);
         des.text = ItemInfoProvider.GetDisplayName(itemType);
-        img.texture = Resources.Load<Texture>($"Perks/{itemType}");
+        img.texture = Resources.Load<Texture>($"Items/{itemType}");
 
         if (isLeft)
         {
@@ -24,7 +25,7 @@ public class ItemCard : MonoBehaviour
         }
         else
         {
-            animator.SetTrigger("PerkCardRight");
+            animator.SetTrigger("ItemCardRight");
         }
     }
 }

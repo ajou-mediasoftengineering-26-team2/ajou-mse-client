@@ -94,7 +94,12 @@ public class MainBattleViewModel : ViewModelBase
     // Formatted countdown string (ss.ff)
     public Observable<string> CountDown { get; } = new Observable<string>();
 
-    public Observable<string> HoverTest { get; } = new Observable<string>();
+    public Observable<string> HoverItem { get; } = new Observable<string>();
+    public Observable<string> HoverItemTitle { get; } = new Observable<string>();
+    public Observable<string> HoverItemDes { get; } = new Observable<string>();
+    public Observable<string> HoverPerk { get; } = new Observable<string>();
+    public Observable<string> HoverPerkTitle { get; } = new Observable<string>();
+    public Observable<string> HoverPerkDes { get; } = new Observable<string>();
 
     // ── camera ──────────────────────────────────────────────────────────
     public Observable<CameraType> CameraPoint { get; } = new Observable<CameraType>();
@@ -247,9 +252,22 @@ public class MainBattleViewModel : ViewModelBase
     /// <param name="playerId"></param>
     /// <param name="matchId"></param>
     /// <param name="enemyId"></param>
-    public void HoverTesttest(string test)
+    public void HoverEventItem(string test)
     {
-        HoverTest.Value = test;
+        HoverItem.Value = test;
+        if (Enum.TryParse<ItemType>(test, true, out ItemType itemtype))
+        {
+            HoverItemTitle.Value = ItemInfoProvider.GetDisplayName(itemtype);
+            HoverItemDes.Value = ItemInfoProvider.GetDescription(itemtype);
+        }
+        
+    }
+    
+    public void HoverEventPerk(string test)
+    {
+        HoverPerk.Value = test;
+        HoverPerkTitle.Value = PerkInfoProvider.GetDisplayName(PerkInfoProvider.GetPerkType(test));
+        HoverPerkDes.Value = PerkInfoProvider.GetDescription(PerkInfoProvider.GetPerkType(test));
     }
 
     /// <summary>
@@ -449,6 +467,7 @@ public class MainBattleViewModel : ViewModelBase
                 //if two player action is same, animation is not load.
                 if (player1Action == player2Action)
                 {
+                    await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
                     await _repository.PutAck(_playerId);
                     return;
                 }
@@ -465,9 +484,8 @@ public class MainBattleViewModel : ViewModelBase
                 {
                     additionalDelay = 6000; 
                 }
+                
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + additionalDelay);
-                
-                
                 await _repository.PutAck(_playerId);
             },
 
@@ -481,17 +499,15 @@ public class MainBattleViewModel : ViewModelBase
                 return Task.CompletedTask;
             },
 
-            LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => () =>
+            LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => async () => 
             {
-                _ = GetHPByFirebase();
+                await GetHPByFirebase(); 
                 EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
-                return Task.CompletedTask;
             },
 
             LobbyState.GAME_ROUND_END_PLAYER_KO => async () =>
             {
                 EventBus.Publish(new RoundOver(true));
-                //결과창 이벤트 버스 추가
                 EventBus.Publish(new RoundResultEvent(isWin: player1.hp > 0, currentRound: match.currentRound, coin: player1.coin));
                 if (!GameSetting.DELAY_MAP.TryGetValue(SceneDataBridge.playerCamera, out int cameraDelay))
                 {
@@ -530,6 +546,7 @@ public class MainBattleViewModel : ViewModelBase
             },
             LobbyState.GAME_PERK_ITEM_RECEIVING => () =>
             {
+                Debug.Log("player.receivedItemList : " + player1.receivedItemList.Count);
                 for (int i = 0; i < player1.receivedItemList.Count; i++)
                 {
                     EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[i]));   
@@ -558,8 +575,8 @@ public class MainBattleViewModel : ViewModelBase
         string enemyPath = $"matches/{_lobbyId}/players/{_enemyId}";
     
         // GetAsync를 통해 딱 한 번만 스냅샷을 찍어옴
-        PlayerInfoModel player1 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>(myPath);
-        PlayerInfoModel player2 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>(enemyPath);
+        player1 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>(myPath);
+        player2 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>(enemyPath);
 
         if (player1 != null)
         {

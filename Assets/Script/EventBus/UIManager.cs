@@ -231,7 +231,8 @@ public class UIManager : MonoBehaviour
 
     private void OnHitDamageReceived(HitDamageEvent e)
     {
-        // 🔥 일반 함수에서는 딜레이를 줄 수 없으므로, 코루틴을 구동합니다.
+        
+        Debug.Log("demage infomation : " +  e.damage.ToString());
         StartCoroutine(SpawnCardsSequential(e.damage, e.isLeft));
     }
     
@@ -280,7 +281,7 @@ public class UIManager : MonoBehaviour
     }
     void SpawnNewCard(PerkType perkType, bool isLeft)
     {
-        GameObject newCardObj = Instantiate(perkCardPrefab);
+        GameObject newCardObj = Instantiate(perkCardPrefab, cardSpawnPoint);
 
         PerkCard cardScript = newCardObj.GetComponent<PerkCard>();
 
@@ -292,7 +293,7 @@ public class UIManager : MonoBehaviour
 
     void SpawnItemCard(ItemType itemType, bool isLeft)
     {
-        GameObject newCardObj = Instantiate(perkCardPrefab);
+        GameObject newCardObj = Instantiate(perkCardPrefab, cardSpawnPoint);
         ItemCard itemCardScript = newCardObj.GetComponent<ItemCard>();
         
         itemCardScript.SetUpAndAnimationCard(itemType, isLeft);

@@ -204,6 +204,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1036604343961224877}
   - component: {fileID: 7598515807786739293}
+  - component: {fileID: 8026704634081780621}
   m_Layer: 5
   m_Name: ItemCard
   m_TagString: Untagged
@@ -253,6 +254,22 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8026704634081780621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7787690337738876627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35d26bb988f742f6aac02cb3d29e77fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemCard
+  animator: {fileID: 7598515807786739293}
+  title: {fileID: 5622100245304177147}
+  des: {fileID: 5533191453151606169}
+  img: {fileID: 8127421973938225226}
 --- !u!1 &8090680679372787481
 GameObject:
   m_ObjectHideFlags: 0
