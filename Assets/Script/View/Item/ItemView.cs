@@ -20,6 +20,9 @@ public class ItemView : MonoBehaviour
 
     private void OnEnable()
     {
+        _shownItems.Clear();
+        _queue.Clear();
+        _isShowing = false;
         if (!TryCacheElements())
         {
             Debug.LogError("[ItemView] UI Toolkit root is not ready.");
@@ -37,6 +40,7 @@ public class ItemView : MonoBehaviour
 
     public void ShowItem(string itemCode)
     {
+        Debug.Log("itemCode : "  + itemCode);
         if (!TryCacheElements())
         {
             Debug.LogError("[ItemView] UI elements are missing. ShowItem aborted.");

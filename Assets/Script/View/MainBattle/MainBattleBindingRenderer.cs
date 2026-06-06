@@ -45,17 +45,34 @@ public class MainBattleBindingRenderer
             _uiRefs.MyAttack.text = data ? "Attack" :  "Defend";
             _uiRefs.EnemyAttack.text = data ? "Defend" : "Attack";
         });
-        _viewModel.HoverTest.Subscribe(test =>
+        _viewModel.HoverItem.Subscribe(data =>
         {
-            if (test == null)
+            if (data == null)
             {
                 _uiRefs.TooltipRoot.style.display = DisplayStyle.None;
                 return;
             }
 
-            _uiRefs.TooltipRoot.Q<Label>("ItemTitle").text = test;
-            _uiRefs.TooltipRoot.Q<Label>("ItemDescription").text = "test";
+            _uiRefs.ItemTitle.text = _viewModel.HoverItemTitle.Value;
+            _uiRefs.ItemDescription.text = _viewModel.HoverItemDes.Value;
             _uiRefs.TooltipRoot.style.display = DisplayStyle.Flex;
+            var sprite = Resources.Load<Sprite>($"Items/{data}");
+            _uiRefs.ItemIcon.style.backgroundImage = new StyleBackground(sprite);
+        });
+        
+        _viewModel.HoverPerk.Subscribe(data =>
+        {
+            if (data == null)
+            {
+                _uiRefs.TooltipRoot.style.display = DisplayStyle.None;
+                return;
+            }
+
+            _uiRefs.ItemTitle.text = _viewModel.HoverPerkTitle.Value;
+            _uiRefs.ItemDescription.text = _viewModel.HoverPerkDes.Value;
+            _uiRefs.TooltipRoot.style.display = DisplayStyle.Flex;
+            var sprite = Resources.Load<Sprite>($"Perks/{data}");
+            _uiRefs.ItemIcon.style.backgroundImage = new StyleBackground(sprite);
         });
 
         _viewModel.MySelectingE.Subscribe(_ =>
@@ -172,21 +189,210 @@ public class MainBattleBindingRenderer
                 _uiRefs.MyPerkSlots[i].style.backgroundImage = new StyleBackground(sprite);
             }
         });
+        
+        _viewModel.MyStatusList.Subscribe(data =>
+        {
+            ClearAllStatusEffects(false);
+            if (data == null) return;
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Condition/{data[i]}");
+                ApplyStatusEffect(sprite , data[i].ToString(), true);
+            }
+        });
+        
+        _viewModel.EnemyStatusList.Subscribe(data =>
+        {
+            ClearAllStatusEffects(false);
+            if (data == null) return;
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                var sprite = Resources.Load<Sprite>($"Condition/{data[i]}");
+                ApplyStatusEffect(sprite , data[i].ToString(), false);
+            }
+        });
     }
 
     private void BindSlotHover()
     {
+        _uiRefs.TooltipRoot.style.position = Position.Absolute;
         _uiRefs.MainBattleRoot.Query<VisualElement>(className: "slot").ForEach(slot =>
         {
             Debug.Log("slot에 log가 뜸");
             slot.RegisterCallback<MouseEnterEvent>(evt =>
             {
-                _viewModel.HoverTesttest("test");
-                _uiRefs.TooltipRoot.style.left = evt.mousePosition.x;
-                _uiRefs.TooltipRoot.style.top = evt.mousePosition.y;
+
+                // 1. 마우스가 올라간 현재 슬롯 요소를 가져옵니다.
+                var currentSlot = evt.currentTarget as VisualElement;
+                if (currentSlot == null) return;
+
+                // 2. 슬롯의 전역(World) 좌표와 크기를 가져옵니다.
+                Rect slotBounds = currentSlot.worldBound;
+
+                
+                string imageName = "None";
+                
+                var bg = currentSlot.resolvedStyle.backgroundImage; 
+
+                // 2. 배경 이미지가 비어있지 않은지(Null이 아닌지) 확인합니다.
+                if (bg.texture != null)
+                {
+                    // Texture2D 형식으로 등록되어 있는 경우 에셋 이름을 가져옵니다.
+                    imageName = bg.texture.name;
+                }
+                else if (bg.sprite != null)
+                {
+                    // Sprite 형식으로 등록되어 있는 경우 에셋 이름을 가져옵니다.
+                    imageName = bg.sprite.name;
+                }
+                
+                Debug.Log($"현재 호버된 슬롯의 이미지 이름: {imageName}");
+
+
+                if (!imageName.Equals("None"))
+                {
+                    
+                    _viewModel.HoverEventPerk(imageName);
+                }
+    
+                bool isEnemySlot = currentSlot.parent?.parent?.name == "EnemyInfoGrid";
+
+                float spacing = 10f; // 슬롯과 툴팁 사이의 간격
+
+
+                if (!isEnemySlot)
+                {
+                    _uiRefs.TooltipRoot.style.left = slotBounds.x; 
+                    _uiRefs.TooltipRoot.style.top = slotBounds.y - 150f - spacing; // 150f는 툴팁 예상 높이 (상황에 따라 조절)
+                }
+                else
+                {
+                    float tooltipWidth = 550f; 
+                    _uiRefs.TooltipRoot.style.left = slotBounds.xMax - tooltipWidth; 
+                    _uiRefs.TooltipRoot.style.top = slotBounds.y - 150f - spacing; // 똑같이 마이너스(-) 처리
+                }
+    
             });
 
-            slot.RegisterCallback<MouseLeaveEvent>(_ => _viewModel.HoverTest.Value = null);
+            slot.RegisterCallback<MouseLeaveEvent>(_ => _viewModel.HoverPerk.Value = null);
         });
+        
+        
+        _uiRefs.MainBattleRoot.Query<VisualElement>(className: "slot-item").ForEach(slot =>
+        {
+            Debug.Log("slot에 log가 뜸");
+            slot.RegisterCallback<MouseEnterEvent>(evt =>
+            {
+
+                var currentSlot = evt.currentTarget as VisualElement;
+                if (currentSlot == null) return;
+
+                Rect slotBounds = currentSlot.worldBound;
+
+                
+                string imageName = "None";
+                
+                var bg = currentSlot.resolvedStyle.backgroundImage; 
+
+                // 2. 배경 이미지가 비어있지 않은지(Null이 아닌지) 확인합니다.
+                if (bg.texture != null)
+                {
+                    // Texture2D 형식으로 등록되어 있는 경우 에셋 이름을 가져옵니다.
+                    imageName = bg.texture.name;
+                }
+                else if (bg.sprite != null)
+                {
+                    // Sprite 형식으로 등록되어 있는 경우 에셋 이름을 가져옵니다.
+                    imageName = bg.sprite.name;
+                }
+                
+                Debug.Log($"현재 호버된 슬롯의 이미지 이름: {imageName}");
+
+                if (!imageName.Equals("None"))
+                {
+                    _viewModel.HoverEventItem(imageName);
+                }
+    
+                bool isEnemySlot = currentSlot.parent?.parent?.name == "EnemyInfoGrid";
+
+                float spacing = 10f; // 슬롯과 툴팁 사이의 간격
+
+
+                if (!isEnemySlot)
+                {
+                    _uiRefs.TooltipRoot.style.left = slotBounds.x; 
+                    _uiRefs.TooltipRoot.style.top = slotBounds.y - 150f - spacing; // 150f는 툴팁 예상 높이 (상황에 따라 조절)
+                }
+                else
+                {
+                    float tooltipWidth = 550f; 
+                    _uiRefs.TooltipRoot.style.left = slotBounds.xMax - tooltipWidth; 
+                    _uiRefs.TooltipRoot.style.top = slotBounds.y - 150f - spacing; // 똑같이 마이너스(-) 처리
+                }
+    
+            });
+
+            slot.RegisterCallback<MouseLeaveEvent>(_ => _viewModel.HoverItem.Value = null);
+        });
+    }
+    
+    public void ApplyStatusEffect(Sprite effectIcon, string effectName, bool isMy)
+    {
+        // 1.isMy 값에 따라 어떤 컨테이너를 쓸지 결정합니다.
+        VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;
+        
+        if (targetContainer == null)
+        {
+            Debug.LogWarning($"{(isMy ? "내" : "적")} 상태이상 컨테이너를 찾을 수 없습니다.");
+            return;
+        }
+
+        if (targetContainer.Q<VisualElement>(effectName) != null) return;
+
+        VisualElement newIcon = new VisualElement();
+        newIcon.name = effectName; 
+        
+        newIcon.style.width = 36f;
+        newIcon.style.height = 36f;
+        newIcon.style.marginRight = 5f;
+        // newIcon.style.borderRightWidth = 1f;
+        // newIcon.style.borderBottomWidth = 1f;
+        // newIcon.style.borderLeftWidth = 1f;
+        // newIcon.style.borderTopWidth = 1f;
+        // newIcon.style.borderRightColor = Color.white;
+        // newIcon.style.borderBottomColor = Color.white;
+        // newIcon.style.borderLeftColor = Color.white;
+        // newIcon.style.borderTopColor = Color.white;
+        newIcon.style.backgroundImage = new StyleBackground(effectIcon);
+
+        targetContainer.Add(newIcon);
+    }
+
+    /// <summary>
+    /// 상태이상이 해제되었을 때 제거하는 함수
+    /// </summary>
+    public void RemoveStatusEffect(string effectName, bool isMy)
+    {
+        VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;
+        if (targetContainer == null) return;
+
+        VisualElement targetIcon = targetContainer.Q<VisualElement>(effectName);
+        if (targetIcon != null)
+        {
+            targetContainer.Remove(targetIcon);
+        }
+    }
+    
+    public void ClearAllStatusEffects(bool isMy)
+    {
+        VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;
+        
+    
+        if (targetContainer != null)
+        {
+            targetContainer.Clear();
+        }
     }
 }

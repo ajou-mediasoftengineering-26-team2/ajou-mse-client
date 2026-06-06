@@ -12,7 +12,7 @@
         this.station = station;
         
         // 읽기 전용 필드이므로 생성과 동시에 null 체크 후 바로 할당합니다.
-        this.player1 = player1 ?? new PlayerInfoModel("Junsang", true);
-        this.player2 = player2 ?? new PlayerInfoModel("asdf", false);
+        this.player1 = player1 ?? new PlayerInfoModel("1", true);
+        this.player2 = player2 ?? new PlayerInfoModel("1", false);
     }
 }

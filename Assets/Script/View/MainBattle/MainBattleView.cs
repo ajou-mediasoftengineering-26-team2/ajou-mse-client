@@ -70,64 +70,7 @@ public class MainBattleView : MonoBehaviour
     {
         _actionRenderer.ShowActions(_uiRefs.ActionContainer, _viewModel.IsAttacker.Value);
     }
-
-    private void Update()
-    {
-        // if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-        // {
-        //     Debug.Log("space");
-        //     EventBus.Publish(new CameraAction(CameraType.Action));
-        //     EventBus.Publish(new HitAnimation(
-        //         _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
-        //         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-        //         HitActionType.Both5,
-        //         _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
-        // }
-        //
-        // if (Keyboard.current != null && Keyboard.current.digit0Key.wasPressedThisFrame)
-        // {
-        //     Debug.Log("space");
-        //     EventBus.Publish(new CameraAction(CameraType.Action));
-        //     EventBus.Publish(new HitAnimation(
-        //         _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
-        //         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-        //         HitActionType.Left,
-        //         _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
-        // }
-        //
-        // if (Keyboard.current != null && Keyboard.current.digit1Key.wasPressedThisFrame)
-        // {
-        //     Debug.Log("space");
-        //     EventBus.Publish(new CameraAction(CameraType.Action));
-        //     EventBus.Publish(new HitAnimation(
-        //         _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
-        //         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-        //         HitActionType.Right,
-        //         _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
-        // }
-        //
-        // if (Keyboard.current != null && Keyboard.current.digit4Key.wasPressedThisFrame)
-        // {
-        //     Debug.Log("space");
-        //     EventBus.Publish(new CameraAction(CameraType.Action));
-        //     EventBus.Publish(new HitAnimation(
-        //         BattleRole.Attack,
-        //         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second,
-        //         HitActionType.Right,
-        //         _viewModel.IsAttacker.Value ? _uiRefs.LeftHp : _uiRefs.RightHp));
-        // }
-        //
-        // if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
-        // {
-        //     EventBus.Publish(new MatchStartEvent());
-        // }
-        //
-        // if (Keyboard.current != null && Keyboard.current.nKey.wasPressedThisFrame)
-        // {
-        //     EventBus.Publish(new IntroduceStationEvent("Hongik univ."));
-        // }
-    }
-
+    
     /// <summary>
     /// When player clicked action buton, this function will be call back.
     /// </summary>
@@ -136,13 +79,9 @@ public class MainBattleView : MonoBehaviour
     {
         Debug.Log($"Action clicked: {actionIndex}");
         _viewModel.OnChangeActionIndex(actionIndex, actionText);
-        //_viewModel.OnHandAction(actionIndex);
-        
-        // EventBus.Publish(new ActionSelectedEvent(actionIndex,
-        //         _viewModel.IsAttacker.Value ? BattleRole.Attack :  BattleRole.Defense,
-        //         SceneDataBridge.playerCamera == CameraType.Camera1 ? Player.First : Player.Second
-        //     ));
     }
+    
+    
     private void OnDestroy()
     {
         _viewModel?.Dispose();
