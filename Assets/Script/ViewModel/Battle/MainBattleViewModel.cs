@@ -443,7 +443,8 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.GAME_ELEMENTAL_RECEIVING => async () =>
             {
-                EventBus.Publish(new HandElementalChoiceResult());
+                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);//추가
+                EventBus.Publish(new HandElementalChoiceResult(player1, player2));
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
                 _elementalRepository.PutAck(_playerId);
             },

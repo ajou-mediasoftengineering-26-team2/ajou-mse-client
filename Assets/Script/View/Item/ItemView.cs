@@ -15,6 +15,7 @@ public class ItemView : MonoBehaviour
     private IItemRepository _itemRepo;
 
     private Queue<string> _queue = new Queue<string>();
+    private HashSet<string> _shownItems = new HashSet<string>();
     private bool _isShowing = false;
 
     private void OnEnable()
@@ -35,6 +36,8 @@ public class ItemView : MonoBehaviour
             return;
         }
 
+        if (_queue.Contains(itemCode) || _shownItems.Contains(itemCode)) return;
+
         _queue.Enqueue(itemCode);
         if (!_isShowing)
             StartCoroutine(ProcessQueue());
@@ -46,16 +49,21 @@ public class ItemView : MonoBehaviour
         while (_queue.Count > 0)
         {
             string itemCode = _queue.Dequeue();
+            _shownItems.Add(itemCode);
+
             if (!Enum.TryParse<ItemType>(itemCode, out var itemType))
             {
                 Debug.LogError($"[ItemView] Unknown item code: {itemCode}");
                 continue;
             }
-            Debug.Log("item type" + itemType);
+
             _itemTitle.text = ItemInfoProvider.GetDisplayName(itemType);
             _itemInfo.text  = ItemInfoProvider.GetDescription(itemType);
             var sprite = Resources.Load<Sprite>($"Items/{itemType}");
             if (sprite != null) _itemImg.sprite = sprite;
+
+            var panel = _root.Q<VisualElement>("Item");
+            yield return StartCoroutine(AnimateItem(panel)); // ← 추가
 
             yield return new WaitForSeconds(3f);
             yield return new WaitForSeconds(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] / 1000f);
@@ -63,6 +71,30 @@ public class ItemView : MonoBehaviour
         }
         _isShowing = false;
         GetComponent<UIDocument>().enabled = false;
+    }
+
+    private IEnumerator AnimateItem(VisualElement panel)
+    {
+        if (panel == null) yield break;
+
+        panel.style.transitionProperty = StyleKeyword.Null;
+        panel.style.opacity   = 0f;
+        panel.style.translate = new StyleTranslate(new Translate(0, 60, 0));
+
+        yield return null;
+
+        panel.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
+        panel.style.transitionDuration  = new List<TimeValue>
+            { new TimeValue(0.4f, TimeUnit.Second), new TimeValue(0.4f, TimeUnit.Second) };
+        panel.style.transitionTimingFunction = new List<EasingFunction>
+            { new EasingFunction(EasingMode.EaseOutBack) };
+
+        yield return null;
+
+        panel.style.opacity   = 1f;
+        panel.style.translate = new StyleTranslate(new Translate(0, 0, 0));
+
+        yield return new WaitForSeconds(0.5f);
     }
 
     private bool TryCacheElements()

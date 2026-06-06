@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     //[SerializeField] UIDocument RoundOver;
     [SerializeField] UIDocument PerksAndShop;
     [SerializeField] UIDocument GameEndUI;
+    [SerializeField] UIDocument HandShow;
 
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
@@ -52,8 +53,8 @@ public class UIManager : MonoBehaviour
     private void FinishAnimation(HandElementalChoiceResult obj)
     {
         AllUIDown();
-        
-        IntroduceStation.enabled = true;
+        HandShow.enabled = true;
+        HandShow.GetComponent<HandShowView>().Show(obj);
     }
 
 
@@ -236,5 +237,6 @@ public class UIManager : MonoBehaviour
         //if (RoundOver != null) RoundOver.enabled = false;
         if (PerksAndShop != null) PerksAndShop.enabled = false;
         if (GameEndUI != null) GameEndUI.enabled = false;
+        if (HandShow != null) HandShow.enabled = false;
     }
 }
