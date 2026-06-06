@@ -5,6 +5,7 @@ public interface IElementalRepository
 {
     Task<ApiResponse<EmptyResponse>> PutChoice(string playerId, string handElemental);
     Task<ApiResponse<EmptyResponse>> PutAck(string playerId);
+    Task<ApiResponse<EmptyResponse>> PutUpgrade(string playerId, string handElemental);
 }
 
 public class ElementalRepository : BaseRepository, IElementalRepository
@@ -27,5 +28,11 @@ public class ElementalRepository : BaseRepository, IElementalRepository
     {
         var body = new PutElementalAckRequest { playerId = playerId };
         return await networkManager.Put<EmptyResponse>(EndpointBase + "/ack", body);
+    }
+    
+    public async Task<ApiResponse<EmptyResponse>> PutUpgrade(string playerId, string handElemental)
+    {
+        var body = new PutElementalUpgradeRequest { playerId = playerId, handElemental = handElemental };
+        return await networkManager.Put<EmptyResponse>(EndpointBase + "/upgrade", body);
     }
 }

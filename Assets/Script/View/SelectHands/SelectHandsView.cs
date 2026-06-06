@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,17 +16,16 @@ public class SelectHandsView : MonoBehaviour
     private VisualElement root;
     private VisualElement timer;
     private Image timerImg;
+
     private void OnEnable()
     {
-        
-
         //StartScene();
     }
 
     public void StartScene()
     {
-        root = GetComponent<UIDocument>().rootVisualElement;
-        timer = root.Q<VisualElement>("Timer");
+        root     = GetComponent<UIDocument>().rootVisualElement;
+        timer    = root.Q<VisualElement>("Timer");
         timerImg = root.Q<Image>("TimerImg");
 
         _hand1Sel = root.Q<Button>("Hand1Sel");
@@ -54,7 +55,7 @@ public class SelectHandsView : MonoBehaviour
         _hand4Info = root.Q<Label>("Hand4Info");
         _hand5Info = root.Q<Label>("Hand5Info");
         _hand6Info = root.Q<Label>("Hand6Info");
-        
+
         SetHandCard(_hand1Img, _hand1Title, _hand1Info, HandElementalType.FIRE);
         SetHandCard(_hand2Img, _hand2Title, _hand2Info, HandElementalType.WATER);
         SetHandCard(_hand3Img, _hand3Title, _hand3Info, HandElementalType.WIND);
@@ -75,7 +76,7 @@ public class SelectHandsView : MonoBehaviour
             _hand5Sel.SetEnabled(can);
             _hand6Sel.SetEnabled(can);
         });
-        
+
         if (timerImg != null)
             timerImg.sprite = Resources.Load<Sprite>("Pixel Clock/TimerImg");
 
@@ -88,12 +89,67 @@ public class SelectHandsView : MonoBehaviour
                 timer.style.width = new Length(ratio * 100, LengthUnit.Percent);
         });
 
-        _hand1Sel.clicked += () => _viewModel.OnSelectHand(1);
-        _hand2Sel.clicked += () => _viewModel.OnSelectHand(2);
-        _hand3Sel.clicked += () => _viewModel.OnSelectHand(3);
-        _hand4Sel.clicked += () => _viewModel.OnSelectHand(4);
-        _hand5Sel.clicked += () => _viewModel.OnSelectHand(5);
-        _hand6Sel.clicked += () => _viewModel.OnSelectHand(6);
+        _hand1Sel.clicked += () => { _viewModel.OnSelectHand(1); OnHandSelected(_hand1Sel); };
+        _hand2Sel.clicked += () => { _viewModel.OnSelectHand(2); OnHandSelected(_hand2Sel); };
+        _hand3Sel.clicked += () => { _viewModel.OnSelectHand(3); OnHandSelected(_hand3Sel); };
+        _hand4Sel.clicked += () => { _viewModel.OnSelectHand(4); OnHandSelected(_hand4Sel); };
+        _hand5Sel.clicked += () => { _viewModel.OnSelectHand(5); OnHandSelected(_hand5Sel); };
+        _hand6Sel.clicked += () => { _viewModel.OnSelectHand(6); OnHandSelected(_hand6Sel); };
+
+        StartCoroutine(PlayEntranceAnimation());
+    }
+
+    private IEnumerator PlayEntranceAnimation()
+    {
+        SnapHidden(_hand1Sel); SnapHidden(_hand2Sel); SnapHidden(_hand3Sel);
+        SnapHidden(_hand4Sel); SnapHidden(_hand5Sel); SnapHidden(_hand6Sel);
+
+        yield return null;
+
+        AnimateIn(_hand1Sel); yield return new WaitForSeconds(0.1f);
+        AnimateIn(_hand2Sel); yield return new WaitForSeconds(0.1f);
+        AnimateIn(_hand3Sel); yield return new WaitForSeconds(0.2f);
+
+        AnimateIn(_hand4Sel); yield return new WaitForSeconds(0.1f);
+        AnimateIn(_hand5Sel); yield return new WaitForSeconds(0.1f);
+        AnimateIn(_hand6Sel);
+    }
+
+    private void SnapHidden(VisualElement el)
+    {
+        if (el == null) return;
+        el.style.transitionProperty = StyleKeyword.Null;
+        el.style.opacity   = 0f;
+        el.style.translate = new StyleTranslate(new Translate(0, 50, 0));
+    }
+
+    private void AnimateIn(VisualElement el)
+    {
+        if (el == null) return;
+        el.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
+        el.style.transitionDuration = new List<TimeValue>
+            { new TimeValue(0.4f, TimeUnit.Second), new TimeValue(0.4f, TimeUnit.Second) };
+        el.style.transitionTimingFunction = new List<EasingFunction>
+            { new EasingFunction(EasingMode.EaseOutBack) };
+        el.style.opacity   = 1f;
+        el.style.translate = new StyleTranslate(new Translate(0, 0, 0));
+    }
+
+    private void OnHandSelected(Button selected)
+    {
+        var all = new Button[]
+            { _hand1Sel, _hand2Sel, _hand3Sel, _hand4Sel, _hand5Sel, _hand6Sel };
+        foreach (var card in all)
+        {
+            card.style.borderTopColor    = new StyleColor(new Color(0.94f, 0.90f, 0.35f));
+            card.style.borderBottomColor = new StyleColor(new Color(0.94f, 0.90f, 0.35f));
+            card.style.borderLeftColor   = new StyleColor(new Color(0.94f, 0.90f, 0.35f));
+            card.style.borderRightColor  = new StyleColor(new Color(0.94f, 0.90f, 0.35f));
+        }
+        selected.style.borderTopColor    = new StyleColor(Color.white);
+        selected.style.borderBottomColor = new StyleColor(Color.white);
+        selected.style.borderLeftColor   = new StyleColor(Color.white);
+        selected.style.borderRightColor  = new StyleColor(Color.white);
     }
 
     private void SetHandCard(Image img, Label title, Label info, HandElementalType hand)

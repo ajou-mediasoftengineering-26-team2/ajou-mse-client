@@ -14,3 +14,10 @@ public class PutElementalAckRequest
 {
     public string playerId;
 }
+
+[Serializable]
+public class PutElementalUpgradeRequest
+{
+    public string playerId;
+    public string handElemental;
+}

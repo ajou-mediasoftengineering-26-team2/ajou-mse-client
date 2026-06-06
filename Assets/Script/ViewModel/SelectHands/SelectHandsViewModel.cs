@@ -13,7 +13,8 @@ public class SelectHandsViewModel : ViewModelBase
     private string _matchSubId;
     private CancellationTokenSource _timerCts;
     private string _selectedHandType; // 추가: 로컬 선택값 저장
-
+    private bool _inChoicePhase = false;
+    
     public Observable<bool>   IsVisible   { get; } = new Observable<bool>(false);
     public Observable<bool>   CanSelect   { get; } = new Observable<bool>(false);
     public Observable<float>  TimerRatio  { get; } = new Observable<float>(1f);
@@ -58,16 +59,17 @@ public class SelectHandsViewModel : ViewModelBase
                 if (isChoice)
                 {
                     IsVisible.Value = true;
-                    CanSelect.Value = true;
-                    StartTimer(match.countdownStartTime, match.countdownSec);
+                    if (!_inChoicePhase)
+                    {
+                        _inChoicePhase  = true;
+                        CanSelect.Value = true;
+                        StartTimer(match.countdownStartTime, match.countdownSec);
+                    }
                 }
-                // RECEIVING: 선택값 전송
-                else if (isReceiving && !string.IsNullOrEmpty(_selectedHandType))
+                else
                 {
-                    IsVisible.Value = false;
-                    _ = SendSelection();
+                    _inChoicePhase = false;
                 }
-                // 그 외 state엔 아무것도 안 함 (타이머는 자체적으로 끝남)
             },
             onError: err => Debug.LogError(err)
         );
@@ -79,6 +81,7 @@ public class SelectHandsViewModel : ViewModelBase
         _selectedHandType = null;
         try
         {
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] );
             var res = await _repo.PostSelectHand(_playerId, handType);
             if (!res.isSuccess)
                 Debug.LogError($"[SelectHands] PostSelectHand 실패: {res.error.message}");
@@ -109,6 +112,7 @@ public class SelectHandsViewModel : ViewModelBase
                     TimerRatio.Value = 0f;
                     CanSelect.Value  = false;
                     IsVisible.Value  = false;
+                    await FlushHandSelectionAsync(); 
                     break;
                 }
                 TimerRatio.Value = (float)(remaining / durationSec);
@@ -117,6 +121,19 @@ public class SelectHandsViewModel : ViewModelBase
         }
         catch (OperationCanceledException) { }
         catch (Exception e) { Debug.LogException(e); }
+    }
+    private async Task FlushHandSelectionAsync()
+    {
+        if (string.IsNullOrEmpty(_selectedHandType))
+        {
+            var hands = new[] {
+                HandElementalType.FIRE,      HandElementalType.WATER,
+                HandElementalType.WIND,      HandElementalType.LIGHTNING,
+                HandElementalType.POISON,    HandElementalType.PLANT
+            };
+            _selectedHandType = hands[UnityEngine.Random.Range(0, hands.Length)].ToString();
+        }
+        await SendSelection();
     }
 
     // async 제거, 로컬 저장만

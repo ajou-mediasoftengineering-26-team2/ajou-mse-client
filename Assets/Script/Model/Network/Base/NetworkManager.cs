@@ -147,6 +147,32 @@ public class NetworkManager : MonoBehaviour
             return HandleResponse<T>(request);
         }
     }
+    
+    //game end용 delete 이상하면 지우거나 수정해주세요
+    public async Task<ApiResponse<T>> Delete<T>(string endpoint, object body)
+    {
+        string url = BuildUrl(endpoint);
+        string jsonBody = JsonUtility.ToJson(body);
+
+        Debug.Log("Https delete request url ************** : " + url);
+        using (UnityWebRequest request = new UnityWebRequest(url, "DELETE"))
+        {
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonBody);
+            request.uploadHandler   = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+
+            SetupRequest(request);
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            var operation = request.SendWebRequest();
+            while (!operation.isDone)
+            {
+                await Task.Yield();
+            }
+
+            return HandleResponse<T>(request);
+        }
+    }
 
 
     /// <summary>
