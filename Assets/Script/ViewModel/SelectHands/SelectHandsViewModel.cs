@@ -81,6 +81,7 @@ public class SelectHandsViewModel : ViewModelBase
         _selectedHandType = null;
         try
         {
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] );
             var res = await _repo.PostSelectHand(_playerId, handType);
             if (!res.isSuccess)
                 Debug.LogError($"[SelectHands] PostSelectHand 실패: {res.error.message}");
