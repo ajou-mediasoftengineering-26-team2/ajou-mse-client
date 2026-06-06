@@ -49,11 +49,12 @@ public class LoginViewModel : ViewModelBase
         base.Initialize();
 
         _stationSubscriptionId = await FirebaseClient.Instance.SubscribeAsync<FBStationModel>(
-            "/testGame",
+            "/",
             onValueChanged: (station) =>
             {
                 if (station == null) return;
-                StationType type = StationConverter.GetType(station.currentStation);
+                Debug.Log("station : " + station.station);
+                StationType type = StationConverter.GetType(station.station);
                 
                 SubwayStation.Value = StationConverter.GetDisplayName(type);;
             },

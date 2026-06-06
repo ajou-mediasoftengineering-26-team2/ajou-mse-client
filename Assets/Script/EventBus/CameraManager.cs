@@ -29,19 +29,19 @@ public class CameraTurnManager : MonoBehaviour
 
     private void OnEnable()
     {
-        EventBus.Subscribe<CameraAction>(SetCameraTarget);
+        EventBus.Subscribe<HitEndAction>(SetCameraTarget);
     }
 
     private void OnDisable()
     {
-        EventBus.Unsubscribe<CameraAction>(SetCameraTarget);
+        EventBus.Unsubscribe<HitEndAction>(SetCameraTarget);
     }
 
     /// <summary>
     /// Camera Setting
     /// </summary>
     /// <param name="isCamera1"></param>
-    public void SetCameraTarget(CameraAction evt)
+    public void SetCameraTarget(HitEndAction evt)
     {
         switch (evt.ActionCode)
         {

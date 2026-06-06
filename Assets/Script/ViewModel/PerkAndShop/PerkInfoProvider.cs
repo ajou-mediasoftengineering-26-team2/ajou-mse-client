@@ -1,4 +1,7 @@
 // 202422170 주형준
+
+using System;
+
 public static class PerkInfoProvider
 {
     public static string GetDisplayName(PerkType perk) => perk switch
@@ -36,4 +39,14 @@ public static class PerkInfoProvider
         PerkType.WISE_INVESTOR  => "Attack damage +1 per 10 coins held",
         _ => ""
     };
+    
+    public static PerkType GetPerkType(string perkName, PerkType defaultPerk = PerkType.IRON_FIST)
+    {
+        if (Enum.TryParse<PerkType>(perkName, true, out var result))
+        {
+            return result;
+        }
+        
+        return defaultPerk; 
+    }
 }

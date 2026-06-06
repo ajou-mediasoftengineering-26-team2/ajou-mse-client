@@ -8,12 +8,14 @@ public class HitBehavior: StateMachineBehaviour
     {
         EventBus.Publish(new HitAnimationZoomIn());
         EventBus.Publish(new HardHitEvent());
+        
+        //here
+        //EventBus.Publish(new HitDamageEvent(damage[index]));
     }
     
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         int currentCount = animator.GetInteger(RepeatCountHash);
-        Debug.Log(currentCount + " ***********");
         animator.SetInteger(RepeatCountHash, currentCount + 1);
     }
 }

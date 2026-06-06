@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32.SafeHandles;
+﻿using System.Collections;
+using Microsoft.Win32.SafeHandles;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -15,6 +16,12 @@ public class UIManager : MonoBehaviour
     //[SerializeField] UIDocument RoundOver;
     [SerializeField] UIDocument PerksAndShop;
     [SerializeField] UIDocument GameEndUI;
+    
+    [SerializeField] public GameObject perkCardPrefab;
+    [SerializeField] public GameObject itemCardPrefab;
+    public Transform cardSpawnPoint;
+
+    
     [SerializeField] UIDocument HandShow;
 
     private PlayerInfoModel player1;
@@ -39,7 +46,7 @@ public class UIManager : MonoBehaviour
         EventBus.Subscribe<HandElementalChoiceResult>(FinishAnimation);
         EventBus.Subscribe<PerkChoiceEvent>(PerksAndShopUIPOP);
         EventBus.Subscribe<GameEndEvent>(ShowGameEndUI);
-        
+        EventBus.Subscribe<HitDamageEvent>(OnHitDamageReceived);
     }
 
     private void PerksAndShopUIPOP(PerkChoiceEvent obj)
@@ -73,6 +80,7 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<HandElementalChoiceResult>(FinishAnimation);
         EventBus.Unsubscribe<PerkChoiceEvent>(PerksAndShopUIPOP);
         EventBus.Unsubscribe<GameEndEvent>(ShowGameEndUI);
+        EventBus.Unsubscribe<HitDamageEvent>(OnHitDamageReceived);
     }
 
 
@@ -86,12 +94,12 @@ public class UIManager : MonoBehaviour
     
     private void HitUi(SortHitEvent obj)
     {
-        GetAnimatorByPlayer(current.Player, current.Role);
+        //GetAnimatorByPlayer(current.Player, current.Role);
     }
     
     private void HitUi(HardHitEvent obj)
     {
-        GetAnimatorByPlayer(current.Player, current.Role);
+        //GetAnimatorByPlayer(current.Player, current.Role);
     }
 
     /*
@@ -123,28 +131,28 @@ public class UIManager : MonoBehaviour
         current = evt;
     }
     
-    private void GetAnimatorByPlayer(Player player, BattleRole role)
-    {
-        switch (player, role)
-        {
-            // 1. First(왼쪽)가 공격하는 상황 -> 당연히 Second(오른쪽)가 맞으므로 오른쪽 팝업!
-            case (Player.First, BattleRole.Attack):
-                Toast.ShowDamagePopupLeft(2);
-                break;
-            // 2. First(왼쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(왼쪽)에 팝업!
-            case (Player.First, BattleRole.Defense):
-                Toast.ShowDamagePopupRight(2);
-                break;
-            // 3. Second(오른쪽)가 공격하는 상황 -> First(왼쪽)가 맞으므로 왼쪽 팝업!
-            case (Player.Second, BattleRole.Attack):
-                Toast.ShowDamagePopupRight(2);
-                break;
-            // 4. Second(오른쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(오른쪽)에 팝업!
-            case (Player.Second, BattleRole.Defense):
-                Toast.ShowDamagePopupLeft(2);
-                break;
-        }
-    }
+    // private void GetAnimatorByPlayer(Player player, BattleRole role)
+    // {
+    //     switch (player, role)
+    //     {
+    //         // 1. First(왼쪽)가 공격하는 상황 -> 당연히 Second(오른쪽)가 맞으므로 오른쪽 팝업!
+    //         case (Player.First, BattleRole.Attack):
+    //             Toast.ShowDamagePopupLeft(2);
+    //             break;
+    //         // 2. First(왼쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(왼쪽)에 팝업!
+    //         case (Player.First, BattleRole.Defense):
+    //             Toast.ShowDamagePopupRight(2);
+    //             break;
+    //         // 3. Second(오른쪽)가 공격하는 상황 -> First(왼쪽)가 맞으므로 왼쪽 팝업!
+    //         case (Player.Second, BattleRole.Attack):
+    //             Toast.ShowDamagePopupRight(2);
+    //             break;
+    //         // 4. Second(오른쪽)가 수비(피격)하는 상황 -> 내가 맞았으므로 내 위치(오른쪽)에 팝업!
+    //         case (Player.Second, BattleRole.Defense):
+    //             Toast.ShowDamagePopupLeft(2);
+    //             break;
+    //     }
+    // }
     
     private void MatchStartUI(MatchStartEvent evt)
     {
@@ -221,6 +229,75 @@ public class UIManager : MonoBehaviour
         view.ShowResult(evt);
     }
 
+    private void OnHitDamageReceived(HitDamageEvent e)
+    {
+        // 🔥 일반 함수에서는 딜레이를 줄 수 없으므로, 코루틴을 구동합니다.
+        StartCoroutine(SpawnCardsSequential(e.damage, e.isLeft));
+    }
+    
+    private IEnumerator SpawnCardsSequential(Damage damageData, bool isLeft)
+    {
+        // 카드와 카드 사이의 등장 간격 (원하는 초 단위로 조절하세요)
+        float delayTime = 0.3f; 
+
+        // 1. 사용된 퍽(Perk) 리스트 처리
+        if (damageData.usedPerks != null)
+        {
+            foreach (string perkStr in damageData.usedPerks)
+            {
+                if (System.Enum.TryParse(perkStr, out PerkType perkType))
+                {
+                    SpawnNewCard(perkType, isLeft);
+                
+                    // 🔥 카드를 하나 만들고 설정한 시간만큼 대기합니다.
+                    yield return new WaitForSeconds(delayTime); 
+                }
+                else
+                {
+                    Debug.LogWarning($"[UI Manager] 알 수 없는 퍽 이름입니다: {perkStr}");
+                }
+            }
+        }
+
+        // 2. 사용된 아이템(Item) 리스트 처리
+        if (damageData.usedItems != null)
+        {
+            foreach (string itemStr in damageData.usedItems)
+            {
+                if (System.Enum.TryParse(itemStr, out ItemType itemType))
+                {
+                    SpawnItemCard(itemType, isLeft);
+                
+                    // 🔥 아이템 카드를 하나 만들고 설정한 시간만큼 대기합니다.
+                    yield return new WaitForSeconds(delayTime); 
+                }
+                else
+                {
+                    Debug.LogWarning($"[UI Manager] 알 수 없는 아이템 이름입니다: {itemStr}");
+                }
+            }
+        }
+    }
+    void SpawnNewCard(PerkType perkType, bool isLeft)
+    {
+        GameObject newCardObj = Instantiate(perkCardPrefab);
+
+        PerkCard cardScript = newCardObj.GetComponent<PerkCard>();
+
+        if (cardScript != null)
+        {
+            cardScript.SetUpAndAnimationCard(perkType, isLeft);
+        }
+    }
+
+    void SpawnItemCard(ItemType itemType, bool isLeft)
+    {
+        GameObject newCardObj = Instantiate(perkCardPrefab);
+        ItemCard itemCardScript = newCardObj.GetComponent<ItemCard>();
+        
+        itemCardScript.SetUpAndAnimationCard(itemType, isLeft);
+    }
+    
     /// <summary>
     /// 상단에 선언된 모든 10개의 UIDocument를 안전하게 비활성화합니다.
     /// </summary>
