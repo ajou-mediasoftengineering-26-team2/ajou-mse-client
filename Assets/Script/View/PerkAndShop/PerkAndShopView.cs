@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,40 +9,67 @@ public class PerkAndShopView : MonoBehaviour
 {
     private PerkAndShopViewModel _viewModel;
 
+    private VisualElement _perk1, _perk2, _perk3, _upgradePanel;
+
     private void OnEnable()
     {
+        //Setup();
+    }
+
+    public void Setup()
+    {
+        _viewModel?.Dispose();
+        _viewModel = null;
+
         var root = GetComponent<UIDocument>().rootVisualElement;
 
-        var selectBtn1 = root.Q<Button>("SelectBtn1");
-        var selectBtn2 = root.Q<Button>("SelectBtn2");
-        var selectBtn3 = root.Q<Button>("SelectBtn3");
+        var selectBtn1   = root.Q<Button>("SelectBtn1");
+        var selectBtn2   = root.Q<Button>("SelectBtn2");
+        var selectBtn3   = root.Q<Button>("SelectBtn3");
+        var perk1Title   = root.Q<Label>("Perk1Title");
+        var perk1Exp     = root.Q<Label>("Perk1Exp");
+        var perk2Title   = root.Q<Label>("Perk2Title");
+        var perk2Exp     = root.Q<Label>("Perk2Exp");
+        var perk3Title   = root.Q<Label>("Perk3Title");
+        var perk3Exp     = root.Q<Label>("Perk3Exp");
+        var perk1Img     = root.Q<Image>("Perk1Img");
+        var perk2Img     = root.Q<Image>("Perk2Img");
+        var perk3Img     = root.Q<Image>("Perk3Img");
+        var handImg      = root.Q<Image>("HandImg");
+        var beforeInfo   = root.Q<Label>("BeforeInfo");
+        var afterInfo    = root.Q<Label>("AfterInfo");
+        var upgradeCost  = root.Q<Label>("UpgradeCost");
+        var upgradeBtn   = root.Q<Button>("UpgradeBtn");
+        var currentRound = root.Q<Label>("CurrentRound");
+        var money        = root.Q<Label>("Money");
+        var timer        = root.Q<VisualElement>("Timer");
+        var timerImg     = root.Q<Image>("TimerImg");
 
-        var perk1Title = root.Q<Label>("Perk1Title");
-        var perk1Exp   = root.Q<Label>("Perk1Exp");
-        var perk2Title = root.Q<Label>("Perk2Title");
-        var perk2Exp   = root.Q<Label>("Perk2Exp");
-        var perk3Title = root.Q<Label>("Perk3Title");
-        var perk3Exp   = root.Q<Label>("Perk3Exp");
+        // 애니메이션 대상 캐시
+        _perk1        = root.Q<VisualElement>("Perk1");
+        _perk2        = root.Q<VisualElement>("Perk2");
+        _perk3        = root.Q<VisualElement>("Perk3");
+        _upgradePanel = root.Q<VisualElement>("Upgrade");
 
-        var perk1Img = root.Q<Image>("Perk1Img");
-        var perk2Img = root.Q<Image>("Perk2Img");
-        var perk3Img = root.Q<Image>("Perk3Img");
-
-        var upgradeBtn = root.Q<Button>("UpgradeBtn");
-        var timer      = root.Q<VisualElement>("Timer");
-        var timerImg   = root.Q<Image>("TimerImg");
+        // 미리 숨겨두기
+        SnapHidden(_perk1);
+        SnapHidden(_perk2);
+        SnapHidden(_perk3);
+        SnapHiddenRight(_upgradePanel);
 
         _viewModel = new PerkAndShopViewModel();
         _viewModel.SetPlayerInfo(SceneDataBridge.playerId, SceneDataBridge.MatchId);
         _viewModel.Initialize();
 
+        root.style.display = DisplayStyle.None;
+        _viewModel.IsVisible.Subscribe(visible =>
+        {
+            root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            if (visible) StartCoroutine(PlayEntranceAnimation());
+        });
+
         if (timerImg != null)
             timerImg.sprite = Resources.Load<Sprite>("Pixel Clock/TimerImg");
-
-        root.style.display = DisplayStyle.None;
-
-        _viewModel.IsVisible.Subscribe(visible =>
-            root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None);
 
         _viewModel.TimerRatio.Subscribe(ratio =>
         {
@@ -48,37 +77,112 @@ public class PerkAndShopView : MonoBehaviour
                 timer.style.width = new Length(ratio * 100, LengthUnit.Percent);
         });
 
-        _viewModel.Perk1Title.Subscribe(v => perk1Title.text = v ?? "");
-        _viewModel.Perk1Desc.Subscribe(v  => perk1Exp.text   = v ?? "");
-        _viewModel.Perk2Title.Subscribe(v => perk2Title.text = v ?? "");
-        _viewModel.Perk2Desc.Subscribe(v  => perk2Exp.text   = v ?? "");
-        _viewModel.Perk3Title.Subscribe(v => perk3Title.text = v ?? "");
-        _viewModel.Perk3Desc.Subscribe(v  => perk3Exp.text   = v ?? "");
+        _viewModel.RoundLabel.Subscribe(v  => { if (currentRound != null) currentRound.text = v ?? ""; });
+        _viewModel.CoinLabel.Subscribe(v   => { if (money        != null) money.text        = $"Money: {v}"; });
+
+        _viewModel.Perk1Title.Subscribe(v => { if (perk1Title != null) perk1Title.text = v ?? ""; });
+        _viewModel.Perk1Desc.Subscribe(v  => { if (perk1Exp   != null) perk1Exp.text   = v ?? ""; });
+        _viewModel.Perk2Title.Subscribe(v => { if (perk2Title != null) perk2Title.text = v ?? ""; });
+        _viewModel.Perk2Desc.Subscribe(v  => { if (perk2Exp   != null) perk2Exp.text   = v ?? ""; });
+        _viewModel.Perk3Title.Subscribe(v => { if (perk3Title != null) perk3Title.text = v ?? ""; });
+        _viewModel.Perk3Desc.Subscribe(v  => { if (perk3Exp   != null) perk3Exp.text   = v ?? ""; });
 
         _viewModel.Perk1Raw.Subscribe(raw => SetPerkImage(perk1Img, raw));
         _viewModel.Perk2Raw.Subscribe(raw => SetPerkImage(perk2Img, raw));
         _viewModel.Perk3Raw.Subscribe(raw => SetPerkImage(perk3Img, raw));
 
-        _viewModel.CanSelect.Subscribe(can =>
+        _viewModel.HandElementalName.Subscribe(name =>
         {
-            selectBtn1.SetEnabled(can);
-            selectBtn2.SetEnabled(can);
-            selectBtn3.SetEnabled(can);
+            if (handImg == null || string.IsNullOrEmpty(name)) return;
+            var hand = HandInfoProvider.FromString(name);
+            if (hand != HandElementalType.NONE)
+                handImg.sprite = Resources.Load<Sprite>(HandInfoProvider.GetImagePath(hand));
         });
 
-        upgradeBtn.SetEnabled(false);
+        _viewModel.BeforeInfo.Subscribe(v       => { if (beforeInfo  != null) beforeInfo.text  = v ?? ""; });
+        _viewModel.AfterInfo.Subscribe(v        => { if (afterInfo   != null) afterInfo.text   = v ?? ""; });
+        _viewModel.UpgradeCostLabel.Subscribe(v => { if (upgradeCost != null) upgradeCost.text = v ?? ""; });
 
-        selectBtn1.clicked += () => _viewModel.OnSelectPerk(1);
-        selectBtn2.clicked += () => _viewModel.OnSelectPerk(2);
-        selectBtn3.clicked += () => _viewModel.OnSelectPerk(3);
+        _viewModel.CanSelect.Subscribe(can =>
+        {
+            selectBtn1?.SetEnabled(can);
+            selectBtn2?.SetEnabled(can);
+            selectBtn3?.SetEnabled(can);
+        });
+
+        _viewModel.CanUpgrade.Subscribe(can => upgradeBtn?.SetEnabled(can));
+
+        selectBtn1.clicked += () => { _viewModel.OnSelectPerk(1); OnPerkSelected(_perk1); };
+        selectBtn2.clicked += () => { _viewModel.OnSelectPerk(2); OnPerkSelected(_perk2); };
+        selectBtn3.clicked += () => { _viewModel.OnSelectPerk(3); OnPerkSelected(_perk3); };
+        upgradeBtn.clicked += () => _viewModel.OnUpgrade();
     }
 
-    private void SetPerkImage(Image imgElement, string raw)
+    private IEnumerator PlayEntranceAnimation()
     {
-        if (string.IsNullOrEmpty(raw)) return;
-        if (!Enum.TryParse<PerkType>(raw, out var perkType)) return;
-        imgElement.sprite = Resources.Load<Sprite>($"Perks/{perkType}");
+        yield return null;
+
+        AnimateIn(_perk1); yield return new WaitForSeconds(0.1f);
+        AnimateIn(_perk2); yield return new WaitForSeconds(0.1f);
+        AnimateIn(_perk3); yield return new WaitForSeconds(0.15f);
+        AnimateIn(_upgradePanel); // 오른쪽에서 들어옴
     }
 
-    private void OnDestroy() => _viewModel?.Dispose();
+    private void SnapHidden(VisualElement el)
+    {
+        if (el == null) return;
+        el.style.transitionProperty = StyleKeyword.Null;
+        el.style.opacity   = 0f;
+        el.style.translate = new StyleTranslate(new Translate(0, 50, 0));
+    }
+
+    private void SnapHiddenRight(VisualElement el)
+    {
+        if (el == null) return;
+        el.style.transitionProperty = StyleKeyword.Null;
+        el.style.opacity   = 0f;
+        el.style.translate = new StyleTranslate(new Translate(60, 0, 0));
+    }
+
+    private void AnimateIn(VisualElement el)
+    {
+        if (el == null) return;
+        el.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
+        el.style.transitionDuration = new List<TimeValue>
+            { new TimeValue(0.4f, TimeUnit.Second), new TimeValue(0.6f, TimeUnit.Second) };
+        el.style.transitionTimingFunction = new List<EasingFunction>
+            { new EasingFunction(EasingMode.EaseOutBack) };
+        el.style.opacity   = 1f;
+        el.style.translate = new StyleTranslate(new Translate(0, 0, 0));
+    }
+
+    private void OnPerkSelected(VisualElement selected)
+    {
+        var all = new[] { _perk1, _perk2, _perk3 };
+        foreach (var p in all)
+        {
+            if (p == null) continue;
+            p.style.borderTopColor    = new StyleColor(new Color(0.31f, 0.31f, 0.31f));
+            p.style.borderBottomColor = new StyleColor(new Color(0.31f, 0.31f, 0.31f));
+            p.style.borderLeftColor   = new StyleColor(new Color(0.31f, 0.31f, 0.31f));
+            p.style.borderRightColor  = new StyleColor(new Color(0.31f, 0.31f, 0.31f));
+        }
+        if (selected == null) return;
+        selected.style.borderTopColor    = new StyleColor(Color.white);
+        selected.style.borderBottomColor = new StyleColor(Color.white);
+        selected.style.borderLeftColor   = new StyleColor(Color.white);
+        selected.style.borderRightColor  = new StyleColor(Color.white);
+    }
+
+    private void SetPerkImage(Image img, string raw)
+    {
+        if (img == null || string.IsNullOrEmpty(raw)) return;
+        img.sprite = Resources.Load<Sprite>($"Perks/{raw}");
+    }
+
+    private void OnDisable()
+    {
+        _viewModel?.Dispose();
+        _viewModel = null;
+    }
 }

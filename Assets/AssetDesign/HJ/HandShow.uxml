@@ -1,0 +1,31 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="BackGround" style="flex-grow: 1; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.59);">
+        <ui:VisualElement name="Top" style="flex-grow: 0; width: 100%; height: 25%;"/>
+        <ui:VisualElement name="Middle" style="flex-grow: 0; width: 100%; height: 50%; align-items: center; align-self: center; flex-direction: row;">
+            <ui:VisualElement name="Player1Info" style="flex-grow: 0; flex-shrink: 0; height: 100%; align-items: flex-end; width: 45%; align-self: flex-end; justify-content: center;">
+                <ui:VisualElement name="Player1" style="flex-grow: 0; height: 75%; width: 35%; align-self: auto; align-items: center; background-color: rgba(0, 0, 0, 0); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border-left-color: rgb(30, 31, 134); border-right-color: rgb(30, 31, 134); border-top-color: rgb(30, 31, 134); border-bottom-color: rgb(30, 31, 134); border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px;">
+                    <ui:VisualElement name="Player1Index" style="flex-grow: 0; flex-direction: row; height: 15%; width: 100%;">
+                        <ui:Label text="Player1 ID&#10;" name="Player1Id" style="width: 60%; height: 100%; -unity-text-align: middle-center; -unity-font-style: bold; color: rgb(255, 255, 255); font-size: 28px; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;);"/>
+                        <ui:Label text="SELECT&#10;" name="SELECT" style="height: 100%; width: 40%; -unity-text-align: middle-left; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(188, 47, 19); -unity-font-style: bold; font-size: 28px; align-self: flex-start;"/>
+                    </ui:VisualElement>
+                    <ui:Image name="Player1Hand" style="aspect-ratio: 1; width: 90%;"/>
+                    <ui:Label text="Label" name="Player1HandName" style="height: 15%; width: 100%; -unity-text-align: middle-center; color: rgb(255, 255, 255); -unity-font-style: bold; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); font-size: 28px;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="VS" style="flex-grow: 0; height: 100%; flex-shrink: 0; width: 10%; align-self: center; justify-content: center;">
+                <ui:Label text="VS" name="VSIndex" style="align-self: center; align-items: center; width: 80%; -unity-text-align: middle-center; height: 40%; font-size: 56px; -unity-font-style: bold; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(188, 47, 19);"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="Player2Info" style="flex-grow: 1; width: 44%; height: 100%; justify-content: center;">
+                <ui:VisualElement name="Player2" style="flex-grow: 0; justify-content: flex-start; align-self: flex-start; height: 75%; width: 35%; background-color: rgba(0, 0, 0, 0); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-left-color: rgb(30, 31, 134); border-right-color: rgb(30, 31, 134); border-top-color: rgb(30, 31, 134); border-bottom-color: rgb(30, 31, 134); align-items: center; align-content: flex-start;">
+                    <ui:VisualElement name="Player2Index" style="flex-grow: 0; flex-direction: row; height: 15%; width: 100%;">
+                        <ui:Label text="Player2 ID" name="Player2Id" style="height: 100%; width: 60%; -unity-text-align: middle-center; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 28px;"/>
+                        <ui:Label text="SELECT" name="SELECT" style="height: 100%; width: 40%; -unity-text-align: middle-left; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); font-size: 28px; -unity-font-style: bold; color: rgb(188, 47, 19); align-self: flex-start;"/>
+                    </ui:VisualElement>
+                    <ui:Image name="Player2Hand" style="aspect-ratio: 1; width: 90%;"/>
+                    <ui:Label text="Label" name="Player2HandName" style="height: 15%; width: 100%; -unity-text-align: middle-center; -unity-font-style: bold; -unity-font-definition: url(&quot;project://database/Assets/Font/DungGeunMo.ttf?fileID=12800000&amp;guid=3ec608b729ff9514f880eda17091b1f1&amp;type=3#DungGeunMo&quot;); color: rgb(255, 255, 255); font-size: 28px;"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Bottom" style="flex-grow: 0; width: 100%; height: 25%;"/>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -41,8 +42,17 @@ public class GameEndView : MonoBehaviour
             : $"Winner is {evt.player2.username}";
     }
 
-    private void OnHomeButtonClicked()
+    private async void OnHomeButtonClicked()
     {
+        try
+        {
+            var repo = RepositoryFactory.Instance.Get<ILoginRepository>();
+            await repo.DeletePlayer(SceneDataBridge.playerId);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
         SceneManager.LoadScene("LoginScene");
     }
 }

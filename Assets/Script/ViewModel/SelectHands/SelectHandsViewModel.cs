@@ -12,7 +12,9 @@ public class SelectHandsViewModel : ViewModelBase
     private string _lobbyId;
     private string _matchSubId;
     private CancellationTokenSource _timerCts;
-
+    private string _selectedHandType; // 추가: 로컬 선택값 저장
+    private bool _inChoicePhase = false;
+    
     public Observable<bool>   IsVisible   { get; } = new Observable<bool>(false);
     public Observable<bool>   CanSelect   { get; } = new Observable<bool>(false);
     public Observable<float>  TimerRatio  { get; } = new Observable<float>(1f);
@@ -50,17 +52,41 @@ public class SelectHandsViewModel : ViewModelBase
             onValueChanged: match =>
             {
                 if (match == null) return;
-                bool isMyPhase = match.state == "GAME_ELEMENTAL_CHOICE";
-                IsVisible.Value  = isMyPhase;
-                CanSelect.Value  = isMyPhase;
 
-                if (isMyPhase)
-                    StartTimer(match.countdownStartTime, match.countdownSec);
+                bool isChoice    = match.state == "GAME_ELEMENTAL_CHOICE";
+                bool isReceiving = match.state == "GAME_ELEMENTAL_RECEIVING";
+
+                if (isChoice)
+                {
+                    IsVisible.Value = true;
+                    if (!_inChoicePhase)
+                    {
+                        _inChoicePhase  = true;
+                        CanSelect.Value = true;
+                        StartTimer(match.countdownStartTime, match.countdownSec);
+                    }
+                }
                 else
-                    _timerCts?.Cancel();
+                {
+                    _inChoicePhase = false;
+                }
             },
             onError: err => Debug.LogError(err)
         );
+    }
+
+    private async Task SendSelection()
+    {
+        var handType = _selectedHandType;
+        _selectedHandType = null;
+        try
+        {
+            await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] );
+            var res = await _repo.PostSelectHand(_playerId, handType);
+            if (!res.isSuccess)
+                Debug.LogError($"[SelectHands] PostSelectHand 실패: {res.error.message}");
+        }
+        catch (Exception e) { Debug.LogException(e); }
     }
 
     private async void StartTimer(string startTimeStr, int durationSec)
@@ -81,7 +107,14 @@ public class SelectHandsViewModel : ViewModelBase
             while (!token.IsCancellationRequested)
             {
                 double remaining = (endTime - DateTime.Now).TotalSeconds;
-                if (remaining <= 0) { TimerRatio.Value = 0f; break; }
+                if (remaining <= 0)
+                {
+                    TimerRatio.Value = 0f;
+                    CanSelect.Value  = false;
+                    IsVisible.Value  = false;
+                    await FlushHandSelectionAsync(); 
+                    break;
+                }
                 TimerRatio.Value = (float)(remaining / durationSec);
                 await Task.Delay(50, token);
             }
@@ -89,32 +122,29 @@ public class SelectHandsViewModel : ViewModelBase
         catch (OperationCanceledException) { }
         catch (Exception e) { Debug.LogException(e); }
     }
+    private async Task FlushHandSelectionAsync()
+    {
+        if (string.IsNullOrEmpty(_selectedHandType))
+        {
+            var hands = new[] {
+                HandElementalType.FIRE,      HandElementalType.WATER,
+                HandElementalType.WIND,      HandElementalType.LIGHTNING,
+                HandElementalType.POISON,    HandElementalType.PLANT
+            };
+            _selectedHandType = hands[UnityEngine.Random.Range(0, hands.Length)].ToString();
+        }
+        await SendSelection();
+    }
 
-    public async void OnSelectHand(int slot)
+    // async 제거, 로컬 저장만
+    public void OnSelectHand(int slot)
     {
         if (!CanSelect.Value) return;
         if (slot < 1 || slot > 6) return;
 
-        CanSelect.Value = false;
-        try
-        {
-            var handType = ((HandElementalType)(slot - 1)).ToString();
-            var res = await _repo.PostSelectHand(_playerId, handType);
-            if (!res.isSuccess)
-            {
-                ErrorMsg.Value  = res.error.message;
-                CanSelect.Value = true;
-                return;
-            }
-            // PutAck 없음 — MainBattleViewModel이 GAME_ELEMENTAL_RECEIVING에서 처리
-            EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
-        }
-        catch (Exception e)
-        {
-            ErrorMsg.Value  = e.Message;
-            CanSelect.Value = true;
-            Debug.LogException(e);
-        }
+        _selectedHandType = ((HandElementalType)(slot - 1)).ToString();
+        CanSelect.Value   = false;
+        EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
     }
 
     public override void Dispose()

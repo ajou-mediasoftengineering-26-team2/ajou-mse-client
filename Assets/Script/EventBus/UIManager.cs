@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
     //[SerializeField] UIDocument RoundOver;
     [SerializeField] UIDocument PerksAndShop;
     [SerializeField] UIDocument GameEndUI;
+    [SerializeField] UIDocument HandShow;
 
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
@@ -43,15 +44,17 @@ public class UIManager : MonoBehaviour
 
     private void PerksAndShopUIPOP(PerkChoiceEvent obj)
     {
+        if (PerksAndShop.enabled) return;
         AllUIDown();
         PerksAndShop.enabled = true;
+        PerksAndShop.GetComponent<PerkAndShopView>().Setup();  
     }
 
     private void FinishAnimation(HandElementalChoiceResult obj)
     {
         AllUIDown();
-        
-        IntroduceStation.enabled = true;
+        HandShow.enabled = true;
+        HandShow.GetComponent<HandShowView>().Show(obj);
     }
 
 
@@ -75,6 +78,7 @@ public class UIManager : MonoBehaviour
 
     private void HandElementalChoice(HandElementalChoice evt)
     {
+        if (ElementalHandChoice.enabled) return;
         AllUIDown(); // UI 켜기 전에 모두 끄기 추가
         ElementalHandChoice.enabled = true;
         ElementalHandChoice.GetComponent<SelectHandsView>().StartScene();
@@ -164,6 +168,7 @@ public class UIManager : MonoBehaviour
     
     private void ShowItemUI(ItemReceivedEvent evt)
     {
+        AllUIDown();
         if (!ItemUI.enabled)
             ItemUI.enabled = true;
         ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
@@ -232,5 +237,6 @@ public class UIManager : MonoBehaviour
         //if (RoundOver != null) RoundOver.enabled = false;
         if (PerksAndShop != null) PerksAndShop.enabled = false;
         if (GameEndUI != null) GameEndUI.enabled = false;
+        if (HandShow != null) HandShow.enabled = false;
     }
 }
