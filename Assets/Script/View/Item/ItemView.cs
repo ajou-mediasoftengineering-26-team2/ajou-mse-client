@@ -26,6 +26,13 @@ public class ItemView : MonoBehaviour
             return;
         }
         _itemRepo ??= RepositoryFactory.Instance.Get<IItemRepository>();
+        var panel = _root.Q<VisualElement>("Item");
+        if (panel != null)
+        {
+            panel.style.transitionProperty = StyleKeyword.Null;
+            panel.style.opacity   = 0f;
+            panel.style.translate = new StyleTranslate(new Translate(0, 60, 0));
+        }
     }
 
     public void ShowItem(string itemCode)
@@ -57,13 +64,23 @@ public class ItemView : MonoBehaviour
                 continue;
             }
 
+            var panel = _root.Q<VisualElement>("Item");
+
+            // 먼저 숨기고
+            panel.style.transitionProperty = StyleKeyword.Null;
+            panel.style.opacity   = 0f;
+            panel.style.translate = new StyleTranslate(new Translate(0, 60, 0));
+
+            yield return null; // 숨김 상태 적용 대기
+
+            // 그 다음 데이터 세팅
             _itemTitle.text = ItemInfoProvider.GetDisplayName(itemType);
             _itemInfo.text  = ItemInfoProvider.GetDescription(itemType);
             var sprite = Resources.Load<Sprite>($"Items/{itemType}");
             if (sprite != null) _itemImg.sprite = sprite;
 
-            var panel = _root.Q<VisualElement>("Item");
-            yield return StartCoroutine(AnimateItem(panel)); // ← 추가
+            // 그 다음 애니메이션
+            yield return StartCoroutine(AnimateItem(panel));
 
             yield return new WaitForSeconds(3f);
             yield return new WaitForSeconds(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] / 1000f);
@@ -77,14 +94,10 @@ public class ItemView : MonoBehaviour
     {
         if (panel == null) yield break;
 
-        panel.style.transitionProperty = StyleKeyword.Null;
-        panel.style.opacity   = 0f;
-        panel.style.translate = new StyleTranslate(new Translate(0, 60, 0));
-
-        yield return null;
+        // 초기 숨김 코드 제거 (ProcessQueue에서 이미 처리)
 
         panel.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
-        panel.style.transitionDuration  = new List<TimeValue>
+        panel.style.transitionDuration = new List<TimeValue>
             { new TimeValue(0.4f, TimeUnit.Second), new TimeValue(0.4f, TimeUnit.Second) };
         panel.style.transitionTimingFunction = new List<EasingFunction>
             { new EasingFunction(EasingMode.EaseOutBack) };

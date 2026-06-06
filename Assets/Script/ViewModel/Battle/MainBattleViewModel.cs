@@ -445,7 +445,7 @@ public class MainBattleViewModel : ViewModelBase
             {
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);//추가
                 EventBus.Publish(new HandElementalChoiceResult(player1, player2));
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 5000);
+                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6500);
                 _elementalRepository.PutAck(_playerId);
             },
             LobbyState.GAME_PERK_ITEM_RECEIVING => () =>
