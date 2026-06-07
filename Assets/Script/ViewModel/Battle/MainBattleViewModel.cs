@@ -32,6 +32,9 @@ public class MainBattleViewModel : ViewModelBase
     private CancellationTokenSource _timerCts;
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
+    
+    //2라운드 사용
+    private int _prevRound = 0;
 
 
     private PlayerInfoModel player1Snap;
@@ -570,6 +573,12 @@ public class MainBattleViewModel : ViewModelBase
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => async () => 
             {
                 await GetHPByFirebase();
+                if (match.currentRound == 2 && _prevRound != 2)
+                {
+                    _prevRound = 2;
+                    EventBus.Publish(new HandElementalChoiceResult(player1, player2));
+                    await Task.Delay(5000);
+                }
                 if (_isFirstStart)
                 {
                     EventBus.Publish(new IntroduceStationEvent(StationConverter.GetDisplayName(StationConverter.GetType(match.station)),
@@ -615,13 +624,14 @@ public class MainBattleViewModel : ViewModelBase
                 //_elementalRepository.PutChoice(_playerId, ElementalHand.FIRE.ToString());
             },
 
-            LobbyState.GAME_ELEMENTAL_RECEIVING => async () =>
+            LobbyState.GAME_ELEMENTAL_RECEIVING => () =>
             {
                 //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);//추가
-                EventBus.Publish(new HandElementalChoiceResult(player1, player2));
+                //EventBus.Publish(new HandElementalChoiceResult(player1, player2));
                 //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6500);
-                await Task.Delay(6500);
+                //await Task.Delay(6500);
                 _elementalRepository.PutAck(_playerId);
+                return Task.CompletedTask;
             },
             LobbyState.GAME_PERK_ITEM_RECEIVING => async () =>
             {
