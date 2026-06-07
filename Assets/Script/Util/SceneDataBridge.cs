@@ -13,6 +13,8 @@ public static class SceneDataBridge
     public static string enemyName;
     public static CameraType playerCamera;
     public static CameraType enemyCamera;
+    public static CameraType playerActionCamera;
+    public static CameraType enemyActionCamera;
     public static Player myPlayer;
     public static Player enemyPlayer;
 }

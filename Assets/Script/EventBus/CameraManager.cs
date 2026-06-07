@@ -12,6 +12,7 @@ public class CameraTurnManager : MonoBehaviour
     public GameObject Camera1; // Player
     public GameObject Camera2;  // EnemyPlayer 
     public GameObject ActionCamera; //Action Camera
+    public GameObject ActionCamera2;
 
     
     private void Awake()
@@ -48,17 +49,27 @@ public class CameraTurnManager : MonoBehaviour
             case CameraType.Camera1:
                 Camera1.SetActive(true);
                 Camera2.SetActive(false);
+                ActionCamera2.SetActive(false);
                 ActionCamera.SetActive(false);
+
                 break;
             case CameraType.Camera2:
                 Camera2.SetActive(true);
                 Camera1.SetActive(false);
                 ActionCamera.SetActive(false);
+                ActionCamera2.SetActive(false);
                 break;
             case CameraType.Action:
                 ActionCamera.SetActive(true);
                 Camera1.SetActive(false);
                 Camera2.SetActive(false);
+                ActionCamera2.SetActive(false);
+                break;
+            case CameraType.Action2 :
+                ActionCamera2.SetActive(true);
+                Camera1.SetActive(false);
+                Camera2.SetActive(false);
+                ActionCamera.SetActive(false);
                 break;
         }
     }

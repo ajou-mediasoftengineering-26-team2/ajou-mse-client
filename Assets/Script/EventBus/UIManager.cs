@@ -239,7 +239,7 @@ public class UIManager : MonoBehaviour
     private IEnumerator SpawnCardsSequential(Damage damageData, bool isLeft)
     {
         // 카드와 카드 사이의 등장 간격 (원하는 초 단위로 조절하세요)
-        float delayTime = 0.3f; 
+        float delayTime = 0.8f; 
 
         // 1. 사용된 퍽(Perk) 리스트 처리
         if (damageData.usedPerks != null)
@@ -254,10 +254,6 @@ public class UIManager : MonoBehaviour
                     //  카드를 하나 만들고 설정한 시간만큼 대기합니다.
                     yield return new WaitForSeconds(delayTime); 
                 }
-                else
-                {
-                    Debug.LogWarning($"[UI Manager] 알 수 없는 퍽 이름입니다: {perkStr}");
-                }
             }
         }
 
@@ -270,7 +266,7 @@ public class UIManager : MonoBehaviour
                 {
                     SpawnItemCard(itemType, isLeft);
                 
-                    // 🔥 아이템 카드를 하나 만들고 설정한 시간만큼 대기합니다.
+                    // 아이템 카드를 하나 만들고 설정한 시간만큼 대기합니다.
                     yield return new WaitForSeconds(delayTime); 
                 }
                 else
@@ -279,6 +275,8 @@ public class UIManager : MonoBehaviour
                 }
             }
         }
+        
+        
     }
     void SpawnNewCard(PerkType perkType, bool isLeft)
     {

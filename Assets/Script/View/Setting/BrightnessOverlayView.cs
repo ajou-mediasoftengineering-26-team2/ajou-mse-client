@@ -23,6 +23,9 @@ public class BrightnessOverlayView : MonoBehaviour
 
     private void OnEnable()
     {
+        //tooptip 부분 수정하였습니다.
+        var root = GetComponent<UIDocument>().rootVisualElement;
+        root.pickingMode = PickingMode.Ignore;
         _overlay = GetComponent<UIDocument>().rootVisualElement
                        .Q<VisualElement>("BrightnessBackGround");
 
