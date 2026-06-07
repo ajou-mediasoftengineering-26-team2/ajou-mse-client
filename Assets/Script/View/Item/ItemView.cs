@@ -88,7 +88,7 @@ public class ItemView : MonoBehaviour
             yield return StartCoroutine(AnimateItem(panel));
 
             yield return new WaitForSeconds(3f);
-            yield return new WaitForSeconds(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] / 1000f);
+            //yield return new WaitForSeconds(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] / 1000f);
             Debug.Log("[ItemView] SendPutAck 호출: " + itemCode);
             _ = SendPutAck(); 
         }

@@ -240,7 +240,7 @@ public class MainBattleViewModel : ViewModelBase
     private void SetStaus(Damage damage, bool isRight)
     {
         List<StatusType> status = new List<StatusType>();
-        if (damage.statusEffects != null)
+        if (damage.statusEffects.Count != 0 || damage.statusEffects == null)
         {
             for (int i = 0; i <damage.statusEffects.Count; i++)
             {
@@ -364,6 +364,7 @@ public class MainBattleViewModel : ViewModelBase
                     if (player.itemList == null)
                     {
                         itms = new  List<ItemType>();
+                        ItemLists.Value = itms;
                     }
                     else
                     {
@@ -374,12 +375,12 @@ public class MainBattleViewModel : ViewModelBase
                                 Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
                                 return;
                             }
+                            
                         
                             itms.Add(itemType);
                         }
+                        ItemLists.Value = itms;
                     }
-
-                    ItemLists.Value = itms;
                     
                     
                     List<PerkType> perks =new  List<PerkType>();
@@ -404,14 +405,13 @@ public class MainBattleViewModel : ViewModelBase
                     //     {
                     //         if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
                     //         {
-                    //             Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                    //             Debug.LogError($"[ItemView] Unknown status code: {player.statusEffectList[i]}");
                     //             continue;
                     //         }
                     //         status.Add(type);
                     //     }
-                    //     
-                    //     MyStatusList.Value = status;
                     // }
+                    // MyStatusList.Value = status;
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -449,23 +449,25 @@ public class MainBattleViewModel : ViewModelBase
                         }
                         
                         
-                        if (enemyItems.Count == 0) return;
                         EnemyItemLists.Value = enemyItems;
-                        Debug.Log(EnemyItemLists.Value[0] + "enemyItemList 구조");
+                        if (enemyItems.Count > 0)
+                        {
+                            Debug.Log(EnemyItemLists.Value[0] + "enemyItemList 구조");
+                        }
                     }
                     
                     
                     
                     
-                    List<PerkType> perks =new  List<PerkType>();
-                    for (int i = 0; i < player.perkList.Count; i++)
+                    List<PerkType> perks = new List<PerkType>();
+                    if (player.perkList != null)
                     {
-                        var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
-                        
-                        perks.Add(data);
+                        for (int i = 0; i < player.perkList.Count; i++)
+                        {
+                            var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
+                            perks.Add(data);
+                        }
                     }
-
-                    if (perks.Count == 0) return;
                     EnemyPerkList.Value = perks;
 
                     
@@ -476,15 +478,13 @@ public class MainBattleViewModel : ViewModelBase
                     //     {
                     //         if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
                     //         {
-                    //             Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                    //             Debug.LogError($"[ItemView] Unknown status code: {player.statusEffectList[i]}");
                     //             continue;
                     //         }
                     //         status.Add(type);
                     //     }
-                    //     
-                    //     EnemyStatusList.Value = status;
                     // }
-                    
+                    // EnemyStatusList.Value = status;
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -508,7 +508,7 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.GAME_CHOICE_FINISHED => async () =>
             {
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
+                //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
                 await _repository.PutChoice(_playerId, CurrentHandAction.Value.ToString());
             },
 
@@ -534,7 +534,7 @@ public class MainBattleViewModel : ViewModelBase
                 //if two player action is same, animation is not load.
                 if (player1Action == player2Action)
                 {
-                    await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
+                    //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
                     await _repository.PutAck(_playerId);
                     return;
                 }
@@ -552,7 +552,7 @@ public class MainBattleViewModel : ViewModelBase
                     additionalDelay = 6000; 
                 }
                 
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + additionalDelay);
+                //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + additionalDelay);
                 await _repository.PutAck(_playerId);
                 await GetHPByFirebase();
             },
@@ -592,7 +592,7 @@ public class MainBattleViewModel : ViewModelBase
                     Debug.LogWarning($"[MainBattleViewModel] Unknown camera: {SceneDataBridge.playerCamera}. Using 0ms delay.");
                     cameraDelay = 0;
                 }
-                await Task.Delay(cameraDelay + 5000);
+                await Task.Delay( 5000);
                 
                 Debug.Log("이게 왜 안뜨지");
                 if (string.IsNullOrWhiteSpace(SceneDataBridge.playerId))
@@ -617,9 +617,10 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.GAME_ELEMENTAL_RECEIVING => async () =>
             {
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);//추가
+                //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);//추가
                 EventBus.Publish(new HandElementalChoiceResult(player1, player2));
-                await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6500);
+                //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6500);
+                await Task.Delay(6500);
                 _elementalRepository.PutAck(_playerId);
             },
             LobbyState.GAME_PERK_ITEM_RECEIVING => async () =>
@@ -831,7 +832,7 @@ public class MainBattleViewModel : ViewModelBase
     public async void PutRoundStartAck()
     {
         Debug.Log("put round start ack 보내고 있음!");
-        await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
+        //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
         await _roundRepository.startAck(SceneDataBridge.playerId);
     }
 }

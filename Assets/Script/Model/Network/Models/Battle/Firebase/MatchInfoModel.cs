@@ -15,6 +15,7 @@ public class MatchInfoModel
     public int attackerPlayerIdx;
     public int currentTurn;
     public int currentRound;
+    public string forbiddenBehavior;
     public Dictionary<string, PlayerInfoModel> players;
     public List<Damage> damageList;
 }

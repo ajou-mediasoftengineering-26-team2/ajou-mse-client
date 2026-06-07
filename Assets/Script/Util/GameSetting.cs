@@ -102,4 +102,5 @@ public enum HandActionType
     INSERT_BETWEEN_HANDS = 4,
     /** Shaking hands / Default idle state (5) */
     SHAKE_OVER_HANDS = 5,
+    FORBIDDEN_BEHAVIOR = 6
 }
