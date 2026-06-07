@@ -626,11 +626,13 @@ public class MainBattleViewModel : ViewModelBase
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => async () => 
             {
                 await GetHPByFirebase();
-                if (match.currentRound == 2 && _prevRound != 2)
+                if (match.currentRound == 1 && _prevRound != 2)
                 {
+                    await Task.Delay(1500);
+                    Debug.Log($"[HandShow] currentRound={match.currentRound} _prevRound={_prevRound}");
                     _prevRound = 2;
                     EventBus.Publish(new HandElementalChoiceResult(player1, player2));
-                    await Task.Delay(5000);
+                    await Task.Delay(3500);
                 }
                 if (_isFirstStart)
                 {
