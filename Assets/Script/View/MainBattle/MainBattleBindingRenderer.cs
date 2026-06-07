@@ -62,6 +62,21 @@ public class MainBattleBindingRenderer
             _uiRefs.ItemIcon.style.backgroundImage = new StyleBackground(sprite);
         });
         
+        _viewModel.HoverStation.Subscribe(data =>
+        {
+            if (_uiRefs.TooltipContainer == null) return;
+
+            if (data == null)
+            {
+                _uiRefs.TooltipContainer.style.display = DisplayStyle.None;
+                return;
+            }
+            
+            _uiRefs.ItemTitle.text = _viewModel.HoverStation.Value;
+            _uiRefs.ItemDescription.text = _viewModel.HoverStationDes.Value;
+            _uiRefs.TooltipContainer.style.display = DisplayStyle.Flex;
+        });
+        
         _viewModel.HoverPerk.Subscribe(data =>
         {
             if (_uiRefs.TooltipContainer == null) return;
@@ -284,6 +299,30 @@ public class MainBattleBindingRenderer
             return;
         }
 
+        var label = _uiRefs.MainBattleRoot.Q<Label>("Station");
+        label.RegisterCallback<MouseEnterEvent>(evt =>
+        {
+            var currentSlot = evt.currentTarget as VisualElement;
+            if (currentSlot == null)
+            {
+                Debug.Log("log 출력함.");
+                return;
+            }
+
+
+            Rect slotBounds = currentSlot.worldBound;
+            var bg = currentSlot.resolvedStyle.backgroundImage; 
+            _viewModel.HoverEventStation(currentSlot.name);
+
+            float spacing = 10f;
+            _uiRefs.TooltipContainer.style.left = slotBounds.x;
+            _uiRefs.TooltipContainer.style.top = slotBounds.y + 150f + spacing;
+        });
+        
+        label.RegisterCallback<MouseLeaveEvent>(_ => 
+        {
+            _viewModel.HoverPerk.Value = null;
+        });
         _uiRefs.MainBattleRoot.Query<VisualElement>(className: "slot").ForEach(slot =>
         {
             Debug.Log("slot 생성이 됨." + slot.style.backgroundColor);
@@ -305,24 +344,24 @@ public class MainBattleBindingRenderer
 
                 if (bg.texture != null) imageName = bg.texture.name;
                 else if (bg.sprite != null) imageName = bg.sprite.name;
-                
-                //if (!imageName.Equals("None"))
-                //{
+
+                if (!imageName.Equals("None"))
+                {
                     _viewModel.HoverEventPerk(imageName);
-                    
-                    float spacing = 10f; 
+
+                    float spacing = 10f;
                     if (!isEnemySlot)
                     {
-                        _uiRefs.TooltipContainer.style.left = slotBounds.x; 
-                        _uiRefs.TooltipContainer.style.top = slotBounds.y - 150f - spacing; 
+                        _uiRefs.TooltipContainer.style.left = slotBounds.x;
+                        _uiRefs.TooltipContainer.style.top = slotBounds.y - 150f - spacing;
                     }
                     else
                     {
-                        float tooltipWidth = 550f; 
-                        _uiRefs.TooltipContainer.style.left = slotBounds.xMax - tooltipWidth; 
-                        _uiRefs.TooltipContainer.style.top = slotBounds.y - 150f - spacing; 
+                        float tooltipWidth = 550f;
+                        _uiRefs.TooltipContainer.style.left = slotBounds.xMax - tooltipWidth;
+                        _uiRefs.TooltipContainer.style.top = slotBounds.y - 150f - spacing;
                     }
-                //
+                }
             });
 
             slot.RegisterCallback<MouseLeaveEvent>(_ => 
@@ -350,8 +389,8 @@ public class MainBattleBindingRenderer
                 if (bg.texture != null) imageName = bg.texture.name;
                 else if (bg.sprite != null) imageName = bg.sprite.name;
                 
-                //if (!imageName.Equals("None"))
-                //{
+                if (!imageName.Equals("None"))
+                {
                     _viewModel.HoverEventItem(imageName);
                     
                     float spacing = 10f; 
@@ -366,7 +405,7 @@ public class MainBattleBindingRenderer
                         _uiRefs.TooltipContainer.style.left = slotBounds.xMax - tooltipWidth; 
                         _uiRefs.TooltipContainer.style.top = slotBounds.y - 150f - spacing; 
                     }
-                //}
+                }
             });
 
             slot.RegisterCallback<MouseLeaveEvent>(_ => 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 [Serializable]
 public class MatchInfoModel
 {
+    public bool attackSuccess;
     public string station;
     public string countdownStartTime;
     public int countdownSec;

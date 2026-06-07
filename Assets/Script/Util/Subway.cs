@@ -27,6 +27,31 @@ public static class StationConverter
         { "SILLIM", StationType.Sillim },
         { "HONGIK_UNIV", StationType.HongikUniv }
     };
+    
+    
+    public static readonly Dictionary<string, (string Title, string Description)> StationToDescription = new Dictionary<string, (string Title, string Description)>
+    {
+        { 
+            "HONGIK_UNIV", 
+            ("This station is chaotic.", "Stat levels are maximized from the start.") 
+        },
+        { 
+            "CITY_HALL", 
+            ("Law Abiding Citizen / Certain actions are prohibited at this station (nothing happens if you perform them).", "Prohibited actions are randomized.") 
+        },
+        { 
+            "SEONGSU", 
+            ("This station is a landmark party. Welcome to the wonderland!", "Increased number of items.") 
+        },
+        { 
+            "GANGNAM", 
+            ("This station is exhausting.", "Max HP is lowered.") 
+        },
+        { 
+            "SILLIM", 
+            ("This station is a residential area. Slow.", "No changes.") 
+        }
+    };
 
     // Mapping from StationType Enums to user-friendly text for the UI.
     private static readonly Dictionary<StationType, string> EnumToDisplayName = new Dictionary<StationType, string>

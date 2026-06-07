@@ -14,6 +14,8 @@ public class IntroduceStationView : MonoBehaviour
     private Label first;
     private Label second;
     private Label third;
+    private Label fourth;
+    private Label fifth;
     private bool pendingStart;
     private string pendingStation = "Seoul";
     private bool waitingForGeometry;
@@ -33,23 +35,21 @@ public class IntroduceStationView : MonoBehaviour
         CacheElements(force: true);
     }
 
-    public void StartAnimation(string station = "Seoul")
+    public void StartAnimation(string station, string evtTitle, string evtDescription)
     {
         if (uiDocument == null) uiDocument = GetComponent<UIDocument>();
         if (uiDocument != null)
         {
-            uiDocument.enabled = false; // 한 번 완전히 죽이고
-            uiDocument.enabled = true;  // 새로 살려서 초기화 상태로 만듦
+            uiDocument.enabled = false; 
+            uiDocument.enabled = true;  
             root = uiDocument.rootVisualElement;
         }
-        
         
         Debug.Log($"[IntroduceStationView] StartAnimation called station={station}");
         EnsureRoot();
         ResetLayoutState();
         CacheElements(force: true);
         
-        Debug.Log($"[IntroduceStationView] root={(root != null)} panel={(root != null && root.panel != null)} container={(container != null)} first={(first != null)} second={(second != null)} third={(third != null)}");
         if (root == null || second == null)
         {
             Debug.LogWarning("[IntroduceStationView] Missing root/second/container. Abort animation.");
@@ -58,8 +58,9 @@ public class IntroduceStationView : MonoBehaviour
         
         pendingStation = station;
         second.text = station;
+        fourth.text = evtTitle;
+        fifth.text = evtDescription;
         
-        // 1. 전체 컨테이너와 루트를 먼저 활성화 및 투명도 초기화
         root.style.display = DisplayStyle.Flex;
         root.style.opacity = 1f;
         if (screenRoot != null)
@@ -78,7 +79,7 @@ public class IntroduceStationView : MonoBehaviour
         }
         if (fadeTarget != null)
         {
-            fadeTarget.style.opacity = 1f; // 페이드아웃 되었을 수 있으니 되돌림
+            fadeTarget.style.opacity = 1f; 
         }
 
         pendingStart = true;
@@ -124,12 +125,13 @@ public class IntroduceStationView : MonoBehaviour
         pendingStart = false;
         waitingForGeometry = false;
 
-        // 2. 글자들의 최초 상태(숨김, 아래로 내려감)를 강제로 적용
+        // [수정] 4번째, 5번째 글자도 최초 상태(숨김, 아래로 내려감) 강제 적용
         InitInitialState(first, "first");
         InitInitialState(second, "second");
         InitInitialState(third, "third");
+        InitInitialState(fourth, "fourth");
+        InitInitialState(fifth, "fifth");
         
-        // 3. [핵심] 유니티 UI Toolkit이 초기화된 스타일(Opacity 0)을 인지할 시간을 줌 (약 50~100ms 뒤 재생)
         Debug.Log("[IntroduceStationView] Scheduling sequence animation.");
         root.schedule.Execute(PlaySequenceAnimation).StartingIn(100);
     }
@@ -197,7 +199,6 @@ public class IntroduceStationView : MonoBehaviour
             && !float.IsNaN(root.worldBound.height)
             && root.worldBound.width > 0f
             && root.worldBound.height > 0f;
-        Debug.Log($"[IntroduceStationView] Layout check rootBound={root.worldBound} containerBound={(container != null ? container.worldBound.ToString() : "null")}");
         return rootValid;
     }
 
@@ -208,7 +209,6 @@ public class IntroduceStationView : MonoBehaviour
         {
             root = uiDocument.rootVisualElement;
         }
-        Debug.Log($"[IntroduceStationView] EnsureRoot uiDocument={(uiDocument != null)} root={(root != null)}");
     }
 
     private void CacheElements(bool force = false)
@@ -223,35 +223,33 @@ public class IntroduceStationView : MonoBehaviour
             first = null;
             second = null;
             third = null;
+            fourth = null;
+            fifth = null;
         }
 
         screenRoot ??= root.Q<VisualElement>(className: "station-screen-root");
         container ??= root.Q<VisualElement>(className: "station-container");
         fadeTarget ??= screenRoot ?? container ?? root;
         
-        // UXML에 작성하신 이름(name 또는 class)에 맞게 가져오기
-        // 만약 UXML에 name을 "first", "second", "third"로 하셨다면 아래대로 작동합니다.
         first ??= root.Q<Label>("first");
         second ??= root.Q<Label>("second");
         third ??= root.Q<Label>("third");
-        Debug.Log($"[IntroduceStationView] CacheElements container={(container != null)} first={(first != null)} second={(second != null)} third={(third != null)}");
+        fourth ??= root.Q<Label>("fourth");
+        fifth ??= root.Q<Label>("fifth");
     }
 
     private void InitInitialState(VisualElement element, string name)
     {
         if (element == null)
         {
-            Debug.LogWarning("[IntroduceStationView] InitInitialState called with null element.");
+            Debug.LogWarning($"[IntroduceStationView] InitInitialState failed: {name} is null.");
             return;
         }
 
-        Debug.Log($"[IntroduceStationView] InitInitialState {name} display={element.resolvedStyle.display} opacity={element.resolvedStyle.opacity} translate={element.resolvedStyle.translate} worldBound={element.worldBound}");
-        // 트랜지션 기능을 잠시 끄고 초기값 강제 대입 (이래야 툭 튀는 현상이 없음)
         element.style.transitionProperty = StyleKeyword.None; 
         element.style.opacity = 0f;
         element.style.translate = new StyleTranslate(new Translate(0, 20, 0));
 
-        // 다음 프레임에 트랜지션이 먹도록 세팅
         root.schedule.Execute(() =>
         {
             element.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
@@ -269,34 +267,33 @@ public class IntroduceStationView : MonoBehaviour
 
     private void PlaySequenceAnimation()
     {
-        if (first == null || second == null || third == null)
+        // [수정] 4번째, 5번째 라벨 검증 추가
+        if (first == null || second == null || third == null || fourth == null || fifth == null)
         {
             Debug.LogWarning("[IntroduceStationView] PlaySequenceAnimation missing labels.");
             return;
         }
-        Debug.Log("[IntroduceStationView] PlaySequenceAnimation");
+        Debug.Log("[IntroduceStationView] PlaySequenceAnimation starting for 5 lines.");
 
-        // 첫 번째 줄 등장
+        // 1~3번째 줄 등장
         first.schedule.Execute(() => ShowElement(first)).StartingIn(0);
-
-        // 두 번째 줄 등장
         second.schedule.Execute(() => ShowElement(second)).StartingIn(LineDelayMs);
-
-        // 세 번째 줄 등장
         third.schedule.Execute(() => ShowElement(third)).StartingIn(LineDelayMs * 2);
 
-        // 모든 글자가 다 뜨고 난 뒤(LineDelayMs * 2) + 대기 시간(FadeOutDelayMs) 후 페이드아웃
+        // [추가] 4~5번째 줄 등장 시퀀스 확장
+        fourth.schedule.Execute(() => ShowElement(fourth)).StartingIn(LineDelayMs * 3);
+        fifth.schedule.Execute(() => ShowElement(fifth)).StartingIn(LineDelayMs * 4);
+
+        // [수정] 모든 글자가 다 뜨고 난 뒤(LineDelayMs * 4) + 대기 시간(FadeOutDelayMs) 후 페이드아웃
         (fadeTarget ?? root).schedule.Execute(FadeOutAnimation)
-            .StartingIn((LineDelayMs * 2) + FadeOutDelayMs);
+            .StartingIn((LineDelayMs * 4) + FadeOutDelayMs);
     }
 
     private void ShowElement(VisualElement element)
     {
         if (element == null) return;
-        Debug.Log($"[IntroduceStationView] ShowElement name={element.name} display={element.resolvedStyle.display} beforeOpacity={element.resolvedStyle.opacity} worldBound={element.worldBound}");
         element.style.opacity = 1f;
         element.style.translate = new StyleTranslate(new Translate(0, 0, 0));
-        Debug.Log($"[IntroduceStationView] ShowElement name={element.name} afterOpacity={element.resolvedStyle.opacity} worldBound={element.worldBound}");
     }
 
     private void FadeOutAnimation()
@@ -308,20 +305,20 @@ public class IntroduceStationView : MonoBehaviour
         }
         Debug.Log("[IntroduceStationView] FadeOutAnimation");
 
-        // 컨테이너 전체 페이드아웃 트랜지션 설정
         fadeTarget.style.transitionProperty = new List<StylePropertyName> { "opacity" };
         fadeTarget.style.transitionDuration = new List<TimeValue> { new TimeValue(FadeOutDurationSec, TimeUnit.Second) };
         fadeTarget.style.opacity = 0f;
 
-        // 페이드아웃 애니메이션 완료 후 오브젝트/UI 비활성화
         fadeTarget.schedule.Execute(() =>
         {
             if (uiDocument != null)
             {
-                // UI 도큐먼트 컴포넌트 자체를 꺼서 화면에서 완전히 숨김
                 uiDocument.enabled = false; 
             }
         }).StartingIn((int)(FadeOutDurationSec * 1000));
+        
         EventBus.Publish(new MatchStartEvent());
     }
+
+    
 }
