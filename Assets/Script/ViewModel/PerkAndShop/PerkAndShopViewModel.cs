@@ -179,23 +179,27 @@ public class PerkAndShopViewModel : ViewModelBase
     
     private void RefreshUpgradePanel()
     {
-        BeforeInfo.Value = _currentLevel == 0
-            ? HandInfoProvider.GetDescription(_currentHand)
-            : HandUpgradeInfoProvider.GetEffectDescription(_currentHand, _currentLevel);
+        int displayCurrent = _currentLevel + 1;  // 서버 0 → 표시 Lv.1
 
-        if (_currentLevel >= 5)
+        if (_currentLevel >= 4)  // 서버 4 = 표시 Lv.5 = MAX
         {
+            BeforeInfo.Value       = $"[Lv.5]\n{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, 5)}";
             AfterInfo.Value        = "MAX LEVEL";
             UpgradeCostLabel.Value = "-";
             CanUpgrade.Value       = false;
             return;
         }
 
-        int nextLevel = _currentLevel == 0 ? 1 : _currentLevel + 1;
-        AfterInfo.Value        = HandUpgradeInfoProvider.GetEffectDescription(_currentHand, nextLevel);
-        UpgradeCostLabel.Value = _currentUpgradeCost.ToString();
-        CanUpgrade.Value       = _displayCoin >= _currentUpgradeCost && !_upgradeInProgress;
+        int nextServerLevel  = _currentLevel + 1;
+        int displayNext      = _currentLevel + 2;
+        int cost             = HandUpgradeInfoProvider.GetUpgradeCost(nextServerLevel);
+
+        BeforeInfo.Value       = $"{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, displayCurrent)}";
+        AfterInfo.Value        = $"{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, displayNext)}";
+        UpgradeCostLabel.Value = $"{cost}";
+        CanUpgrade.Value       = _displayCoin >= cost && !_upgradeInProgress;
     }
+
     
     
     private void RefreshPerkCards()

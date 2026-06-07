@@ -176,9 +176,13 @@ public class UIManager : MonoBehaviour
     
     private void ShowItemUI(ItemReceivedEvent evt)
     {
-        AllUIDown();
+
         if (!ItemUI.enabled)
+        {
+            AllUIDown();
             ItemUI.enabled = true;
+        }
+
         ItemUI.GetComponent<ItemView>().ShowItem(evt.ItemCode);
     }
     
