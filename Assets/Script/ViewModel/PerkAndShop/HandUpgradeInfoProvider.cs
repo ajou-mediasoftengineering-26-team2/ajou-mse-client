@@ -41,11 +41,11 @@ public static class HandUpgradeInfoProvider
         },
         HandElementalType.PLANT => level switch
         {
-            1 => "Max HP +15 (total 65)",
-            2 => "Max HP +20 (total 70)",
-            3 => "Max HP +25 (total 75)",
-            4 => "Max HP +30 (total 80)",
-            5 => "Max HP +50 (total 100)",
+            1 => "Dmg 4+: reduce by 1",
+            2 => "Dmg 4+: reduce by 2",
+            3 => "Dmg 3+: reduce by 2",
+            4 => "Dmg 3+: reduce by 3",
+            5 => "Dmg 3+: reduce by 4",
             _ => ""
         },
         HandElementalType.WIND => level switch
@@ -59,11 +59,11 @@ public static class HandUpgradeInfoProvider
         },
         HandElementalType.POISON => level switch
         {
-            1 => "Enemy max HP -5 on hit",
-            2 => "Enemy max HP -6 on hit",
-            3 => "Enemy max HP -8 on hit",
-            4 => "Enemy max HP -10 on hit",
-            5 => "Enemy max HP -12 on hit",
+            1 => "Enemy damage -1 (stacking)",
+            2 => "Enemy damage -2 (stacking)",
+            3 => "Enemy damage -3 (stacking)",
+            4 => "Enemy damage -4 (stacking)",
+            5 => "Enemy damage -5 (stacking)",
             _ => ""
         },
         _ => ""
