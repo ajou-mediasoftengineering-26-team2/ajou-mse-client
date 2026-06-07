@@ -3,10 +3,10 @@ public static class HandUpgradeInfoProvider
 {
     public static int GetUpgradeCost(int targetLevel) => targetLevel switch
     {
-        2 => 10,
-        3 => 25,
-        4 => 45,
-        5 => 70,
+        1 => 10,   // 서버 0→1 (표시: Lv.1→2)
+        2 => 25,   // 서버 1→2 (표시: Lv.2→3)
+        3 => 45,   // 서버 2→3 (표시: Lv.3→4)
+        4 => 75,   // 서버 3→4 (표시: Lv.4→5)
         _ => 0
     };
     

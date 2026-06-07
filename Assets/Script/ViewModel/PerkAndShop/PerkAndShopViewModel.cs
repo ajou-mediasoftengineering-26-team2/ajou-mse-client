@@ -160,6 +160,7 @@ public class PerkAndShopViewModel : ViewModelBase
         );
     }
 
+    /*
     private void RefreshUpgradePanel()
     {
         BeforeInfo.Value = _currentLevel == 0
@@ -178,6 +179,29 @@ public class PerkAndShopViewModel : ViewModelBase
         AfterInfo.Value        = HandUpgradeInfoProvider.GetEffectDescription(_currentHand, nextLevel);
         UpgradeCostLabel.Value = _currentUpgradeCost.ToString();
         CanUpgrade.Value       = _displayCoin >= _currentUpgradeCost && !_upgradeInProgress;
+    }*/
+    
+    private void RefreshUpgradePanel()
+    {
+        int displayCurrent = _currentLevel + 1;  // 서버 0 → 표시 Lv.1
+
+        if (_currentLevel >= 4)  // 서버 4 = 표시 Lv.5 = MAX
+        {
+            BeforeInfo.Value       = $"[Lv.5]\n{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, 5)}";
+            AfterInfo.Value        = "MAX LEVEL";
+            UpgradeCostLabel.Value = "-";
+            CanUpgrade.Value       = false;
+            return;
+        }
+
+        int nextServerLevel  = _currentLevel + 1;
+        int displayNext      = _currentLevel + 2;
+        int cost             = HandUpgradeInfoProvider.GetUpgradeCost(nextServerLevel);
+
+        BeforeInfo.Value       = $"[{displayCurrent}]{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, displayCurrent)}";
+        AfterInfo.Value        = $"[{displayNext}]{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, displayNext)}";
+        UpgradeCostLabel.Value = $"Lv.{displayCurrent} → {displayNext}: {cost}원";
+        CanUpgrade.Value       = _displayCoin >= cost && !_upgradeInProgress;
     }
 
     private void RefreshPerkCards()
