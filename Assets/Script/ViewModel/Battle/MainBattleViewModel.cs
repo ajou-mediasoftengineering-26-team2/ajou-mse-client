@@ -240,7 +240,7 @@ public class MainBattleViewModel : ViewModelBase
     private void SetStaus(Damage damage, bool isRight)
     {
         List<StatusType> status = new List<StatusType>();
-        if (damage.statusEffects != null)
+        if (damage.statusEffects.Count != 0 || damage.statusEffects == null)
         {
             for (int i = 0; i <damage.statusEffects.Count; i++)
             {
@@ -364,6 +364,7 @@ public class MainBattleViewModel : ViewModelBase
                     if (player.itemList == null)
                     {
                         itms = new  List<ItemType>();
+                        ItemLists.Value = itms;
                     }
                     else
                     {
@@ -374,12 +375,12 @@ public class MainBattleViewModel : ViewModelBase
                                 Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
                                 return;
                             }
+                            
                         
                             itms.Add(itemType);
                         }
+                        ItemLists.Value = itms;
                     }
-
-                    ItemLists.Value = itms;
                     
                     
                     List<PerkType> perks =new  List<PerkType>();
@@ -404,14 +405,13 @@ public class MainBattleViewModel : ViewModelBase
                     //     {
                     //         if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
                     //         {
-                    //             Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                    //             Debug.LogError($"[ItemView] Unknown status code: {player.statusEffectList[i]}");
                     //             continue;
                     //         }
                     //         status.Add(type);
                     //     }
-                    //     
-                    //     MyStatusList.Value = status;
                     // }
+                    // MyStatusList.Value = status;
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -449,23 +449,25 @@ public class MainBattleViewModel : ViewModelBase
                         }
                         
                         
-                        if (enemyItems.Count == 0) return;
                         EnemyItemLists.Value = enemyItems;
-                        Debug.Log(EnemyItemLists.Value[0] + "enemyItemList 구조");
+                        if (enemyItems.Count > 0)
+                        {
+                            Debug.Log(EnemyItemLists.Value[0] + "enemyItemList 구조");
+                        }
                     }
                     
                     
                     
                     
-                    List<PerkType> perks =new  List<PerkType>();
-                    for (int i = 0; i < player.perkList.Count; i++)
+                    List<PerkType> perks = new List<PerkType>();
+                    if (player.perkList != null)
                     {
-                        var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
-                        
-                        perks.Add(data);
+                        for (int i = 0; i < player.perkList.Count; i++)
+                        {
+                            var data = PerkInfoProvider.GetPerkType(player.perkList[i]);
+                            perks.Add(data);
+                        }
                     }
-
-                    if (perks.Count == 0) return;
                     EnemyPerkList.Value = perks;
 
                     
@@ -476,15 +478,13 @@ public class MainBattleViewModel : ViewModelBase
                     //     {
                     //         if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
                     //         {
-                    //             Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                    //             Debug.LogError($"[ItemView] Unknown status code: {player.statusEffectList[i]}");
                     //             continue;
                     //         }
                     //         status.Add(type);
                     //     }
-                    //     
-                    //     EnemyStatusList.Value = status;
                     // }
-                    
+                    // EnemyStatusList.Value = status;
                 },
                 onError: (error) => Debug.LogError(error)
             );

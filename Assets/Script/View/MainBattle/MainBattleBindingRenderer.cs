@@ -157,46 +157,103 @@ public class MainBattleBindingRenderer
         _viewModel.EnemyItemLists.Subscribe(data =>
         {
             if (data == null) return;
-            for (int i = 0; i < data.Count; i++)
+            for (int i = 0; i < _uiRefs.EnemyItemSlots.Length; i++)
             {
-                var sprite = Resources.Load<Sprite>($"Items/{data[i]}");
-                Debug.Log("sprite : " + sprite.name);
-                _uiRefs.EnemyItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                if (i < data.Count)
+                {
+                    var sprite = Resources.Load<Sprite>($"Items/{data[i]}");
+                    if (sprite != null)
+                    {
+                        Debug.Log("sprite : " + sprite.name);
+                        _uiRefs.EnemyItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                    }
+                    else
+                    {
+                        _uiRefs.EnemyItemSlots[i].style.backgroundImage = null;
+                    }
+                }
+                else
+                {
+                    _uiRefs.EnemyItemSlots[i].style.backgroundImage = null;
+                }
             }
         });
+
         _viewModel.ItemLists.Subscribe(data =>
         {
             if (data == null) return;
-            for (int i = 0; i < data.Count; i++)
+            for (int i = 0; i < _uiRefs.MyItemSlots.Length; i++)
             {
-                var sprite = Resources.Load<Sprite>($"Items/{data[i]}");
-                _uiRefs.MyItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                if (i < data.Count)
+                {
+                    var sprite = Resources.Load<Sprite>($"Items/{data[i]}");
+                    if (sprite != null)
+                    {
+                        _uiRefs.MyItemSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                    }
+                    else
+                    {
+                        _uiRefs.MyItemSlots[i].style.backgroundImage = null;
+                    }
+                }
+                else
+                {
+                    _uiRefs.MyItemSlots[i].style.backgroundImage = null;
+                }
             }
         });
         
         _viewModel.EnemyPerkList.Subscribe(data =>
         {
             if (data == null) return;
-            for (int i = 0; i < data.Count; i++)
+            for (int i = 0; i < _uiRefs.EnemyPerkSlots.Length; i++)
             {
-                var sprite = Resources.Load<Sprite>($"Perks/{data[i]}");
-                _uiRefs.EnemyPerkSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                if (i < data.Count)
+                {
+                    var sprite = Resources.Load<Sprite>($"Perks/{data[i]}");
+                    if (sprite != null)
+                    {
+                        _uiRefs.EnemyPerkSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                    }
+                    else
+                    {
+                        _uiRefs.EnemyPerkSlots[i].style.backgroundImage = null;
+                    }
+                }
+                else
+                {
+                    _uiRefs.EnemyPerkSlots[i].style.backgroundImage = null;
+                }
             }
         });
         
         _viewModel.MyPerkList.Subscribe(data =>
         {
             if (data == null) return;
-            for (int i = 0; i < data.Count; i++)
+            for (int i = 0; i < _uiRefs.MyPerkSlots.Length; i++)
             {
-                var sprite = Resources.Load<Sprite>($"Perks/{data[i]}");
-                _uiRefs.MyPerkSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                if (i < data.Count)
+                {
+                    var sprite = Resources.Load<Sprite>($"Perks/{data[i]}");
+                    if (sprite != null)
+                    {
+                        _uiRefs.MyPerkSlots[i].style.backgroundImage = new StyleBackground(sprite);
+                    }
+                    else
+                    {
+                        _uiRefs.MyPerkSlots[i].style.backgroundImage = null;
+                    }
+                }
+                else
+                {
+                    _uiRefs.MyPerkSlots[i].style.backgroundImage = null;
+                }
             }
         });
         
         _viewModel.MyStatusList.Subscribe(data =>
         {
-            ClearAllStatusEffects(false);
+            ClearAllStatusEffects(true);
             if (data == null) return;
 
             for (int i = 0; i < data.Count; i++)
