@@ -18,7 +18,7 @@ public class PerkCard : MonoBehaviour
     public void SetUpAndAnimationCard(PerkType perkType, bool isLeft)
     {
         title.text = PerkInfoProvider.GetDisplayName(perkType);
-        des.text = PerkInfoProvider.GetDisplayName(perkType);
+        des.text = PerkInfoProvider.GetDescription(perkType);
         img.texture = Resources.Load<Texture>($"Perks/{perkType}");
 
         if (isLeft)

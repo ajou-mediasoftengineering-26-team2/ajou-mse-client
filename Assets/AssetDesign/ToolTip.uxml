@@ -1,6 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/AssetDesign/ToolTipStyle.uss?fileID=7433441132597879392&amp;guid=7f9fcd5fb39f56f42912fd1775d35724&amp;type=3#ToolTipStyle"/>
-    <ui:VisualElement class="tooltip-container" style="flex-shrink: 0;">
+    <ui:VisualElement picking-mode="Ignore" class="tooltip-container" style="flex-shrink: 0;">
         <ui:VisualElement class="item-icon-container">
             <ui:VisualElement name="ItemIcon" class="item-icon"/>
         </ui:VisualElement>
