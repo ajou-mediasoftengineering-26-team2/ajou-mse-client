@@ -248,9 +248,10 @@ public class UIManager : MonoBehaviour
             {
                 if (System.Enum.TryParse(perkStr, out PerkType perkType))
                 {
-                    SpawnNewCard(perkType, isLeft);
+                    //아이템은 방어하는 쪽 퍽은 공격하는 쪽이 애니메이션을 반댓방향으로 띄워야됨.
+                    SpawnNewCard(perkType, !isLeft);
                 
-                    // 🔥 카드를 하나 만들고 설정한 시간만큼 대기합니다.
+                    //  카드를 하나 만들고 설정한 시간만큼 대기합니다.
                     yield return new WaitForSeconds(delayTime); 
                 }
                 else
@@ -293,7 +294,7 @@ public class UIManager : MonoBehaviour
 
     void SpawnItemCard(ItemType itemType, bool isLeft)
     {
-        GameObject newCardObj = Instantiate(perkCardPrefab, cardSpawnPoint);
+        GameObject newCardObj = Instantiate(itemCardPrefab, cardSpawnPoint);
         ItemCard itemCardScript = newCardObj.GetComponent<ItemCard>();
         
         itemCardScript.SetUpAndAnimationCard(itemType, isLeft);

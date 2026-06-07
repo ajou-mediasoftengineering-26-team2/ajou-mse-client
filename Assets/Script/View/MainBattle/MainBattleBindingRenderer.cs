@@ -34,11 +34,11 @@ public class MainBattleBindingRenderer
             _uiRefs.EnemyScore.text = data.ToString();
         });
 
-        // _viewModel.StationName.Subscribe(station =>
-        // {
-        //     var label = _uiRefs.MainBattleRoot.Q<Label>("CurrentStation");
-        //     label.text = station;
-        // });
+        _viewModel.StationName.Subscribe(station =>
+        {
+            var label = _uiRefs.MainBattleRoot.Q<Label>("Station");
+            label.text = station;
+        });
 
         _viewModel.IsAttacker.Subscribe(data =>
         {
