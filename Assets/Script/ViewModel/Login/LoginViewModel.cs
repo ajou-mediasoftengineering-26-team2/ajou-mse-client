@@ -203,6 +203,8 @@ public class LoginViewModel : ViewModelBase
                     EnemyId.Value = secondPlayerId;
                     SceneDataBridge.playerCamera = CameraType.Camera1; // 혹은 본인의 카메라 데이터 형식
                     SceneDataBridge.enemyCamera = CameraType.Camera2;
+                    SceneDataBridge.playerActionCamera = CameraType.Action;
+                    SceneDataBridge.enemyActionCamera = CameraType.Action2;
                     SceneDataBridge.myPlayer = Player.First;
                     SceneDataBridge.enemyPlayer = Player.Second;
                 }
@@ -212,6 +214,8 @@ public class LoginViewModel : ViewModelBase
                     EnemyId.Value = firstPlayerId;
                     SceneDataBridge.playerCamera = CameraType.Camera2;
                     SceneDataBridge.enemyCamera = CameraType.Camera1;
+                    SceneDataBridge.playerActionCamera = CameraType.Action2;
+                    SceneDataBridge.enemyActionCamera = CameraType.Action;
                     SceneDataBridge.myPlayer = Player.Second;
                     SceneDataBridge.enemyPlayer = Player.First;
                 }

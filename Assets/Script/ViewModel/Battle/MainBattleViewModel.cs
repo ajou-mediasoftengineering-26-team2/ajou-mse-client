@@ -37,6 +37,8 @@ public class MainBattleViewModel : ViewModelBase
     private PlayerInfoModel player1Snap;
     private PlayerInfoModel player2Snap;
 
+    private bool _isFirstStart;
+    private int _damageIndex = 0;
 
     // ── HP ──────────────────────────────────────────────────────────
     // Player HP observables (Left = local player, Right = remote player)
@@ -154,31 +156,26 @@ public class MainBattleViewModel : ViewModelBase
         TryStartFirebaseSubscriptions();
 
         eventJunsang();
+        _isFirstStart = true;
     }
 
     private void eventJunsang()
     {
         EventBus.Publish(new MainBattleEvent());
-        EventBus.Subscribe<HardHitEvent>(HitUI);
-        EventBus.Subscribe<SortHitEvent>(HitUI);
+        EventBus.Subscribe<HardHitEvent>(obj =>
+        {
+            GetAnimatorByPlayer(SceneDataBridge.myPlayer,
+                IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[_damageIndex]);
+        });
+        EventBus.Subscribe<SortHitEvent>(obj =>
+        {
+            GetAnimatorByPlayer(SceneDataBridge.myPlayer,
+                IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[_damageIndex]);
+        });
         EventBus.Subscribe<HitEndAction>(action =>
         {
-            damageIndex = 0;
+            _damageIndex = 0;
         });
-    }
-
-
-    private int damageIndex = 0;
-    private void HitUI(SortHitEvent obj)
-    {
-        GetAnimatorByPlayer(SceneDataBridge.myPlayer,
-            IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[damageIndex]);
-    }
-
-    private void HitUI(HardHitEvent obj)
-    {
-        GetAnimatorByPlayer(SceneDataBridge.myPlayer,
-            IsAttacker.Value ? BattleRole.Attack : BattleRole.Defense, DamageList.Value[damageIndex]);
     }
     
     
@@ -190,59 +187,63 @@ public class MainBattleViewModel : ViewModelBase
         switch (player, role)
         {
             case (Player.First, BattleRole.Attack):
-                Toast.ShowDamagePopupLeft(damage.damage);
+                Toast.ShowDamagePopupRight(damage.damage);
                 RightHp.Value -= damage.damage;
+                LeftHp.Value += damage.recoveredHp;
                 isLeftOwner = true;
+                SetStaus(damage, true);
                 break;
             case (Player.First, BattleRole.Defense):
-                Toast.ShowDamagePopupRight(damage.damage);
+                Toast.ShowDamagePopupLeft(damage.damage);
                 LeftHp.Value -= damage.damage;
+                RightHp.Value += damage.recoveredHp;
                 isLeftOwner = false;
+                SetStaus(damage, false);
                 break;
             case (Player.Second, BattleRole.Attack):
                 Toast.ShowDamagePopupRight(damage.damage);
                 RightHp.Value -= damage.damage;
+                LeftHp.Value += damage.recoveredHp;
                 isLeftOwner = false;
+                SetStaus(damage, true);
                 break;
             case (Player.Second, BattleRole.Defense):
                 Toast.ShowDamagePopupLeft(damage.damage);
                 LeftHp.Value -= damage.damage;
+                RightHp.Value += damage.recoveredHp;
                 isLeftOwner = true;
+                SetStaus(damage, false);
                 break;
         }
     
-        damageIndex++;
+        _damageIndex++;
 
         EventBus.Publish(new HitDamageEvent(damage, isLeftOwner));
     }
-    /// <summary>
-    /// Sends player's chosen action to the server and publishes local AttackStartedEvent.
-    /// Validates presence of playerId before sending.
-    /// </summary>
-    /// <param name="choice"></param>
-    public async void OnHandAction(HandActionType choice)
+
+    private void SetStaus(Damage damage, bool isRight)
     {
-        try
+        List<StatusType> status = new List<StatusType>();
+        if (damage.statusEffects != null)
         {
-            if (string.IsNullOrWhiteSpace(_playerId))
+            for (int i = 0; i <damage.statusEffects.Count; i++)
             {
-                Debug.LogError("PutChoice skipped: playerId is empty.");
-                return;
+                if (!Enum.TryParse<StatusType>(damage.statusEffects[i], out var type))
+                {
+                    Debug.LogError($"[ItemView] Unknown item code: {damage.statusEffects[i]}");
+                    continue;
+                }
+                status.Add(type);
             }
-            //network communication to server(spring)
-            string choiceValue = choice.ToString();
-            Debug.Log($"PutChoice request -> id={_playerId}, choice={choiceValue}");
-            await _repository.PutChoice(_playerId, choiceValue);
-            EventBus.Publish(new AttackStartedEvent(isPlayer: true));
-        }
-        catch (NetworkException e)
-        {
-            Debug.LogError($"PutChoice failed: http={e.ResponseCode}, apiCode={e.ApiErrorCode}, msg={e.ErrorMessage}");
-            Debug.LogException(e);
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
+
+            if (isRight)
+            {
+                EnemyStatusList.Value = status;
+            }
+            else
+            {
+                MyStatusList.Value = status;   
+            }
         }
     }
 
@@ -318,6 +319,7 @@ public class MainBattleViewModel : ViewModelBase
                     CurrentTurn.Value = match.currentTurn;
 
                     DamageList.Value = match.damageList;
+                    StationName.Value = StationConverter.GetDisplayName(StationConverter.GetType(match.station));
                     //lobby data changing mean timer start again.
                 },
                 onError: (error) => Debug.LogError(error)
@@ -380,21 +382,21 @@ public class MainBattleViewModel : ViewModelBase
                     }
                     
                     
-                    List<StatusType> status = new List<StatusType>();
-                    if (player.statusEffectList != null)
-                    {
-                        for (int i = 0; i < player.statusEffectList.Count; i++)
-                        {
-                            if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
-                            {
-                                Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
-                                continue;
-                            }
-                            status.Add(type);
-                        }
-                        
-                        MyStatusList.Value = status;
-                    }
+                    // List<StatusType> status = new List<StatusType>();
+                    // if (player.statusEffectList != null)
+                    // {
+                    //     for (int i = 0; i < player.statusEffectList.Count; i++)
+                    //     {
+                    //         if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
+                    //         {
+                    //             Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                    //             continue;
+                    //         }
+                    //         status.Add(type);
+                    //     }
+                    //     
+                    //     MyStatusList.Value = status;
+                    // }
                 },
                 onError: (error) => Debug.LogError(error)
             );
@@ -452,21 +454,21 @@ public class MainBattleViewModel : ViewModelBase
                     EnemyPerkList.Value = perks;
 
                     
-                    List<StatusType> status = new List<StatusType>();
-                    if (player.statusEffectList != null)
-                    {
-                        for (int i = 0; i < player.statusEffectList.Count; i++)
-                        {
-                            if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
-                            {
-                                Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
-                                continue;
-                            }
-                            status.Add(type);
-                        }
-                        
-                        EnemyStatusList.Value = status;
-                    }
+                    // List<StatusType> status = new List<StatusType>();
+                    // if (player.statusEffectList != null)
+                    // {
+                    //     for (int i = 0; i < player.statusEffectList.Count; i++)
+                    //     {
+                    //         if (!Enum.TryParse<StatusType>(player.statusEffectList[i], out var type))
+                    //         {
+                    //             Debug.LogError($"[ItemView] Unknown item code: {player.itemList[i]}");
+                    //             continue;
+                    //         }
+                    //         status.Add(type);
+                    //     }
+                    //     
+                    //     EnemyStatusList.Value = status;
+                    // }
                     
                 },
                 onError: (error) => Debug.LogError(error)
@@ -552,8 +554,18 @@ public class MainBattleViewModel : ViewModelBase
 
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => async () => 
             {
-                await GetHPByFirebase(); 
-                EventBus.Publish(new IntroduceStationEvent(station: match.station, player1, player2));
+                await GetHPByFirebase();
+                if (_isFirstStart)
+                {
+                    EventBus.Publish(new IntroduceStationEvent(StationConverter.GetDisplayName(StationConverter.GetType(match.station)),
+                        player1, 
+                        player2));
+                    _isFirstStart = false;
+                }
+                else
+                {
+                    EventBus.Publish(new MatchStartEvent());
+                }
             },
 
             LobbyState.GAME_ROUND_END_PLAYER_KO => async () =>
@@ -781,8 +793,6 @@ public class MainBattleViewModel : ViewModelBase
         _timerCts?.Cancel();
         _timerCts?.Dispose();
         _firebaseSubscribed = false;
-        EventBus.Unsubscribe<SortHitEvent>(HitUI);
-        EventBus.Unsubscribe<HardHitEvent>(HitUI);
         base.Dispose();
     }
 

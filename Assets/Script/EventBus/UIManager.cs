@@ -239,7 +239,7 @@ public class UIManager : MonoBehaviour
     private IEnumerator SpawnCardsSequential(Damage damageData, bool isLeft)
     {
         // 카드와 카드 사이의 등장 간격 (원하는 초 단위로 조절하세요)
-        float delayTime = 0.3f; 
+        float delayTime = 0.8f; 
 
         // 1. 사용된 퍽(Perk) 리스트 처리
         if (damageData.usedPerks != null)
@@ -248,14 +248,11 @@ public class UIManager : MonoBehaviour
             {
                 if (System.Enum.TryParse(perkStr, out PerkType perkType))
                 {
-                    SpawnNewCard(perkType, isLeft);
+                    //아이템은 방어하는 쪽 퍽은 공격하는 쪽이 애니메이션을 반댓방향으로 띄워야됨.
+                    SpawnNewCard(perkType, !isLeft);
                 
-                    // 🔥 카드를 하나 만들고 설정한 시간만큼 대기합니다.
+                    //  카드를 하나 만들고 설정한 시간만큼 대기합니다.
                     yield return new WaitForSeconds(delayTime); 
-                }
-                else
-                {
-                    Debug.LogWarning($"[UI Manager] 알 수 없는 퍽 이름입니다: {perkStr}");
                 }
             }
         }
@@ -269,7 +266,7 @@ public class UIManager : MonoBehaviour
                 {
                     SpawnItemCard(itemType, isLeft);
                 
-                    // 🔥 아이템 카드를 하나 만들고 설정한 시간만큼 대기합니다.
+                    // 아이템 카드를 하나 만들고 설정한 시간만큼 대기합니다.
                     yield return new WaitForSeconds(delayTime); 
                 }
                 else
@@ -278,6 +275,8 @@ public class UIManager : MonoBehaviour
                 }
             }
         }
+        
+        
     }
     void SpawnNewCard(PerkType perkType, bool isLeft)
     {
@@ -293,7 +292,7 @@ public class UIManager : MonoBehaviour
 
     void SpawnItemCard(ItemType itemType, bool isLeft)
     {
-        GameObject newCardObj = Instantiate(perkCardPrefab, cardSpawnPoint);
+        GameObject newCardObj = Instantiate(itemCardPrefab, cardSpawnPoint);
         ItemCard itemCardScript = newCardObj.GetComponent<ItemCard>();
         
         itemCardScript.SetUpAndAnimationCard(itemType, isLeft);
