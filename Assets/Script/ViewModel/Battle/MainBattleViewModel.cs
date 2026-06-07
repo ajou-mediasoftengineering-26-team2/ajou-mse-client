@@ -381,8 +381,8 @@ public class MainBattleViewModel : ViewModelBase
                     LeftRoundWin.Value = player.wins;
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
-
-
+                    
+                    
                     MyHandElemental.Value = HandInfoProvider.FromString(player.handElemental);
                     ItemLists.Value = new List<ItemType>();
                     
@@ -562,6 +562,32 @@ public class MainBattleViewModel : ViewModelBase
                 if (!match.attackSuccess)
                 {
                     //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
+                    if (match.defendData != null)
+                    {
+                        Damage damage = new Damage
+                        {
+                            attackType = "Both", 
+                            damage = 0,                  
+                            recoveredHp = match.defendData.recoveredHp,
+                            usedItems = match.defendData.usedItemCodes != null ? new List<string>(match.defendData.usedItemCodes) : new List<string>(),
+                            usedPerks = match.defendData.usedPerks != null ? new List<string>(match.defendData.usedPerks) : new List<string>(),
+                            statusEffects = new List<string>() 
+                        };
+                        if (!player1.attacking)
+                        {
+                            LeftHp.Value += match.defendData.recoveredHp;
+    
+                            EventBus.Publish(new HitDamageEvent(damage, false));
+                        }
+                        else
+                        {
+                            RightHp.Value += match.defendData.recoveredHp;
+                            EventBus.Publish(new HitDamageEvent(damage, true));   
+                        }
+                        
+                    }
+
+                    await Task.Delay(1500);
                     await _repository.PutAck(_playerId);
                     return;
                 }

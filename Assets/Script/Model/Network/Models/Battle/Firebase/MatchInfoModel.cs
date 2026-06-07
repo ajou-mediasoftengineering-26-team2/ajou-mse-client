@@ -19,4 +19,5 @@ public class MatchInfoModel
     public string forbiddenBehavior;
     public Dictionary<string, PlayerInfoModel> players;
     public List<Damage> damageList;
+    public DefendData defendData;
 }
