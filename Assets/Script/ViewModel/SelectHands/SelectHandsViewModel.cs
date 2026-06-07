@@ -14,6 +14,7 @@ public class SelectHandsViewModel : ViewModelBase
     private CancellationTokenSource _timerCts;
     private string _selectedHandType; // 추가: 로컬 선택값 저장
     private bool _inChoicePhase = false;
+    private bool _selectionSent = false;//추가
     
     public Observable<bool>   IsVisible   { get; } = new Observable<bool>(false);
     public Observable<bool>   CanSelect   { get; } = new Observable<bool>(false);
@@ -62,12 +63,19 @@ public class SelectHandsViewModel : ViewModelBase
                     if (!_inChoicePhase)
                     {
                         _inChoicePhase  = true;
+                        _selectionSent = false;//추가
                         CanSelect.Value = true;
                         StartTimer(match.countdownStartTime, match.countdownSec);
                     }
                 }
                 else
-                {
+                {//추가
+                    if (_inChoicePhase && isReceiving && !_selectionSent)
+                    {
+                        _selectionSent = true;
+                        _timerCts?.Cancel();
+                        _ = FlushHandSelectionAsync();
+                    }
                     _inChoicePhase = false;
                 }
             },
@@ -124,7 +132,7 @@ public class SelectHandsViewModel : ViewModelBase
         TimerRatio.Value = 0f;
         CanSelect.Value  = false;
         IsVisible.Value  = false;
-        await FlushHandSelectionAsync();
+        //await FlushHandSelectionAsync();
     }
     private async Task FlushHandSelectionAsync()
     {
