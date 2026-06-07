@@ -112,8 +112,7 @@ public class SelectHandsViewModel : ViewModelBase
                     TimerRatio.Value = 0f;
                     CanSelect.Value  = false;
                     IsVisible.Value  = false;
-                    await FlushHandSelectionAsync(); 
-                    break;
+                    break;  // FlushHandSelectionAsync 없이 break만
                 }
                 TimerRatio.Value = (float)(remaining / durationSec);
                 await Task.Delay(50, token);
@@ -121,6 +120,11 @@ public class SelectHandsViewModel : ViewModelBase
         }
         catch (OperationCanceledException) { }
         catch (Exception e) { Debug.LogException(e); }
+
+        TimerRatio.Value = 0f;
+        CanSelect.Value  = false;
+        IsVisible.Value  = false;
+        await FlushHandSelectionAsync();
     }
     private async Task FlushHandSelectionAsync()
     {

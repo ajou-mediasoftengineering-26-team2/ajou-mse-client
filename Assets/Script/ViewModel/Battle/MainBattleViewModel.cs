@@ -23,6 +23,7 @@ public class MainBattleViewModel : ViewModelBase
     private readonly IMainBattleRepository _repository;
     private readonly IRoundRepository _roundRepository;
     private readonly IElementalRepository _elementalRepository;
+    private readonly IItemRepository _itemRepository;
     private string _playerId;
     private string _lobbyId;
     private string _enemyId;
@@ -142,6 +143,7 @@ public class MainBattleViewModel : ViewModelBase
         _repository = RepositoryFactory.Instance.Get<IMainBattleRepository>();
         _roundRepository = RepositoryFactory.Instance.Get<IRoundRepository>();
         _elementalRepository = RepositoryFactory.Instance.Get<IElementalRepository>();
+        _itemRepository = RepositoryFactory.Instance.Get<IItemRepository>();
     }
 
     public override void Initialize()
@@ -593,17 +595,16 @@ public class MainBattleViewModel : ViewModelBase
                 await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6500);
                 _elementalRepository.PutAck(_playerId);
             },
-            LobbyState.GAME_PERK_ITEM_RECEIVING => () =>
+            LobbyState.GAME_PERK_ITEM_RECEIVING => async () =>
             {
                 Debug.Log("player.receivedItemList : " + player1.receivedItemList.Count);
-                for (int i = 0; i < player1.receivedItemList.Count; i++)
+                if (player1?.receivedItemList != null && player1.receivedItemList.Count > 0)
                 {
-                    EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[i]));   
-                    //EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[0])); 
-                    //0->i로 수정했습니다.
+                    for (int i = 0; i < player1.receivedItemList.Count; i++)
+                        EventBus.Publish(new ItemReceivedEvent(player1.receivedItemList[i]));
+                    return;
                 }
-                
-                return Task.CompletedTask;
+                await _itemRepository.PutAck(SceneDataBridge.playerId);
             },
             LobbyState.GAME_PERK_CHOICE => () =>
             {
