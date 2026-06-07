@@ -160,6 +160,7 @@ public class PerkAndShopViewModel : ViewModelBase
         );
     }
 
+    
     private void RefreshUpgradePanel()
     {
         BeforeInfo.Value = _currentLevel == 0
@@ -179,7 +180,8 @@ public class PerkAndShopViewModel : ViewModelBase
         UpgradeCostLabel.Value = _currentUpgradeCost.ToString();
         CanUpgrade.Value       = _displayCoin >= _currentUpgradeCost && !_upgradeInProgress;
     }
-
+    
+    
     private void RefreshPerkCards()
     {
         SetPerkCard(_perkChoices, 1, Perk1Title, Perk1Desc, Perk1Raw);

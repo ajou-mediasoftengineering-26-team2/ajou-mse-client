@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Threading.Tasks;
 
 // 202422170 주형준
 public class ItemView : MonoBehaviour
@@ -88,9 +89,11 @@ public class ItemView : MonoBehaviour
 
             yield return new WaitForSeconds(3f);
             yield return new WaitForSeconds(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] / 1000f);
-            _ = _itemRepo.PutAck(SceneDataBridge.playerId);
+            Debug.Log("[ItemView] SendPutAck 호출: " + itemCode);
+            _ = SendPutAck(); 
         }
         _isShowing = false;
+        _shownItems.Clear();  // ← 추가
         GetComponent<UIDocument>().enabled = false;
     }
 
@@ -131,5 +134,13 @@ public class ItemView : MonoBehaviour
         }
 
         return _itemImg != null && _itemTitle != null && _itemInfo != null;
+    }
+    
+    // ItemView에 메서드 추가
+    private async Task SendPutAck()
+    {
+        var ackResult = await _itemRepo.PutAck(SceneDataBridge.playerId);
+        if (!ackResult.isSuccess)
+            Debug.LogError($"[ItemView] PutAck failed: {ackResult.error?.code} {ackResult.error?.message}");
     }
 }
