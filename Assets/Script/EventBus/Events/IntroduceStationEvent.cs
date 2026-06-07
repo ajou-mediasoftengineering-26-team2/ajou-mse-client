@@ -1,18 +1,20 @@
 ﻿public readonly struct IntroduceStationEvent
 {
     public readonly string station;
+    public readonly string title;
+    public readonly string description;
     public readonly PlayerInfoModel player1;
     public readonly PlayerInfoModel player2;
     
     // 기본값으로 null을 지정합니다.
-    public IntroduceStationEvent(string station,  
-        PlayerInfoModel player1 = null, 
-        PlayerInfoModel player2 = null)
+    
+
+    public IntroduceStationEvent(string station, string title, string description, PlayerInfoModel player1, PlayerInfoModel player2)
     {
         this.station = station;
-        
-        // 읽기 전용 필드이므로 생성과 동시에 null 체크 후 바로 할당합니다.
-        this.player1 = player1 ?? new PlayerInfoModel("1", true);
-        this.player2 = player2 ?? new PlayerInfoModel("1", false);
+        this.title = title;
+        this.description = description;
+        this.player1 = player1 ?? new PlayerInfoModel("1", player1.attacking);
+        this.player2 = player2 ?? new PlayerInfoModel("1", player2.attacking);
     }
 }

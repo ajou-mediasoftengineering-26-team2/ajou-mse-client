@@ -103,6 +103,12 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<string> HoverPerk { get; } = new Observable<string>();
     public Observable<string> HoverPerkTitle { get; } = new Observable<string>();
     public Observable<string> HoverPerkDes { get; } = new Observable<string>();
+    public Observable<string> HoverStationDes { get; } = new Observable<string>();
+    public Observable<string> HoverStation { get; } = new Observable<string>();
+    
+    
+    
+    
 
     // ── camera ──────────────────────────────────────────────────────────
     public Observable<CameraType> CameraPoint { get; } = new Observable<CameraType>();
@@ -129,6 +135,13 @@ public class MainBattleViewModel : ViewModelBase
 
     public Observable<List<StatusType>> MyStatusList { get; } = new Observable<List<StatusType>>();
     public Observable<List<StatusType>> EnemyStatusList { get; } = new Observable<List<StatusType>>();
+    
+    
+    public Observable<string> StationDescription { get; } = new Observable<string>();
+    public Observable<string> StationSubDescription { get; } = new Observable<string>();
+
+    public Observable<string> ForbirddenAction { get; } = new Observable<string>();
+    
     
     private readonly Dictionary<HitActionType, int> _hitDelayMap = new()
     {
@@ -286,11 +299,22 @@ public class MainBattleViewModel : ViewModelBase
         HoverItem.Value = test;
     }
     
+    public void HoverEventStation(string test)
+    {
+        string addString = "";
+        if (StationName.Value == "City Hall")
+        {
+            addString = $"\nCurrent Forbidden Action : {ForbirddenAction.Value}";
+        }
+        HoverPerkTitle.Value = StationDescription.Value;
+        HoverPerkDes.Value = StationSubDescription.Value + addString;
+        HoverPerk.Value = test;
+    }
+    
     public void HoverEventPerk(string test)
     {
-        HoverPerkTitle.Value = PerkInfoProvider.GetDisplayName(PerkInfoProvider.GetPerkType(test));
-        HoverPerkDes.Value = PerkInfoProvider.GetDescription(PerkInfoProvider.GetPerkType(test));
-        HoverPerk.Value = test;
+        HoverStationDes.Value = PerkInfoProvider.GetDescription(PerkInfoProvider.GetPerkType(test));
+        HoverStation.Value = test;
     }
 
     /// <summary>
@@ -335,6 +359,9 @@ public class MainBattleViewModel : ViewModelBase
 
                     DamageList.Value = match.damageList;
                     StationName.Value = StationConverter.GetDisplayName(StationConverter.GetType(match.station));
+                    StationDescription.Value = StationConverter.StationToDescription[match.station].Title;
+                    StationSubDescription.Value = StationConverter.StationToDescription[match.station].Description;
+                    ForbirddenAction.Value = match.forbiddenBehavior;
                     //lobby data changing mean timer start again.
                 },
                 onError: (error) => Debug.LogError(error)
@@ -354,8 +381,8 @@ public class MainBattleViewModel : ViewModelBase
                     LeftRoundWin.Value = player.wins;
                     player1 = player;
                     Debug.Log(player.hp + " " + player.username + player.hp + "Player(ME)");
-
-
+                    
+                    
                     MyHandElemental.Value = HandInfoProvider.FromString(player.handElemental);
                     ItemLists.Value = new List<ItemType>();
                     
@@ -532,9 +559,35 @@ public class MainBattleViewModel : ViewModelBase
                 }
                 
                 //if two player action is same, animation is not load.
-                if (player1Action == player2Action)
+                if (!match.attackSuccess)
                 {
                     //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
+                    if (match.defendData != null)
+                    {
+                        Damage damage = new Damage
+                        {
+                            attackType = "Both", 
+                            damage = 0,                  
+                            recoveredHp = match.defendData.recoveredHp,
+                            usedItems = match.defendData.usedItemCodes != null ? new List<string>(match.defendData.usedItemCodes) : new List<string>(),
+                            usedPerks = match.defendData.usedPerks != null ? new List<string>(match.defendData.usedPerks) : new List<string>(),
+                            statusEffects = new List<string>() 
+                        };
+                        if (!player1.attacking)
+                        {
+                            LeftHp.Value += match.defendData.recoveredHp;
+    
+                            EventBus.Publish(new HitDamageEvent(damage, false));
+                        }
+                        else
+                        {
+                            RightHp.Value += match.defendData.recoveredHp;
+                            EventBus.Publish(new HitDamageEvent(damage, true));   
+                        }
+                        
+                    }
+
+                    await Task.Delay(1500);
                     await _repository.PutAck(_playerId);
                     return;
                 }
@@ -573,6 +626,8 @@ public class MainBattleViewModel : ViewModelBase
                 if (_isFirstStart)
                 {
                     EventBus.Publish(new IntroduceStationEvent(StationConverter.GetDisplayName(StationConverter.GetType(match.station)),
+                        StationConverter.StationToDescription[match.station].Title,
+                        StationConverter.StationToDescription[match.station].Description,
                         player1, 
                         player2));
                     _isFirstStart = false;
@@ -824,8 +879,13 @@ public class MainBattleViewModel : ViewModelBase
 
     public void OnChangeActionIndex(HandActionType actionIndex, string actionText)
     {
+        string waring = "";
+        if (ForbirddenAction.Value == actionIndex.ToString() && StationName.Value == "City Hall")
+        {
+            waring = "This Action is Not Allow!";
+        }
         CurrentHandAction.Value = actionIndex;
-        CurrentHandActionText.Value = actionText;
+        CurrentHandActionText.Value = actionText + waring;
     }
 
 

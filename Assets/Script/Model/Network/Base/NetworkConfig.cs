@@ -7,7 +7,7 @@ public class NetworkConfig
 {
     //Base of Url to use server communication.
     public string BaseUrl { get; set; } = "http://ajou-mse-sss.zikbakguri.com:8080/";
-    
+    //public string BaseUrl { get; set; } = "http://localhost:8080/";
     //timeout setting
     public int TimeoutSeconds { get; set; } = 30;
     

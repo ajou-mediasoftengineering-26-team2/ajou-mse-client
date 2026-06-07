@@ -11,7 +11,7 @@ public class HandActionData
 {
     public string actionName;
     public HandActionType actionCode;
-    public string imagePath; // 리소스 폴더 내의 경로
+    public string imagePath;
 
     public HandActionData(string name, HandActionType code, string path)
     {
@@ -39,7 +39,8 @@ public static class ActionDatabase
             new HandActionData("Right", HandActionType.SINGLE_HAND_FLIP_RIGHT, "Right"),
             new HandActionData("Both", HandActionType.BOTH_HANDS_FLIP, "Both"),
             new HandActionData("Stab", HandActionType.INSERT_BETWEEN_HANDS, "slice"),
-            new HandActionData("Wave", HandActionType.SHAKE_OVER_HANDS, "ok")
+            new HandActionData("Wave", HandActionType.SHAKE_OVER_HANDS, "ok"),
+            new HandActionData("Forbidden!", HandActionType.FORBIDDEN_BEHAVIOR, "X"),
         };
 
         // init defend action data
@@ -49,7 +50,8 @@ public static class ActionDatabase
             new HandActionData("Right", HandActionType.SINGLE_HAND_FLIP_RIGHT, "Right"),
             new HandActionData("Both", HandActionType.BOTH_HANDS_FLIP, "Both"),
             new HandActionData("Defense", HandActionType.INSERT_BETWEEN_HANDS, "None"),
-            new HandActionData("Pause", HandActionType.SHAKE_OVER_HANDS, "ok")
+            new HandActionData("Pause", HandActionType.SHAKE_OVER_HANDS, "ok"),
+            new HandActionData("Forbidden!", HandActionType.FORBIDDEN_BEHAVIOR, "X"),
         };
     }
 

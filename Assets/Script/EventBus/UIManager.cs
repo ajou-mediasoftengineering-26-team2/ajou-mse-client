@@ -170,7 +170,7 @@ public class UIManager : MonoBehaviour
         player2 = evt.player2; 
         if (view != null)
         {
-            view.StartAnimation(evt.station);
+            view.StartAnimation(evt.station, evt.title, evt.description);
         }
     }
     
