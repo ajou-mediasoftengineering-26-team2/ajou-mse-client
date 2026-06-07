@@ -552,7 +552,7 @@ public class MainBattleViewModel : ViewModelBase
                     additionalDelay = 6000; 
                 }
                 
-                //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + additionalDelay);
+                await Task.Delay(additionalDelay);
                 await _repository.PutAck(_playerId);
                 await GetHPByFirebase();
             },
