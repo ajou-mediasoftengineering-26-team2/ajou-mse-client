@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 // 202422170 주형준
@@ -109,6 +110,10 @@ public class PerkAndShopViewModel : ViewModelBase
                     if (_perkChoices.Count > 0 && !CanSelect.Value && !_perkSelected)
                         CanSelect.Value = true;
                 }
+                else if(match.state == "GAME_PERK_ITEM_RECEIVING")
+                {
+                    PutPerk();
+                }
                 else
                 {
                     // 상태가 잠깐 바뀌는 거일 수 있으니 _inPerkPhase/_perkSelected 건드리지 않음
@@ -118,6 +123,18 @@ public class PerkAndShopViewModel : ViewModelBase
             },
             onError: err => Debug.LogError(err)
         );
+    }
+
+    private async Task PutPerk()
+    {
+        if (string.IsNullOrEmpty(_pendingPerkSelection))
+        {
+            _pendingPerkSelection = _perkChoices[UnityEngine.Random.Range(0, _perkChoices.Count)];
+        }
+        
+        var res = await _perkAndShopRepo.PutChoice(_playerId, _pendingPerkSelection);
+        if (!res.isSuccess)
+            ErrorMsg.Value = res.error.message;
     }
 
     private async Task SubscribePlayerInfoAsync()
@@ -159,27 +176,30 @@ public class PerkAndShopViewModel : ViewModelBase
             onError: err => Debug.LogError(err)
         );
     }
-
     
     private void RefreshUpgradePanel()
     {
-        BeforeInfo.Value = _currentLevel == 0
-            ? HandInfoProvider.GetDescription(_currentHand)
-            : HandUpgradeInfoProvider.GetEffectDescription(_currentHand, _currentLevel);
+        int displayCurrent = _currentLevel + 1;  // 서버 0 → 표시 Lv.1
 
-        if (_currentLevel >= 5)
+        if (_currentLevel >= 4)  // 서버 4 = 표시 Lv.5 = MAX
         {
+            BeforeInfo.Value       = $"[Lv.5]\n{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, 5)}";
             AfterInfo.Value        = "MAX LEVEL";
             UpgradeCostLabel.Value = "-";
             CanUpgrade.Value       = false;
             return;
         }
 
-        int nextLevel = _currentLevel == 0 ? 1 : _currentLevel + 1;
-        AfterInfo.Value        = HandUpgradeInfoProvider.GetEffectDescription(_currentHand, nextLevel);
-        UpgradeCostLabel.Value = _currentUpgradeCost.ToString();
-        CanUpgrade.Value       = _displayCoin >= _currentUpgradeCost && !_upgradeInProgress;
+        int nextServerLevel  = _currentLevel + 1;
+        int displayNext      = _currentLevel + 2;
+        int cost             = HandUpgradeInfoProvider.GetUpgradeCost(nextServerLevel);
+
+        BeforeInfo.Value       = $"{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, displayCurrent)}";
+        AfterInfo.Value        = $"{HandUpgradeInfoProvider.GetEffectDescription(_currentHand, displayNext)}";
+        UpgradeCostLabel.Value = $"{cost}";
+        CanUpgrade.Value       = _displayCoin >= cost && !_upgradeInProgress;
     }
+
     
     
     private void RefreshPerkCards()
@@ -200,30 +220,43 @@ public class PerkAndShopViewModel : ViewModelBase
         raw.Value   = choices[index];
     }
 
-    private async void StartTimer(string startTimeStr, int durationSec)
+    // 1. async Task로 변경하여 흐름 제어 가능하도록 수정
+    private async Task StartTimer(string startTimeStr, int durationSec)
     {
+        _timerCts?.Cancel(); // Dispose 보다는 Cancel을 명확히 호출
         _timerCts?.Dispose();
         _timerCts = new CancellationTokenSource();
         var token = _timerCts.Token;
 
+        Debug.Log("startTimeStr + durationSec: " + durationSec + startTimeStr);
         string format = "yyyy-MM-dd'T'HH:mm:ss.fff";
         if (!DateTime.TryParseExact(startTimeStr, format,
-            CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime)) return;
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime)) return;
 
+        // DateTime serverNow = DateTime.Now + NetworkManager.ServerTimeOffset;
+    
         DateTime endTime = startTime.AddSeconds(durationSec);
+
         try
         {
             while (!token.IsCancellationRequested)
             {
+                // DateTime.UtcNow를 사용하는 것이 전 세계 시간대(Timezone) 문제 예방에 좋습니다.
+                // 여기서는 기존 코드 흐름에 맞추되, 실시간 서버 시간 동기화를 권장합니다.
                 double remaining = (endTime - DateTime.Now).TotalSeconds;
+
                 if (remaining <= 0)
                 {
+                    // 유니티 메인 스레드에서 UI를 안전하게 바꾸기 위해 구조 점검 필요
                     TimerRatio.Value = 0f;
-                    await FlushPerkSelectionAsync();
                     break;
                 }
+
                 TimerRatio.Value = (float)(remaining / durationSec);
-                await Task.Delay(50, token);
+
+                // 유니티 환경에서는 Task.Delay 대신 UniTask를 쓰거나, 
+                // 50ms 대기 대신 매 프레임 체크하는 것이 부드럽고 안전합니다.
+                await Task.Delay(50, token); 
             }
         }
         catch (OperationCanceledException) { }
@@ -241,20 +274,18 @@ public class PerkAndShopViewModel : ViewModelBase
         EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
     }
 
-    private async Task FlushPerkSelectionAsync()
-    {
-        if (_perkChoices.Count == 0) return;
-        if (string.IsNullOrEmpty(_pendingPerkSelection))
-            _pendingPerkSelection = _perkChoices[UnityEngine.Random.Range(0, _perkChoices.Count)];
-        try
-        {
-            //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
-            var res = await _perkAndShopRepo.PutChoice(_playerId, _pendingPerkSelection);
-            if (!res.isSuccess)
-                ErrorMsg.Value = res.error.message;
-        }
-        catch (Exception e) { Debug.LogException(e); }
-    }
+    // private async Task FlushPerkSelectionAsync()
+    // {
+    //     try
+    //     {
+    //         //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
+    //         var res = await _perkAndShopRepo.PutChoice(_playerId, _pendingPerkSelection);
+    //         if (!res.isSuccess)
+    //             ErrorMsg.Value = res.error.message;
+    //     }
+    //     catch (Exception e) { Debug.LogException(e); }
+    // }
+    
 
     public async void OnUpgrade()
     {
