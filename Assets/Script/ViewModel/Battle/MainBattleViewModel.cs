@@ -192,6 +192,10 @@ public class MainBattleViewModel : ViewModelBase
                 LeftHp.Value += damage.recoveredHp;
                 isLeftOwner = true;
                 SetStaus(damage, true);
+                if (damage.attackType != null)
+                {
+                    EventBus.Publish(new StatusEvent(damage.attackType, Player.Second));
+                }
                 break;
             case (Player.First, BattleRole.Defense):
                 Toast.ShowDamagePopupLeft(damage.damage);
@@ -199,6 +203,10 @@ public class MainBattleViewModel : ViewModelBase
                 RightHp.Value += damage.recoveredHp;
                 isLeftOwner = false;
                 SetStaus(damage, false);
+                if (damage.attackType != null)
+                {
+                    EventBus.Publish(new StatusEvent(damage.attackType, Player.First));
+                }
                 break;
             case (Player.Second, BattleRole.Attack):
                 Toast.ShowDamagePopupRight(damage.damage);
@@ -206,6 +214,10 @@ public class MainBattleViewModel : ViewModelBase
                 LeftHp.Value += damage.recoveredHp;
                 isLeftOwner = false;
                 SetStaus(damage, true);
+                if (damage.attackType != null)
+                {
+                    EventBus.Publish(new StatusEvent(damage.attackType, Player.First));
+                }
                 break;
             case (Player.Second, BattleRole.Defense):
                 Toast.ShowDamagePopupLeft(damage.damage);
@@ -213,6 +225,10 @@ public class MainBattleViewModel : ViewModelBase
                 RightHp.Value += damage.recoveredHp;
                 isLeftOwner = true;
                 SetStaus(damage, false);
+                if (damage.attackType != null)
+                {
+                    EventBus.Publish(new StatusEvent(damage.attackType, Player.Second));
+                }
                 break;
         }
     
@@ -262,20 +278,19 @@ public class MainBattleViewModel : ViewModelBase
     /// <param name="enemyId"></param>
     public void HoverEventItem(string test)
     {
-        HoverItem.Value = test;
         if (Enum.TryParse<ItemType>(test, true, out ItemType itemtype))
         {
             HoverItemTitle.Value = ItemInfoProvider.GetDisplayName(itemtype);
             HoverItemDes.Value = ItemInfoProvider.GetDescription(itemtype);
         }
-        
+        HoverItem.Value = test;
     }
     
     public void HoverEventPerk(string test)
     {
-        HoverPerk.Value = test;
         HoverPerkTitle.Value = PerkInfoProvider.GetDisplayName(PerkInfoProvider.GetPerkType(test));
         HoverPerkDes.Value = PerkInfoProvider.GetDescription(PerkInfoProvider.GetPerkType(test));
+        HoverPerk.Value = test;
     }
 
     /// <summary>

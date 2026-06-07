@@ -16,7 +16,7 @@ public class ItemCard : MonoBehaviour
     public void SetUpAndAnimationCard(ItemType itemType, bool isLeft)
     {
         title.text = ItemInfoProvider.GetDisplayName(itemType);
-        des.text = ItemInfoProvider.GetDisplayName(itemType);
+        des.text = ItemInfoProvider.GetDescription(itemType);
         img.texture = Resources.Load<Texture>($"Items/{itemType}");
 
         if (isLeft)

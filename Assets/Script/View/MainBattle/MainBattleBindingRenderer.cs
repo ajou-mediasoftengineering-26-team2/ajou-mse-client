@@ -229,10 +229,15 @@ public class MainBattleBindingRenderer
 
         _uiRefs.MainBattleRoot.Query<VisualElement>(className: "slot").ForEach(slot =>
         {
+            Debug.Log("slot 생성이 됨." + slot.style.backgroundColor);
             slot.RegisterCallback<MouseEnterEvent>(evt =>
             {
                 var currentSlot = evt.currentTarget as VisualElement;
-                if (currentSlot == null) return;
+                if (currentSlot == null)
+                {
+                    Debug.Log("log 출력함.");
+                    return;
+                }
 
                 bool isEnemySlot = currentSlot.parent?.parent?.name == "EnemyInfoGrid";
                 Debug.Log($"[PerkSlot] MouseEnter. isEnemy: {isEnemySlot}, name: {currentSlot.name}");
@@ -244,8 +249,8 @@ public class MainBattleBindingRenderer
                 if (bg.texture != null) imageName = bg.texture.name;
                 else if (bg.sprite != null) imageName = bg.sprite.name;
                 
-                if (!imageName.Equals("None"))
-                {
+                //if (!imageName.Equals("None"))
+                //{
                     _viewModel.HoverEventPerk(imageName);
                     
                     float spacing = 10f; 
@@ -260,7 +265,7 @@ public class MainBattleBindingRenderer
                         _uiRefs.TooltipContainer.style.left = slotBounds.xMax - tooltipWidth; 
                         _uiRefs.TooltipContainer.style.top = slotBounds.y - 150f - spacing; 
                     }
-                }
+                //
             });
 
             slot.RegisterCallback<MouseLeaveEvent>(_ => 
@@ -272,6 +277,7 @@ public class MainBattleBindingRenderer
         
         _uiRefs.MainBattleRoot.Query<VisualElement>(className: "slot-item").ForEach(slot =>
         {
+            Debug.Log("slot item 생성이 됨." + slot.style.backgroundColor);
             slot.RegisterCallback<MouseEnterEvent>(evt =>
             {
                 var currentSlot = evt.currentTarget as VisualElement;
@@ -287,8 +293,8 @@ public class MainBattleBindingRenderer
                 if (bg.texture != null) imageName = bg.texture.name;
                 else if (bg.sprite != null) imageName = bg.sprite.name;
                 
-                if (!imageName.Equals("None"))
-                {
+                //if (!imageName.Equals("None"))
+                //{
                     _viewModel.HoverEventItem(imageName);
                     
                     float spacing = 10f; 
@@ -303,7 +309,7 @@ public class MainBattleBindingRenderer
                         _uiRefs.TooltipContainer.style.left = slotBounds.xMax - tooltipWidth; 
                         _uiRefs.TooltipContainer.style.top = slotBounds.y - 150f - spacing; 
                     }
-                }
+                //}
             });
 
             slot.RegisterCallback<MouseLeaveEvent>(_ => 
