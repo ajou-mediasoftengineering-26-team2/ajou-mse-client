@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 public class HandShowView : MonoBehaviour
 {
     private Coroutine _coroutine;
-
+/*
     public void Show(HandElementalChoiceResult obj)
     {
         if (_coroutine != null) StopCoroutine(_coroutine); // 중복 방지
@@ -27,7 +27,7 @@ public class HandShowView : MonoBehaviour
         // 두 손 다 유효할 때까지 대기 (최대 5초)
         var vm = ViewModelLocator.Instance.Get<MainBattleViewModel>();
         float elapsed = 0f;
-        while (elapsed < 5f)
+        while (elapsed < 10f)
         {
             if (vm.MyHandElemental.Value != HandElementalType.NONE &&
                 vm.EnemyHandElemental.Value != HandElementalType.NONE)
@@ -63,6 +63,52 @@ public class HandShowView : MonoBehaviour
         yield return new WaitForSeconds(0.8f);
         AnimateIn(panel2);
 
+        _coroutine = null;
+    }*/
+
+    public void Show(HandElementalChoiceResult obj)
+    {
+        if (_coroutine != null) StopCoroutine(_coroutine);
+        _coroutine = StartCoroutine(WaitThenAnimate(obj)); // obj 전달
+    }
+
+    private IEnumerator WaitThenAnimate(HandElementalChoiceResult obj)
+    {
+        var root   = GetComponent<UIDocument>().rootVisualElement;
+        var panel1 = root.Q<VisualElement>("Player1");
+        var panel2 = root.Q<VisualElement>("Player2");
+
+        SnapHidden(panel1);
+        SnapHidden(panel2);
+
+        // VM 폴링 제거 - obj에서 직접 읽기
+        var hand1 = HandInfoProvider.FromString(obj.player1?.handElemental);
+        var hand2 = HandInfoProvider.FromString(obj.player2?.handElemental);
+
+        root.Q<Label>("Player1Id").text = obj.player1?.username ?? "";
+        root.Q<Label>("Player2Id").text = obj.player2?.username ?? "";
+
+        if (hand1 != HandElementalType.NONE)
+        {
+            root.Q<Image>("Player1Hand").sprite   = Resources.Load<Sprite>(HandInfoProvider.GetImagePath(hand1));
+            root.Q<Label>("Player1HandName").text = HandInfoProvider.GetDisplayName(hand1);
+        }
+        if (hand2 != HandElementalType.NONE)
+        {
+            root.Q<Image>("Player2Hand").sprite   = Resources.Load<Sprite>(HandInfoProvider.GetImagePath(hand2));
+            root.Q<Label>("Player2HandName").text = HandInfoProvider.GetDisplayName(hand2);
+        }
+
+        yield return null;
+
+        yield return new WaitForSeconds(0.2f);
+        AnimateIn(panel1);
+
+        yield return new WaitForSeconds(0.8f);
+        AnimateIn(panel2);
+
+        yield return new WaitForSeconds(2.0f);
+        
         _coroutine = null;
     }
 

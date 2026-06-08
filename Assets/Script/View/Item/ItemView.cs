@@ -71,29 +71,32 @@ public class ItemView : MonoBehaviour
 
             var panel = _root.Q<VisualElement>("Item");
 
-            // 먼저 숨기고
-            panel.style.transitionProperty = StyleKeyword.Null;
+            // transition 즉시 제거 (duration=0 명시)
+            panel.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
+            panel.style.transitionDuration = new List<TimeValue>
+                { new TimeValue(0f, TimeUnit.Second), new TimeValue(0f, TimeUnit.Second) };
             panel.style.opacity   = 0f;
             panel.style.translate = new StyleTranslate(new Translate(0, 60, 0));
 
-            yield return null; // 숨김 상태 적용 대기
+            yield return null;
+            yield return null; // 한 프레임 더 - transition 완전 정리
 
-            // 그 다음 데이터 세팅
             _itemTitle.text = ItemInfoProvider.GetDisplayName(itemType);
             _itemInfo.text  = ItemInfoProvider.GetDescription(itemType);
             var sprite = Resources.Load<Sprite>($"Items/{itemType}");
             if (sprite != null) _itemImg.sprite = sprite;
 
-            // 그 다음 애니메이션
             yield return StartCoroutine(AnimateItem(panel));
-
             yield return new WaitForSeconds(3f);
-            //yield return new WaitForSeconds(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] / 1000f);
-            Debug.Log("[ItemView] SendPutAck 호출: " + itemCode);
-            _ = SendPutAck(); 
+
+            // ← SendPutAck 여기서 제거
         }
+
+        // 모든 아이템 표시 완료 후 한 번만 ACK
+        _ = SendPutAck();
+
         _isShowing = false;
-        _shownItems.Clear();  // ← 추가
+        _shownItems.Clear();
         GetComponent<UIDocument>().enabled = false;
     }
 

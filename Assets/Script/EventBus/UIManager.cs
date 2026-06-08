@@ -26,10 +26,12 @@ public class UIManager : MonoBehaviour
 
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
+    private bool _gameEndShown = false;
     
     private HitAnimation current;
     private void OnEnable()
     {
+        _gameEndShown = false;
         // 개별적으로 끄던 코드를 AllUIDown 하나로 대체
         AllUIDown();
         
@@ -215,12 +217,14 @@ public class UIManager : MonoBehaviour
     
     private void ShowGameEndUI(GameEndEvent evt)
     {
+        if (_gameEndShown) return;
+        _gameEndShown = true;
+        
         if (GameEndUI == null)
         {
             Debug.LogError("[UIManager] GameEnd UI document is not set.");
             return;
         }
-
         var view = GameEndUI.GetComponent<GameEndView>();
         if (view == null)
         {
