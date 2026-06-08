@@ -558,7 +558,8 @@ public class MainBattleViewModel : ViewModelBase
                     Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
                 }
                 
-                //if two player action is same, animation is not load.
+                 //if attack is Success...
+                 Debug.LogWarning("match attackSuccess and match defendData   " + match.attackSuccess + "   " + match.defendData.ToString());
                 if (!match.attackSuccess)
                 {
                     //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
