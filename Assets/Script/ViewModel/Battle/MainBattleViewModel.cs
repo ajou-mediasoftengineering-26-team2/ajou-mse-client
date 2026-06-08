@@ -559,11 +559,11 @@ public class MainBattleViewModel : ViewModelBase
                 }
                 
                  //if attack is Success...
-                 Debug.LogWarning("match attackSuccess and match defendData   " + match.attackSuccess + "   " + match.defendData.ToString());
+                 Debug.LogWarning("match attackSuccess and match defendData   " + match.attackSuccess);
                 if (!match.attackSuccess)
                 {
                     //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
-                    if (match.defendData != null)
+                    Debug.Log($"[디버그] match.defendData 상태: {match.defendData?.ToString() ?? "NULL 상태입니다!"}");                    if (match.defendData != null)
                     {
                         Damage damage = new Damage
                         {

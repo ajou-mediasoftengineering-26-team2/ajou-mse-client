@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 
+[Serializable]
 public class DefendData {
     public int recoveredHp;
     int coin;
