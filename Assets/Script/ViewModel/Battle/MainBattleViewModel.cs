@@ -580,12 +580,13 @@ public class MainBattleViewModel : ViewModelBase
                         if (!player1.attacking)
                         {
                             LeftHp.Value += match.defendData.recoveredHp;
-    
+                            RightHp.Value -= match.defendData.counterDamage;
                             EventBus.Publish(new HitDamageEvent(damage, false));
                         }
                         else
                         {
                             RightHp.Value += match.defendData.recoveredHp;
+                            LeftHp.Value -= match.defendData.counterDamage;
                             EventBus.Publish(new HitDamageEvent(damage, true));   
                         }
                         
