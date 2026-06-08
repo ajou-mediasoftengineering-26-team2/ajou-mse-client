@@ -268,9 +268,9 @@ public class PerkAndShopViewModel : ViewModelBase
         if (!CanSelect.Value) return;
         if (_perkChoices.Count <= slot - 1) return;
 
-        _perkSelected         = true;
+        //_perkSelected         = true;
         _pendingPerkSelection = _perkChoices[slot - 1];
-        CanSelect.Value       = false;
+        //CanSelect.Value       = false;
         EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
     }
 

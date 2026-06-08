@@ -98,6 +98,7 @@ public class SelectHandsViewModel : ViewModelBase
         _selectedHandType = null;
         try
         {
+            await Task.Delay(UnityEngine.Random.Range(0, 1000));
             //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] );
             var res = await _repo.PostSelectHand(_playerId, handType);
             if (!res.isSuccess)
@@ -115,7 +116,11 @@ public class SelectHandsViewModel : ViewModelBase
 
         string format = "yyyy-MM-dd'T'HH:mm:ss.fff";
         if (!DateTime.TryParseExact(startTimeStr, format,
-            CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime)) return;
+            CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startTime)) {
+            startTime   = DateTime.Now;
+            durationSec = durationSec > 0 ? durationSec : 5;
+            // return 제거
+        }
 
         DateTime endTime = startTime.AddSeconds(durationSec);
 
@@ -156,7 +161,7 @@ public class SelectHandsViewModel : ViewModelBase
         if (slot < 1 || slot > 6) return;
 
         _selectedHandType = ((HandElementalType)(slot - 1)).ToString();
-        CanSelect.Value   = false;
+        //CanSelect.Value   = false;
         EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
     }
 
