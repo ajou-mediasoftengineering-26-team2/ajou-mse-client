@@ -92,6 +92,7 @@ public class LoginView : MonoBehaviour
          if (!started) return;
          displayView.StopDisplay();
          SceneManager.LoadScene("JunMainBattleScene");
+         ViewModelLocator.Instance.Remove<LoginViewModel>();
       });
    }
 

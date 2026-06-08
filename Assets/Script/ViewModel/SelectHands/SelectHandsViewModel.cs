@@ -70,7 +70,7 @@ public class SelectHandsViewModel : ViewModelBase
                 }
                 else
                 {//추가
-                    if (_inChoicePhase && isReceiving && !_selectionSent)
+                    if (isReceiving && !_selectionSent)
                     {
                         _selectionSent = true;
                         _timerCts?.Cancel();
@@ -120,6 +120,11 @@ public class SelectHandsViewModel : ViewModelBase
                     TimerRatio.Value = 0f;
                     CanSelect.Value  = false;
                     IsVisible.Value  = false;
+                    if (_inChoicePhase && !_selectionSent)
+                    {
+                        _selectionSent = true;
+                        _ = FlushHandSelectionAsync();
+                    }
                     break;  // FlushHandSelectionAsync 없이 break만
                 }
                 TimerRatio.Value = (float)(remaining / durationSec);

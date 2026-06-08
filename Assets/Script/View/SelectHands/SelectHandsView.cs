@@ -24,6 +24,7 @@ public class SelectHandsView : MonoBehaviour
 
     public void StartScene()
     {
+        _viewModel?.Dispose();
         root     = GetComponent<UIDocument>().rootVisualElement;
         timer    = root.Q<VisualElement>("Timer");
         timerImg = root.Q<Image>("TimerImg");

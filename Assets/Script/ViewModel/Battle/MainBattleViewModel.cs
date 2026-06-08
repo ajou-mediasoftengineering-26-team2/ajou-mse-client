@@ -613,24 +613,29 @@ public class MainBattleViewModel : ViewModelBase
                 await GetHPByFirebase();
             },
 
-            LobbyState.END_RESULT => () =>
+            LobbyState.END_RESULT => async () =>
             {
+                player1 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>($"matches/{_lobbyId}/players/{_playerId}");
+                player2 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>($"matches/{_lobbyId}/players/{_enemyId}");
+                EventBus.Publish(new GameEndEvent(player1, player2, player1.finalWinner));
                 /*EventBus.Publish(new RoundOver(true));
                 return Task.CompletedTask;*/
                 //게임 엔드로 수정했슴다
-                bool isP1Winner = player1.finalWinner;
-                EventBus.Publish(new GameEndEvent(player1, player2, isP1Winner));
-                return Task.CompletedTask;
+                //bool isP1Winner = player1.finalWinner;
+                //EventBus.Publish(new GameEndEvent(player1, player2, isP1Winner));
+                //return Task.CompletedTask;
             },
 
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => async () => 
             {
                 await GetHPByFirebase();
-                if (match.currentRound == 2 && _prevRound != 2)
+                if (match.currentRound == 1 && _prevRound != 2)
                 {
+                    await Task.Delay(1500);
+                    Debug.Log($"[HandShow] currentRound={match.currentRound} _prevRound={_prevRound}");
                     _prevRound = 2;
                     EventBus.Publish(new HandElementalChoiceResult(player1, player2));
-                    await Task.Delay(5000);
+                    await Task.Delay(3500);
                 }
                 if (_isFirstStart)
                 {
