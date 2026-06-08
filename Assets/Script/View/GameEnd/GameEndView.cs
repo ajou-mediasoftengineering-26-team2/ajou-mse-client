@@ -101,8 +101,7 @@ public class GameEndView : MonoBehaviour
 
     private async void OnHomeButtonClicked()
     {
-        Debug.Log("씬으로 로드 1");
-        SceneManager.LoadScene("LoginScene");
+        ViewModelLocator.Instance.Remove<MainBattleViewModel>(); 
         try
         {
             var repo = RepositoryFactory.Instance.Get<ILoginRepository>();
@@ -112,7 +111,8 @@ public class GameEndView : MonoBehaviour
         {
             Debug.LogException(e);
         }
-        Debug.Log("씬으로 로드 2");
+        
+        Debug.Log("씬으로 로드");
         SceneManager.LoadScene("LoginScene");
     }
 }

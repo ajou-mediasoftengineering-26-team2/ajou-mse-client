@@ -21,8 +21,8 @@ public static class HandInfoProvider
         HandElementalType.WATER     => "Recover HP +5 on defense success",
         HandElementalType.WIND      => "Dodge 1 attack per round",
         HandElementalType.LIGHTNING => "+2 bonus damage on attack success",
-        HandElementalType.POISON    => "Enemy max HP -5 on attack success",
-        HandElementalType.PLANT     => "Max HP +15",
+        HandElementalType.POISON    => "Opponent's damage -1",
+        HandElementalType.PLANT     => "If the player takes 4 or more damage, reduce incoming damage by 1",
         _                           => ""
     };
 
