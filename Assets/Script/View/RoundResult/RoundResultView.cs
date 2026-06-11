@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 // 202422170 주형준
+/// <summary>
+/// Displays the round result notification (WIN/LOSE) at the end of each round.
+/// Shows the current round number and coins earned, then plays a slide-up animation.
+/// </summary>
 public class RoundResultView : MonoBehaviour
 {
     private Label _currentRound;
@@ -21,6 +25,12 @@ public class RoundResultView : MonoBehaviour
         _getMoney     = root.Q<Label>("GetMoney");
     }
 
+    /// <summary>
+    /// Populates result labels and plays the entrance animation.
+    /// Re-queries UI elements each call because UIDocument root may be
+    /// recreated after an enable/disable cycle.
+    /// Stops any currently running animation before starting a new one.
+    /// </summary>
     public void ShowResult(RoundResultEvent evt)
     {
         var root  = GetComponent<UIDocument>().rootVisualElement; // 매번 새로
@@ -37,6 +47,13 @@ public class RoundResultView : MonoBehaviour
         _coroutine = StartCoroutine(PlayAnimation());
     }
 
+    /// <summary>
+    /// Plays a slide-up fade-in entrance animation on the result panel.
+    /// The panel is snapped to its hidden state first (no transition),
+    /// then transitions are enabled and the target values applied on the next frame
+    /// to trigger the animation correctly.
+    /// Uses EaseOutBack for a spring overshoot effect consistent with other UI panels.
+    /// </summary>
     private IEnumerator PlayAnimation()
     {
         if (_panel == null) yield break;

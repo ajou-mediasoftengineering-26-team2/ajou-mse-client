@@ -4,73 +4,32 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 // 202422170 주형준
+/// <summary>
+/// Displays the hand elemental reveal animation at the start of a round.
+/// Shows both players' chosen elemental types sequentially using a slide-up animation.
+/// Reads data directly from the event object to avoid ViewModel polling race conditions.
+/// </summary>
 public class HandShowView : MonoBehaviour
 {
     private Coroutine _coroutine;
-/*
-    public void Show(HandElementalChoiceResult obj)
-    {
-        if (_coroutine != null) StopCoroutine(_coroutine); // 중복 방지
-        _coroutine = StartCoroutine(WaitThenAnimate());
-    }
 
-    private IEnumerator WaitThenAnimate()
-    {
-        var root   = GetComponent<UIDocument>().rootVisualElement;
-        var panel1 = root.Q<VisualElement>("Player1");
-        var panel2 = root.Q<VisualElement>("Player2");
-
-        // 일단 숨기기
-        SnapHidden(panel1);
-        SnapHidden(panel2);
-
-        // 두 손 다 유효할 때까지 대기 (최대 5초)
-        var vm = ViewModelLocator.Instance.Get<MainBattleViewModel>();
-        float elapsed = 0f;
-        while (elapsed < 10f)
-        {
-            if (vm.MyHandElemental.Value != HandElementalType.NONE &&
-                vm.EnemyHandElemental.Value != HandElementalType.NONE)
-                break;
-            elapsed += 0.1f;
-            yield return new WaitForSeconds(0.1f);
-        }
-
-        // 패널 숨긴 채로 데이터 먼저 세팅
-        root.Q<Label>("Player1Id").text = vm.MyName.Value;
-        root.Q<Label>("Player2Id").text = vm.EnemyName.Value;
-
-        var hand1 = vm.MyHandElemental.Value;
-        var hand2 = vm.EnemyHandElemental.Value;
-
-        if (hand1 != HandElementalType.NONE)
-        {
-            root.Q<Image>("Player1Hand").sprite   = Resources.Load<Sprite>(HandInfoProvider.GetImagePath(hand1));
-            root.Q<Label>("Player1HandName").text = HandInfoProvider.GetDisplayName(hand1);
-        }
-        if (hand2 != HandElementalType.NONE)
-        {
-            root.Q<Image>("Player2Hand").sprite   = Resources.Load<Sprite>(HandInfoProvider.GetImagePath(hand2));
-            root.Q<Label>("Player2HandName").text = HandInfoProvider.GetDisplayName(hand2);
-        }
-
-        yield return null;
-
-        // 이제 올라오는 애니메이션
-        yield return new WaitForSeconds(0.2f);
-        AnimateIn(panel1);
-
-        yield return new WaitForSeconds(0.8f);
-        AnimateIn(panel2);
-
-        _coroutine = null;
-    }*/
 
     public void Show(HandElementalChoiceResult obj)
     {
         if (_coroutine != null) StopCoroutine(_coroutine);
         _coroutine = StartCoroutine(WaitThenAnimate(obj)); // obj 전달
     }
+    
+    /// <summary>
+    /// Reads player data from the event object, populates the UI elements,
+    /// then animates both player panels into view sequentially.
+    /// Player 1 appears first, followed by Player 2 after a short delay,
+    /// creating a dramatic reveal effect.
+    /// 
+    /// Note: A previous version polled the ViewModel for hand elemental data,
+    /// which caused timing issues when data was not yet available (returned NONE).
+    /// The current approach reads directly from the event payload to guarantee data integrity.
+    /// </summary>
 
     private IEnumerator WaitThenAnimate(HandElementalChoiceResult obj)
     {
@@ -112,6 +71,10 @@ public class HandShowView : MonoBehaviour
         _coroutine = null;
     }
 
+    /// <summary>
+    /// Immediately sets the element to its off-screen hidden state with no transition.
+    /// Must be called before AnimateIn to establish a clean starting position.
+    /// </summary>
     private void SnapHidden(VisualElement el)
     {
         if (el == null) return;
@@ -120,6 +83,10 @@ public class HandShowView : MonoBehaviour
         el.style.translate = new StyleTranslate(new Translate(0, 60, 0));
     }
 
+    /// <summary>
+    /// Applies a slide-up fade-in transition to the given element.
+    /// Uses EaseOutBack easing to produce a subtle spring overshoot on arrival.
+    /// </summary>
     private void AnimateIn(VisualElement el)
     {
         if (el == null) return;

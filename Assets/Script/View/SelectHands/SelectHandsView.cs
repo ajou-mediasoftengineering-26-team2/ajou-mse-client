@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 // 202422170 주형준
+/// <summary>
+/// Handles the hand elemental selection UI.
+/// Displays six elemental hand cards with entrance animations,
+/// binds to SelectHandsViewModel observables, and forwards player input.
+/// </summary>
 public class SelectHandsView : MonoBehaviour
 {
     private SelectHandsViewModel _viewModel;
@@ -22,6 +27,10 @@ public class SelectHandsView : MonoBehaviour
         //StartScene();
     }
 
+    /// <summary>
+    /// Initializes the view. Called externally (e.g., from UIManager) rather than OnEnable
+    /// to allow precise timing control over when the UI becomes active.
+    /// </summary>
     public void StartScene()
     {
         _viewModel?.Dispose();
@@ -100,6 +109,11 @@ public class SelectHandsView : MonoBehaviour
         StartCoroutine(PlayEntranceAnimation());
     }
 
+    /// <summary>
+    /// Plays a staggered entrance animation for all six hand cards.
+    /// Each card starts hidden (opacity 0, translated down) then animates upward.
+    /// A short delay between cards creates a cascading visual effect.
+    /// </summary>
     private IEnumerator PlayEntranceAnimation()
     {
         SnapHidden(_hand1Sel); SnapHidden(_hand2Sel); SnapHidden(_hand3Sel);
@@ -123,7 +137,10 @@ public class SelectHandsView : MonoBehaviour
         el.style.opacity   = 0f;
         el.style.translate = new StyleTranslate(new Translate(0, 50, 0));
     }
-
+    /// <summary>
+    /// Triggers the slide-up and fade-in transition on the given element.
+    /// Uses EaseOutBack easing for a subtle spring overshoot effect.
+    /// </summary>
     private void AnimateIn(VisualElement el)
     {
         if (el == null) return;
@@ -152,7 +169,10 @@ public class SelectHandsView : MonoBehaviour
         selected.style.borderLeftColor   = new StyleColor(Color.white);
         selected.style.borderRightColor  = new StyleColor(Color.white);
     }
-
+    /// <summary>
+    /// Populates a hand card with the sprite, display name, and effect description
+    /// corresponding to the given elemental type, using HandInfoProvider as the data source.
+    /// </summary>
     private void SetHandCard(Image img, Label title, Label info, HandElementalType hand)
     {
         img.sprite = Resources.Load<Sprite>(HandInfoProvider.GetImagePath(hand));
