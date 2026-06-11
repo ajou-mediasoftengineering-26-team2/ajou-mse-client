@@ -5,6 +5,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Displays the match result screen at the end of a game.
+/// Shows both players' names and win counts, announces the winner,
+/// and provides a home button to return to the login scene.
+/// Panels appear sequentially using timed transitions for a dramatic reveal.
+/// </summary>
 public class GameEndView : MonoBehaviour
 {
     private Label  _player1Id, _player2Id;
@@ -26,6 +32,14 @@ public class GameEndView : MonoBehaviour
         StartCoroutine(ShowResultCoroutine(evt));
     }
 
+    /// <summary>
+    /// Populates result data and plays a three-stage sequential entrance animation:
+    /// 1. Score card slides down from above.
+    /// 2. Winner label fades in 0.5 s later.
+    /// 3. Home button fades in 0.2 s after the winner label.
+    /// SetInstant and SetTransition helpers are used to toggle transition
+    /// duration between instant (for initial hidden placement) and animated states.
+    /// </summary>
     private IEnumerator ShowResultCoroutine(GameEndEvent evt)
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
@@ -79,6 +93,11 @@ public class GameEndView : MonoBehaviour
         SetTransition(_homeButton, 0.3f);
         _homeButton.style.opacity = 1f;
     }
+    
+    /// <summary>
+    /// Sets transition duration to zero for instant (non-animated) state changes.
+    /// Used to place elements in their hidden starting positions without visual artifacts.
+    /// </summary>
 
     // transition 즉시 제거 (순간 상태 변경용)
     private void SetInstant(VisualElement el)
@@ -88,6 +107,9 @@ public class GameEndView : MonoBehaviour
         );
     }
 
+    /// <summary>
+    /// Applies a timed EaseOut transition to the given element.
+    /// </summary>
     // transition 설정
     private void SetTransition(VisualElement el, float duration)
     {
@@ -99,10 +121,14 @@ public class GameEndView : MonoBehaviour
         );
     }
 
+    /// <summary>
+    /// Handles the home button click: removes the battle ViewModel from the locator
+    /// to stop Firebase subscriptions, calls the server delete-player endpoint,
+    /// then loads the login scene.
+    /// </summary>
     private async void OnHomeButtonClicked()
     {
-        Debug.Log("씬으로 로드 1");
-        SceneManager.LoadScene("LoginScene");
+        ViewModelLocator.Instance.Remove<MainBattleViewModel>(); 
         try
         {
             var repo = RepositoryFactory.Instance.Get<ILoginRepository>();
@@ -112,7 +138,8 @@ public class GameEndView : MonoBehaviour
         {
             Debug.LogException(e);
         }
-        Debug.Log("씬으로 로드 2");
+        
+        Debug.Log("씬으로 로드");
         SceneManager.LoadScene("LoginScene");
     }
 }

@@ -5,6 +5,11 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 // 202422170 주형준
+/// <summary>
+/// Displays the perk selection and hand elemental upgrade shop UI between rounds.
+/// Shows three perk cards and an upgrade panel with entrance animations.
+/// Binds to PerkAndShopViewModel observables for all data and interaction state.
+/// </summary>
 public class PerkAndShopView : MonoBehaviour
 {
     private PerkAndShopViewModel _viewModel;
@@ -16,6 +21,10 @@ public class PerkAndShopView : MonoBehaviour
         //Setup();
     }
 
+    /// <summary>
+    /// Initializes the view. Called externally to allow precise activation timing.
+    /// Disposes any previous ViewModel instance before creating a new one.
+    /// </summary>
     public void Setup()
     {
         _viewModel?.Dispose();
@@ -118,6 +127,10 @@ public class PerkAndShopView : MonoBehaviour
         upgradeBtn.clicked += () => _viewModel.OnUpgrade();
     }
 
+    /// <summary>
+    /// Plays a staggered entrance animation for the three perk cards and upgrade panel.
+    /// Perk cards slide up from below; the upgrade panel slides in from the right.
+    /// </summary>
     private IEnumerator PlayEntranceAnimation()
     {
         yield return null;
@@ -128,6 +141,9 @@ public class PerkAndShopView : MonoBehaviour
         AnimateIn(_upgradePanel); // 오른쪽에서 들어옴
     }
 
+    /// <summary>
+    /// Snaps the element to a hidden state offset downward. No transition applied.
+    /// </summary>
     private void SnapHidden(VisualElement el)
     {
         if (el == null) return;
@@ -136,6 +152,7 @@ public class PerkAndShopView : MonoBehaviour
         el.style.translate = new StyleTranslate(new Translate(0, 50, 0));
     }
 
+    /// Snaps the element to a hidden state offset to the right. Used for the upgrade panel.
     private void SnapHiddenRight(VisualElement el)
     {
         if (el == null) return;
@@ -144,6 +161,8 @@ public class PerkAndShopView : MonoBehaviour
         el.style.translate = new StyleTranslate(new Translate(60, 0, 0));
     }
 
+    /// Triggers the fade-in and slide-to-origin transition on the given element.
+    /// Uses EaseOutBack for a spring overshoot effect.
     private void AnimateIn(VisualElement el)
     {
         if (el == null) return;

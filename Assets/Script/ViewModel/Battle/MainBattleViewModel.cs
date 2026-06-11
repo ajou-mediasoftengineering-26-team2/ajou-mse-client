@@ -33,6 +33,8 @@ public class MainBattleViewModel : ViewModelBase
     private PlayerInfoModel player1;
     private PlayerInfoModel player2;
     
+    private bool _elementalAckSent = false;
+    
     //2라운드 사용
     private int _prevRound = 0;
 
@@ -685,14 +687,16 @@ public class MainBattleViewModel : ViewModelBase
                 //_elementalRepository.PutChoice(_playerId, ElementalHand.FIRE.ToString());
             },
 
-            LobbyState.GAME_ELEMENTAL_RECEIVING => () =>
+            LobbyState.GAME_ELEMENTAL_RECEIVING => async () =>
             {
                 //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);//추가
                 //EventBus.Publish(new HandElementalChoiceResult(player1, player2));
                 //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera] + 6500);
                 //await Task.Delay(6500);
-                _elementalRepository.PutAck(_playerId);
-                return Task.CompletedTask;
+                if (_elementalAckSent) return;
+                _elementalAckSent = true;
+                await Task.Delay(2000);
+                await _elementalRepository.PutAck(_playerId);
             },
             LobbyState.GAME_PERK_ITEM_RECEIVING => async () =>
             {

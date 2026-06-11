@@ -6,6 +6,12 @@ using UnityEngine.UIElements;
 using System.Threading.Tasks;
 
 // 202422170 주형준
+/// <summary>
+/// Displays received item notifications one at a time using a queue-based system.
+/// Each item is shown with a slide-up animation and held for 3 seconds before
+/// the next item in the queue is processed. Sends a single server ACK after
+/// all queued items have been displayed.
+/// </summary>
 public class ItemView : MonoBehaviour
 {
     private UIDocument _uiDocument;
@@ -39,6 +45,11 @@ public class ItemView : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Queues an item for display. Ignores duplicates that are already in the queue
+    /// or have been shown in the current display cycle.
+    /// Starts the processing coroutine if it is not already running.
+    /// </summary>
     public void ShowItem(string itemCode)
     {
         Debug.Log("itemCode : "  + itemCode);
@@ -54,6 +65,13 @@ public class ItemView : MonoBehaviour
         if (!_isShowing)
             StartCoroutine(ProcessQueue());
     }
+    
+    /// <summary>
+    /// Processes queued items one by one.
+    /// For each item: resets the panel to hidden state, populates the content,
+    /// plays the entrance animation, then waits 3 seconds before moving to the next.
+    /// Sends a single server ACK after all items are processed.
+    /// </summary>
 
     private IEnumerator ProcessQueue()
     {
@@ -99,6 +117,11 @@ public class ItemView : MonoBehaviour
         _shownItems.Clear();
         GetComponent<UIDocument>().enabled = false;
     }
+    
+    /// <summary>
+    /// Plays the slide-up fade-in entrance animation for the item panel.
+    /// Uses EaseOutBack for a spring overshoot effect consistent with other UI panels.
+    /// </summary>
 
     private IEnumerator AnimateItem(VisualElement panel)
     {
@@ -120,6 +143,11 @@ public class ItemView : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
     }
 
+    /// <summary>
+    /// Attempts to resolve and cache references to UI elements from the current root.
+    /// Re-caches if the root has changed (e.g., after UIDocument enable/disable cycle).
+    /// Returns false if any required element is missing.
+    /// </summary>
     private bool TryCacheElements()
     {
         _uiDocument ??= GetComponent<UIDocument>();
@@ -138,7 +166,10 @@ public class ItemView : MonoBehaviour
 
         return _itemImg != null && _itemTitle != null && _itemInfo != null;
     }
-    
+    /// <summary>
+    /// Notifies the server that all item display animations have completed.
+    /// Called once after the entire queue has been processed.
+    /// </summary>
     // ItemView에 메서드 추가
     private async Task SendPutAck()
     {

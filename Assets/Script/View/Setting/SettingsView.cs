@@ -2,6 +2,12 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 // 202422170 주형준
+/// <summary>
+/// Settings panel UI for adjusting brightness, BGM volume, and SFX volume.
+/// Each setting uses left/right arrow buttons to step through values from 0 to 10.
+/// Values are persisted via PlayerPrefs and applied immediately to the game.
+/// Sprites are pre-loaded in Awake to avoid repeated Resources.Load calls during interaction.
+/// </summary>
 public class SettingsView : MonoBehaviour
 {
     private const int MAX_VALUE = 10;
@@ -60,6 +66,12 @@ public class SettingsView : MonoBehaviour
         GetComponent<UIDocument>().enabled = false;
     }
 
+    /// <summary>
+    /// Queries all UXML element references, assigns sprites, restores saved values
+    /// from PlayerPrefs, and registers all button click listeners.
+    /// Called by PreSettingButtonView one frame after the UIDocument is enabled
+    /// to guarantee the root is fully constructed.
+    /// </summary>
     public void InitUI()
     {
         var root = GetComponent<UIDocument>().rootVisualElement;
@@ -111,6 +123,11 @@ public class SettingsView : MonoBehaviour
         _exitButton.clicked        += OnExit;
     }
 
+    /// <summary>
+    /// Unregisters all button click listeners.
+    /// Must be called before closing the panel to prevent duplicate subscriptions
+    /// the next time InitUI() is called.
+    /// </summary>
     public void CleanUp()
     {
         if (_brightnessLButton == null) return;
@@ -130,6 +147,10 @@ public class SettingsView : MonoBehaviour
     private void OnSfxDown()        => SetSfx(_sfxValue - 1);
     private void OnSfxUp()          => SetSfx(_sfxValue + 1);
 
+    /// <summary>
+    /// Clamps the new brightness value between MIN and MAX, saves it to PlayerPrefs,
+    /// and immediately applies it to the BrightnessOverlayView singleton.
+    /// </summary>
     private void SetBrightness(int value)
     {
         _brightnessValue      = Mathf.Clamp(value, MIN_VALUE, MAX_VALUE);
@@ -138,6 +159,8 @@ public class SettingsView : MonoBehaviour
         BrightnessOverlayView.Instance.SetBrightness(_brightnessValue);
     }
 
+    /// Clamps the new BGM volume, saves it, applies it via AudioManager,
+    /// and updates the music icon to reflect the muted/unmuted state.
     private void SetBgm(int value)
     {
         _bgmValue      = Mathf.Clamp(value, MIN_VALUE, MAX_VALUE);
@@ -147,6 +170,8 @@ public class SettingsView : MonoBehaviour
         UpdateBgmIcon();
     }
 
+    /// Clamps the new SFX volume, saves it, applies it via AudioManager,
+    /// and updates the speaker icon to reflect the current volume level.
     private void SetSfx(int value)
     {
         _sfxValue      = Mathf.Clamp(value, MIN_VALUE, MAX_VALUE);

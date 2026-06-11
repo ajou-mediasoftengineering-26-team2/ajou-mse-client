@@ -7,6 +7,11 @@ using UnityEditor;
 using UnityEngine;
 
 // 202422170 주형준
+/// <summary>
+/// ViewModel for the perk selection and hand elemental upgrade phase.
+/// Subscribes to Firebase match and player nodes to manage perk card data,
+/// countdown timer, upgrade state, and deferred server submission.
+/// </summary>
 public class PerkAndShopViewModel : ViewModelBase
 {
     private readonly IPerkAndShopRepository _perkAndShopRepo;
@@ -76,6 +81,13 @@ public class PerkAndShopViewModel : ViewModelBase
     }
 
     private int _lastPerkRound = -1;
+    
+    /// <summary>
+    /// Subscribes to the Firebase match state to detect phase transitions.
+    /// Uses _lastPerkRound to distinguish a genuinely new GAME_PERK_CHOICE phase
+    /// from repeated Firebase callbacks within the same round, preventing redundant resets.
+    /// Triggers server submission when state transitions to GAME_PERK_ITEM_RECEIVING.
+    /// </summary>
 
     private async Task SubscribeMatchStateAsync()
     {
@@ -125,6 +137,8 @@ public class PerkAndShopViewModel : ViewModelBase
         );
     }
 
+    /// Sends the buffered perk selection to the server.
+    /// If no explicit selection was made, falls back to a random choice from the available options.
     private async Task PutPerk()
     {
         if (string.IsNullOrEmpty(_pendingPerkSelection))
@@ -137,6 +151,12 @@ public class PerkAndShopViewModel : ViewModelBase
             ErrorMsg.Value = res.error.message;
     }
 
+    /// <summary>
+    /// Subscribes to the player node to receive the server-assigned perk choices
+    /// and to keep coin and elemental level information up to date.
+    /// Skips coin/level updates while an upgrade is in progress to protect
+    /// the optimistic UI update from being overwritten prematurely.
+    /// </summary>
     private async Task SubscribePlayerInfoAsync()
     {
         _playerSubId = await FirebaseClient.Instance.SubscribeAsync<PlayerInfoModel>(
@@ -177,6 +197,11 @@ public class PerkAndShopViewModel : ViewModelBase
         );
     }
     
+    /// <summary>
+    /// Refreshes the upgrade panel labels based on the current elemental level.
+    /// Server level is 0-indexed; display level is 1-indexed (server 0 = display Lv.1).
+    /// Disables the upgrade button at maximum level (server level 4 = display Lv.5).
+    /// </summary>
     private void RefreshUpgradePanel()
     {
         int displayCurrent = _currentLevel + 1;  // 서버 0 → 표시 Lv.1
@@ -262,31 +287,32 @@ public class PerkAndShopViewModel : ViewModelBase
         catch (OperationCanceledException) { }
         catch (Exception e) { Debug.LogException(e); }
     }
+    
+    /// <summary>
+    /// Stores the player's perk selection locally.
+    /// The selection is not sent immediately; it is submitted when the match state
+    /// transitions to GAME_PERK_ITEM_RECEIVING.
+    /// </summary>
 
     public void OnSelectPerk(int slot)
     {
         if (!CanSelect.Value) return;
         if (_perkChoices.Count <= slot - 1) return;
 
-        _perkSelected         = true;
+        //_perkSelected         = true;
         _pendingPerkSelection = _perkChoices[slot - 1];
-        CanSelect.Value       = false;
+        //CanSelect.Value       = false;
         EventBus.Publish(new PlaySfxEvent(SfxType.ButtonClick));
     }
 
-    // private async Task FlushPerkSelectionAsync()
-    // {
-    //     try
-    //     {
-    //         //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
-    //         var res = await _perkAndShopRepo.PutChoice(_playerId, _pendingPerkSelection);
-    //         if (!res.isSuccess)
-    //             ErrorMsg.Value = res.error.message;
-    //     }
-    //     catch (Exception e) { Debug.LogException(e); }
-    // }
     
-
+    
+    /// <summary>
+    /// Initiates a hand elemental upgrade using an optimistic update pattern:
+    /// deducts the cost from the displayed coin count immediately, then sends the
+    /// server request. If the request fails, the deducted amount is refunded and
+    /// the panel is refreshed to reflect the restored state.
+    /// </summary>
     public async void OnUpgrade()
     {
         if (!CanUpgrade.Value || _currentLevel >= 5) return;

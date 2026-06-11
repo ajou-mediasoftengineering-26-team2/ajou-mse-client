@@ -28,7 +28,7 @@ public static class PerkInfoProvider
         PerkType.VAMPIRISM      => "Recover HP +3 on attack success",
         PerkType.THRIFTY        => "All coin gain +2",
         PerkType.GRIT           => "Halve damage received when HP is below 15",
-        PerkType.TAUNT          => "Enemy HP -5 at round start",
+        PerkType.TAUNT          => "On a successful defense, the opponent takes 5 damage.",
         PerkType.FOCUS          => "Shake damage +3",
         PerkType.LUCK           => "Bonus coin +3 on defense success",
         PerkType.UNYIELDING     => "Max damage received per hit capped at 5",
