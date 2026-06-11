@@ -6,7 +6,7 @@ using UnityEngine;
 
 /// <summary>
 /// Camera action will be executed, When Lobby state is GAME_TURN_ANIMATION
-/// Animation Code created by AI.
+/// Camera Animation Code created by AI.
 /// </summary>
 public class AnimationCameraController : MonoBehaviour
 {

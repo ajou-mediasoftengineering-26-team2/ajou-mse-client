@@ -148,6 +148,9 @@ public class MatchStartView : MonoBehaviour
         _leftPlayerGroup.schedule.Execute(() => { CloseScoreUI(); }).StartingIn(3550);
     }
 
+    /// <summary>
+    /// CloseScoreUI
+    /// </summary>
     private void CloseScoreUI()
     {
 

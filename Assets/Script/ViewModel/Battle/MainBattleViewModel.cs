@@ -99,6 +99,9 @@ public class MainBattleViewModel : ViewModelBase
 
     // Formatted countdown string (ss.ff)
     public Observable<string> CountDown { get; } = new Observable<string>();
+    
+    
+    //Hover Event Variable
 
     public Observable<string> HoverItem { get; } = new Observable<string>();
     public Observable<string> HoverItemTitle { get; } = new Observable<string>();
@@ -120,28 +123,40 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<HandActionType> CurrentHandAction { get; } =
         new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
 
+    //Player hand action ui text
     public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
     
-    
+    // me and enemy Item List
     public Observable<List<ItemType>> ItemLists { get; } = new Observable<List<ItemType>>();
     public Observable<List<ItemType>> EnemyItemLists { get; } = new Observable<List<ItemType>>();
  
 
+    // me and enemy HandElemental List
     public Observable<HandElementalType> MyHandElemental { get; } = new Observable<HandElementalType>();
     public Observable<HandElementalType> EnemyHandElemental { get; } = new Observable<HandElementalType>();
 
+    
+    // me and enemy Perk List
     public Observable<List<PerkType>> MyPerkList { get; } = new Observable<List<PerkType>>();
     public Observable<List<PerkType>> EnemyPerkList { get; } = new Observable<List<PerkType>>();
 
+    
+    // damage List. Server give us this list after choice is finished.
     public Observable<List<Damage>> DamageList { get; } = new Observable<List<Damage>>();
 
 
+    
+    // my and enemy statusList. List fire and poison.
     public Observable<List<StatusType>> MyStatusList { get; } = new Observable<List<StatusType>>();
     public Observable<List<StatusType>> EnemyStatusList { get; } = new Observable<List<StatusType>>();
     
-    
+
+    // station information
     public Observable<string> StationDescription { get; } = new Observable<string>();
     public Observable<string> StationSubDescription { get; } = new Observable<string>();
+    
+    
+    // when station is City hall, we must use this variable
 
     public Observable<string> ForbirddenAction { get; } = new Observable<string>();
     

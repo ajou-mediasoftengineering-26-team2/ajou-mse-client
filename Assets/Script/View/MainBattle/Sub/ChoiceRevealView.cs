@@ -7,7 +7,8 @@ using UnityEngine.UIElements;
 //202322158 이준상
 
 /// <summary>
-/// UI class showing the hand action you and the other person chose All animation codes are produced by AI.
+/// UI class showing the hand action you and the other person chose.
+/// All animation codes are produced by AI.
 /// </summary>
 public class ChoiceRevealView : MonoBehaviour
 {
@@ -26,13 +27,20 @@ public class ChoiceRevealView : MonoBehaviour
 
     private Coroutine _animationCoroutine;
 
+    /// <summary>
+    /// Unity lifecycle method triggered when the object becomes enabled and active.
+    /// Caches UI elements and snaps them to their initial visual states.
+    /// </summary>
     void OnEnable()
     {
         TryCacheElements();
-
         SnapToInitialState();
     }
 
+    /// <summary>
+    /// Unity lifecycle method triggered when the object becomes disabled or inactive.
+    /// Ensures running animation coroutines are safely stopped to prevent memory leaks.
+    /// </summary>
     void OnDisable()
     {
         if (_animationCoroutine != null)
@@ -43,8 +51,11 @@ public class ChoiceRevealView : MonoBehaviour
     }
 
     /// <summary>
-    /// 외부 테스트용 메서드 (무작위 스프라이트 트랩 방지 로그 추가)
+    /// Public entry point for external testing. Validates UI initialization,
+    /// configures player data, and triggers the choice reveal sequence.
     /// </summary>
+    /// <param name="leftPlayer">The data model for the left player.</param>
+    /// <param name="rightPlayer">The data model for the right player.</param>
     public void StartChoiceReveal(PlayerInfoModel leftPlayer, PlayerInfoModel rightPlayer)
     {
         if (!TryCacheElements())
@@ -61,12 +72,15 @@ public class ChoiceRevealView : MonoBehaviour
         RevealChoices(leftSprite, rightSprite);
     }
 
+    /// <summary>
+    /// Instantly resets UI elements to their baseline hidden state by temporarily removing transitions.
+    /// </summary>
     private void SnapToInitialState()
     {
         if (_container != null)
         {
-            _container.style.transitionProperty = StyleKeyword.Null; // 트랜지션 일시 제거
-            _container.style.opacity = 1f; // 컨테이너는 항상 보이게
+            _container.style.transitionProperty = StyleKeyword.Null; // Temporarily remove transitions
+            _container.style.opacity = 1f; // The background container remains visible
         }
 
         SnapElementZero(_leftPlayerGroup);
@@ -75,14 +89,22 @@ public class ChoiceRevealView : MonoBehaviour
         ResetBorders(_rightChoiceImage);
     }
 
+    /// <summary>
+    /// Resets a specific visual element's opacity and position immediately without interpolation.
+    /// </summary>
+    /// <param name="element">The target VisualElement to reset.</param>
     private void SnapElementZero(VisualElement element)
     {
         if (element == null) return;
-        element.style.transitionProperty = StyleKeyword.Null; // 트랜지션 없이 즉시 반영하기 위함
+        element.style.transitionProperty = StyleKeyword.Null;
         element.style.opacity = 0f;
         element.style.translate = new StyleTranslate(new Translate(0, 50, 0));
     }
 
+    /// <summary>
+    /// Clears any dynamic border colors assigned to choice image container slots.
+    /// </summary>
+    /// <param name="image">The target card/choice image frame to reset.</param>
     private void ResetBorders(VisualElement image)
     {
         if (image == null) return;
@@ -93,8 +115,10 @@ public class ChoiceRevealView : MonoBehaviour
     }
 
     /// <summary>
-    /// 실제 애니메이션을 트리거하는 메인 진입점
+    /// Sets up background choices and handles thread-safe sequencing for the layout animations.
     /// </summary>
+    /// <param name="leftPlayerSprite">The resolved card artwork for the left player.</param>
+    /// <param name="rightPlayerSprite">The resolved card artwork for the right player.</param>
     public void RevealChoices(Sprite leftPlayerSprite, Sprite rightPlayerSprite)
     {
         if (!TryCacheElements())
@@ -121,12 +145,16 @@ public class ChoiceRevealView : MonoBehaviour
         _animationCoroutine = StartCoroutine(PlaySequenceAnimationCoroutine());
     }
 
+    /// <summary>
+    /// Coroutine that executes the sequential visual timeline for revealing player actions,
+    /// applying transitions, altering border colors, and fading out the view.
+    /// </summary>
     private IEnumerator PlaySequenceAnimationCoroutine()
     {
         ApplyTransitionRules(_leftPlayerGroup);
         ApplyTransitionRules(_rightPlayerGroup);
 
-        yield return null; 
+        yield return null;
 
         yield return new WaitForSeconds(2.0f);
         if (_leftPlayerGroup != null)
@@ -173,19 +201,28 @@ public class ChoiceRevealView : MonoBehaviour
         {
             _container.style.display = DisplayStyle.None;
         }
+
         _animationCoroutine = null;
     }
 
+    /// <summary>
+    /// Configures UI Toolkit transition curves, durations, and easing functions for an element.
+    /// </summary>
+    /// <param name="element">The visual container to receive transition parameters.</param>
     private void ApplyTransitionRules(VisualElement element)
     {
         if (element == null) return;
         element.style.transitionProperty = new List<StylePropertyName> { "opacity", "translate" };
-        element.style.transitionDuration = new List<TimeValue> 
+        element.style.transitionDuration = new List<TimeValue>
             { new TimeValue(0.5f, TimeUnit.Second), new TimeValue(0.5f, TimeUnit.Second) };
-        element.style.transitionTimingFunction = new List<EasingFunction> 
+        element.style.transitionTimingFunction = new List<EasingFunction>
             { new EasingFunction(EasingMode.EaseOutBack) };
     }
 
+    /// <summary>
+    /// Attempts to query and cache all required VisualElements from the root UIDocument.
+    /// </summary>
+    /// <returns>True if the root container was successfully found and cached, otherwise false.</returns>
     private bool TryCacheElements()
     {
         var uiDoc = GetComponent<UIDocument>();
@@ -212,6 +249,9 @@ public class ChoiceRevealView : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// Sets the master container to be visible and updates its opacity context.
+    /// </summary>
     private void ShowContainer()
     {
         if (_container == null) return;
@@ -219,6 +259,12 @@ public class ChoiceRevealView : MonoBehaviour
         _container.style.opacity = 1f;
     }
 
+    /// <summary>
+    /// Binds data models into the corresponding text labels and looks up the required action sprite artwork.
+    /// </summary>
+    /// <param name="player">The player model state containing game parameters.</param>
+    /// <param name="isLeft">Determines if the target UI components belong to the left or right side.</param>
+    /// <returns>The resolved Sprite reference corresponding to the hand gesture.</returns>
     private Sprite ConfigurePlayerUI(PlayerInfoModel player, bool isLeft)
     {
         Label statusLabel = isLeft ? _leftStatusLabel : _rightStatusLabel;
@@ -243,6 +289,13 @@ public class ChoiceRevealView : MonoBehaviour
         return sprite;
     }
 
+    /// <summary>
+    /// Parses hand action strings and queries the ActionDatabase to retrieve matching descriptive labels and localized sprites.
+    /// </summary>
+    /// <param name="player">The source player model containing raw choices.</param>
+    /// <param name="isAttacking">Determines whether to search inside Attack or Defense sub-databases.</param>
+    /// <param name="actionName">Output parameter providing the legible name string for the resolved action.</param>
+    /// <returns>The loaded resource Sprite instance, or null if database lookups fail.</returns>
     private Sprite ResolveChoiceSprite(PlayerInfoModel player, bool isAttacking, out string actionName)
     {
         actionName = "UNKNOWN";
@@ -274,7 +327,12 @@ public class ChoiceRevealView : MonoBehaviour
 
         return sprite;
     }
-
+    
+    /// <summary>
+    /// Safe utility wrapper to modify a dynamic text label's current display text value.
+    /// </summary>
+    /// <param name="label">The target UI Toolkit Label reference.</param>
+    /// <param name="text">The string message to display.</param>
     private void SetLabelText(Label label, string text)
     {
         if (label == null) return;

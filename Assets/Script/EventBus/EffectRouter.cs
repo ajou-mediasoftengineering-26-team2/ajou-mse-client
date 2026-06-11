@@ -208,33 +208,25 @@ public class EffectRouter : MonoBehaviour
     /// <param name="status"></param>
     public void PlayStatusAnimation(GameObject targetObj, string status)
     {
-        // 0. 예외 처리 (오브젝트가 안 들어왔으면 실행 안 함)
         if (targetObj == null) return;
 
-        // 1. 해당 오브젝트의 컴포넌트 및 이미지 로드
         SpriteRenderer sr = targetObj.GetComponent<SpriteRenderer>();
         Sprite missingSprite = Resources.Load<Sprite>($"Status/{status}");
         
-        // 2. 이미지 교체 및 초기화
         sr.sprite = missingSprite;
         targetObj.transform.localScale = new Vector3(0.16f, 0.16f, 0.16f);
         sr.color = new Color(1, 1, 1, 0); // 시작은 투명하게
 
-        // 3. 이 오브젝트에 돌고 있던 기존 애니메이션만 쏙 골라서 강제 종료 (서로 간섭 없음)
         targetObj.transform.DOKill();
         sr.DOKill();
 
-        // 4. 독립된 시퀀스 생성 및 실행
         Sequence seq = DOTween.Sequence();
         
-        // 팍! 커지면서 Fade In (0.2초)
         seq.Append(targetObj.transform.DOPunchScale(new Vector3(0.16f, 0.16f, 0.16f) * 0.5f, 0.2f, 10, 1f));
         seq.Join(sr.DOFade(1f, 0.1f));
         
-        // 0.6초 대기
         seq.AppendInterval(0.6f);
         
-        // 스르륵 사라지기 (0.3초)
         seq.Append(sr.DOFade(0f, 0.3f));
     }
 

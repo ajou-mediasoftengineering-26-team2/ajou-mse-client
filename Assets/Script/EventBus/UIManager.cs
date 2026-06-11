@@ -265,6 +265,7 @@ public class UIManager : MonoBehaviour
     {
         float delayTime = 0.8f; 
 
+        //Use Perks Event
         if (damageData.usedPerks != null)
         {
             foreach (string perkStr in damageData.usedPerks)
@@ -278,6 +279,7 @@ public class UIManager : MonoBehaviour
             }
         }
 
+        //Use Items Event
         if (damageData.usedItems != null)
         {
             foreach (string itemStr in damageData.usedItems)
