@@ -10,6 +10,8 @@ using UnityEngine.Serialization;
 /// </summary>
 public class EffectRouter : MonoBehaviour
 {
+    
+    //define animator event name
     private static readonly int HitAction = Animator.StringToHash("HitAction");
     private static readonly int LeftHitAction = Animator.StringToHash("LeftHitAction");
     private static readonly int RightHitAction = Animator.StringToHash("RightHitAction");
@@ -17,9 +19,12 @@ public class EffectRouter : MonoBehaviour
     private static readonly int Both1HitAction = Animator.StringToHash("Both1HitAction");
     private static readonly int Both7HitAction = Animator.StringToHash("Both7HitAction");
 
+    //define animator
     [FormerlySerializedAs("fxAnimator")] [SerializeField] private Animator player1Animator;
     [SerializeField] private Animator player2Animator;
     private const string HandActionParameter = "HandAction";
+    
+    //define status event
     [SerializeField] private GameObject hitStatus1;
     [SerializeField] private GameObject hitStatus2;
 
