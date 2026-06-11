@@ -13,6 +13,9 @@ using UnityEngine.UIElements;
 public class UIManager : MonoBehaviour
 {
     //[SerializeField] UIDocument PerksAndShopUIDocument;
+    
+    
+    //UI Document
     [SerializeField] UIDocument MainBattle;
     [SerializeField] UIDocument MatchStart;
     [SerializeField] UIDocument ItemUI;
@@ -24,6 +27,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] UIDocument PerksAndShop;
     [SerializeField] UIDocument GameEndUI;
     
+    //Prefab
     [SerializeField] public GameObject perkCardPrefab;
     [SerializeField] public GameObject itemCardPrefab;
     public Transform cardSpawnPoint;
@@ -299,6 +303,12 @@ public class UIManager : MonoBehaviour
         
         
     }
+    
+    /// <summary>
+    /// Call prefab component script
+    /// </summary>
+    /// <param name="perkType"></param>
+    /// <param name="isLeft"></param>
     void SpawnNewCard(PerkType perkType, bool isLeft)
     {
         GameObject newCardObj = Instantiate(perkCardPrefab, cardSpawnPoint);
@@ -311,6 +321,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    
+    /// <summary>
+    /// Call prefab component script
+    /// </summary>
+    /// <param name="itemType"></param>
+    /// <param name="isLeft"></param>
     void SpawnItemCard(ItemType itemType, bool isLeft)
     {
         GameObject newCardObj = Instantiate(itemCardPrefab, cardSpawnPoint);
@@ -319,6 +335,9 @@ public class UIManager : MonoBehaviour
         itemCardScript.SetUpAndAnimationCard(itemType, isLeft);
     }
     
+    /// <summary>
+    /// All Define UI Down
+    /// </summary>
     private void AllUIDown()
     {
         //if (PerksAndShopUIDocument != null) PerksAndShopUIDocument.enabled = false;
