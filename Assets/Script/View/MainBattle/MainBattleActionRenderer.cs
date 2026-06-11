@@ -5,10 +5,16 @@ using UnityEngine.UIElements;
 
 
 //202322158 이준상
+
+/// <summary>
+/// Calls the functions in the class when Matchstate (called LobbyState in this project) is GAME_PLAYER_CHOICE.
+/// </summary>
 public class MainBattleActionRenderer
 {
     private const int ActionScaleAnimationMs = 300;
 
+    
+    //hand action data
     private readonly VisualTreeAsset _actionItemSelect;
     private readonly List<VisualElement> _actionElements = new();
     private readonly Action<HandActionType, String> _onActionClicked;
@@ -19,6 +25,13 @@ public class MainBattleActionRenderer
         _onActionClicked = onActionClicked;
     }
 
+    
+    /// <summary>
+    /// This function is executed when the callback function in the MainBattleBindingRender is executed.
+    /// I created UI and UI animation code with AI.
+    /// </summary>
+    /// <param name="container"></param>
+    /// <param name="isAttacker"></param>
     public void ShowActions(VisualElement container, bool isAttacker)
     {
         if (container == null)
@@ -43,6 +56,7 @@ public class MainBattleActionRenderer
         
         _actionElements.Clear();
 
+        //Get HandActionData
         List<HandActionData> handActionDatas = isAttacker ? ActionDatabase.AttackActions : ActionDatabase.DefendActions;
         int actionCount = Mathf.Min(GameSetting.ATTACK, handActionDatas.Count);
 
@@ -86,6 +100,11 @@ public class MainBattleActionRenderer
         }
     }
 
+    /// <summary>
+    /// This function is executed when the callback function in the MainBattleBindingRender is executed.
+    /// </summary>
+    /// <param name="container"></param>
+    /// <param name="isAttacker"></param>
     public void HideAllActionOptions()
     {
         foreach (VisualElement option in _actionElements)
@@ -95,6 +114,11 @@ public class MainBattleActionRenderer
         }
     }
 
+    /// <summary>
+    /// When Player choose one of five actions, the Action will be invoked.
+    /// </summary>
+    /// <param name="actionType"></param>
+    /// <param name="actionDataActionName"></param>
     private void OnActionClicked(HandActionType actionType, string actionDataActionName)
     {
         _onActionClicked?.Invoke(actionType, actionDataActionName);

@@ -10,6 +10,7 @@ public class DefendData {
     public List<string> usedPerks = new List<string>();
     public List<string> usedItemCodes = new List<string>();
     public string usedElemental;
+    public int counterDamage;
     
     public override string ToString()
     {

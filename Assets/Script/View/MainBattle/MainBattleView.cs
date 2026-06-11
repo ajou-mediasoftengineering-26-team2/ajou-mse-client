@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 
 /// <summary>
 /// Main battle root view that coordinates UI presenters and ViewModel binding.
+/// Before, MainBattleView have so many of code line. and I separated each of domain.
 /// </summary>
 public class MainBattleView : MonoBehaviour
 {
@@ -57,6 +58,7 @@ public class MainBattleView : MonoBehaviour
         //_dotsRenderer.Initialize(_uiRefs.MyRoundWinning, _uiRefs.EnemyRoundWinning);
         _actionRenderer = new MainBattleActionRenderer(actionItemSelect, OnActionClicked);
         
+        //I defined a class that sends a callback function when the Observable variables change and manages it.
         _bindingRenderer = new MainBattleBindingRenderer(
             _viewModel,
             _uiRefs,

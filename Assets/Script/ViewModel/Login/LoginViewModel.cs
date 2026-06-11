@@ -197,7 +197,7 @@ public class LoginViewModel : ViewModelBase
                 string firstPlayerId = playerIds[0];
                 string secondPlayerId = playerIds[1];
 
-                // 2. 내가 첫 번째 플레이어라면? -> 내가 Camera1, 상대가 Camera2
+                // 2. if player is come first? -> I will be getting Camera1, Enemy will be getting Camera2
                 if (PlayerId.Value == firstPlayerId)
                 {
                     EnemyId.Value = secondPlayerId;
@@ -208,7 +208,7 @@ public class LoginViewModel : ViewModelBase
                     SceneDataBridge.myPlayer = Player.First;
                     SceneDataBridge.enemyPlayer = Player.Second;
                 }
-                // 3. 내가 두 번째 플레이어라면? -> 내가 Camera2, 상대가 Camera1
+                // 3. if player is come second -> I will be getting Camera2, Enemy will be getting Camera1
                 else if (PlayerId.Value == secondPlayerId)
                 {
                     EnemyId.Value = firstPlayerId;

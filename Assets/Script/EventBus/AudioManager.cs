@@ -78,7 +78,10 @@ public class AudioManager : MonoBehaviour
         EventBus.Unsubscribe<MainBattleEvent>(OnMainBattle);
     }
     
-    
+    /// <summary>
+    /// Main battle BGM
+    /// </summary>
+    /// <param name="obj"></param>
     private void OnMainBattle(MainBattleEvent obj)
     {
         thirdSource.Stop();
@@ -86,11 +89,17 @@ public class AudioManager : MonoBehaviour
     }
     
     
+    /// <summary>
+    /// Play subway background bgm.
+    /// </summary>
+    /// <param name="obj"></param>
     private void OnSubwaySoundEvent(LoginSubwaySoundEvent obj)
     {
         PlayThirdAudio(subwaySound);
     }
 
+    
+    
     private void PlayThirdAudio(AudioClip clip)
     {
         thirdSource.loop = true;

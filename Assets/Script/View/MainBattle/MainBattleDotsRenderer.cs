@@ -3,6 +3,11 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 //202322158 이준상
+
+/// <summary>
+/// It's a class I used before, but I'm not using it because of UXML-related issues.
+/// The UI class that shows the winning UI.
+/// </summary>
 public class MainBattleDotsRenderer
 {
     private readonly VisualTreeAsset _roundItemTemplate;

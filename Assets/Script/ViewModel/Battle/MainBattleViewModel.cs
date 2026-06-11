@@ -101,6 +101,9 @@ public class MainBattleViewModel : ViewModelBase
 
     // Formatted countdown string (ss.ff)
     public Observable<string> CountDown { get; } = new Observable<string>();
+    
+    
+    //Hover Event Variable
 
     public Observable<string> HoverItem { get; } = new Observable<string>();
     public Observable<string> HoverItemTitle { get; } = new Observable<string>();
@@ -122,32 +125,45 @@ public class MainBattleViewModel : ViewModelBase
     public Observable<HandActionType> CurrentHandAction { get; } =
         new Observable<HandActionType>(HandActionType.SINGLE_HAND_FLIP_LEFT);
 
+    //Player hand action ui text
     public Observable<string> CurrentHandActionText { get; } = new Observable<string>("Left");
     
-    
+    // me and enemy Item List
     public Observable<List<ItemType>> ItemLists { get; } = new Observable<List<ItemType>>();
     public Observable<List<ItemType>> EnemyItemLists { get; } = new Observable<List<ItemType>>();
  
 
+    // me and enemy HandElemental List
     public Observable<HandElementalType> MyHandElemental { get; } = new Observable<HandElementalType>();
     public Observable<HandElementalType> EnemyHandElemental { get; } = new Observable<HandElementalType>();
 
+    
+    // me and enemy Perk List
     public Observable<List<PerkType>> MyPerkList { get; } = new Observable<List<PerkType>>();
     public Observable<List<PerkType>> EnemyPerkList { get; } = new Observable<List<PerkType>>();
 
+    
+    // damage List. Server give us this list after choice is finished.
     public Observable<List<Damage>> DamageList { get; } = new Observable<List<Damage>>();
 
 
+    
+    // my and enemy statusList. List fire and poison.
     public Observable<List<StatusType>> MyStatusList { get; } = new Observable<List<StatusType>>();
     public Observable<List<StatusType>> EnemyStatusList { get; } = new Observable<List<StatusType>>();
     
-    
+
+    // station information
     public Observable<string> StationDescription { get; } = new Observable<string>();
     public Observable<string> StationSubDescription { get; } = new Observable<string>();
+    
+    
+    // when station is City hall, we must use this variable
 
     public Observable<string> ForbirddenAction { get; } = new Observable<string>();
     
     
+    //this delay map have delay each of hit event
     private readonly Dictionary<HitActionType, int> _hitDelayMap = new()
     {
         { HitActionType.Both5,    6000 }, 
@@ -173,11 +189,15 @@ public class MainBattleViewModel : ViewModelBase
         CurrentHandActionText.Value = "Left";
         TryStartFirebaseSubscriptions();
 
-        eventJunsang();
+        SubscribeEvent();
         _isFirstStart = true;
     }
 
-    private void eventJunsang()
+    
+    /// <summary>
+    /// subscribe Event each of hit event
+    /// </summary>
+    private void SubscribeEvent()
     {
         EventBus.Publish(new MainBattleEvent());
         EventBus.Subscribe<HardHitEvent>(obj =>
@@ -196,12 +216,19 @@ public class MainBattleViewModel : ViewModelBase
         });
     }
     
-    
+
+    /// <summary>
+    /// Server give client damage list when server decide who success each of roles
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="role"></param>
+    /// <param name="damage"></param>
     private void GetAnimatorByPlayer(Player player, BattleRole role, Damage damage)
     {
         bool isLeftOwner = false;
         
         
+        //client decides animation each of damage list of object(damage).
         switch (player, role)
         {
             case (Player.First, BattleRole.Attack):
@@ -252,9 +279,15 @@ public class MainBattleViewModel : ViewModelBase
     
         _damageIndex++;
 
+        //If sub animation/UI Event part is finished, Main animation(Hand hit event) will be started by Event bus.
         EventBus.Publish(new HitDamageEvent(damage, isLeftOwner));
     }
 
+    /// <summary>
+    /// Sub UI Event. A function when the player is affected by a state abnormality.
+    /// </summary>
+    /// <param name="damage"></param>
+    /// <param name="isRight"></param>
     private void SetStaus(Damage damage, bool isRight)
     {
         List<StatusType> status = new List<StatusType>();
@@ -304,6 +337,11 @@ public class MainBattleViewModel : ViewModelBase
         HoverItem.Value = test;
     }
     
+    
+    /// <summary>
+    /// Hover Event, When Cursor on the station text ui. 
+    /// </summary>
+    /// <param name="test"></param>
     public void HoverEventStation(string test)
     {
         string addString = "";
@@ -316,6 +354,10 @@ public class MainBattleViewModel : ViewModelBase
         HoverPerk.Value = test;
     }
     
+    /// <summary>
+    /// Hover Event, When Cursor on the event slot. 
+    /// </summary>
+    /// <param name="test"></param>
     public void HoverEventPerk(string test)
     {
         HoverStationDes.Value = PerkInfoProvider.GetDescription(PerkInfoProvider.GetPerkType(test));
@@ -528,6 +570,11 @@ public class MainBattleViewModel : ViewModelBase
         }
     }
 
+    
+    /// <summary>
+    /// Main part of MainBattleViewModel.cs. When Firebase real time database in state field. This Function will be execute.
+    /// </summary>
+    /// <param name="match"></param>
     private async Task ChangePlayByState(MatchInfoModel match)
     {
         Func<Task> action = MatchState.Value switch
@@ -544,8 +591,11 @@ public class MainBattleViewModel : ViewModelBase
                 await _repository.PutChoice(_playerId, CurrentHandAction.Value.ToString());
             },
 
+            
+            //Turn Animation event. This code is the starting point at the start of the animation.
             LobbyState.GAME_TURN_ANIMATION => async () =>
             {
+                //Choice Animation. What are player choose action.
                 if (!GameSetting.TryParseHandAction(player1.handChoice, out HandActionType player1Action)) ;
                 if (!GameSetting.TryParseHandAction(player2.handChoice, out HandActionType player2Action)) ;
                 EventBus.Publish(new ChoiceAnimation(player1, player2));
@@ -554,6 +604,8 @@ public class MainBattleViewModel : ViewModelBase
                     Debug.LogWarning("[MainBattleViewModel] ChoiceAnimation: player info not ready.");
                 }
                 await Task.Delay(7000);
+                
+                //Hand Action start
                 if (player1 != null && player2 != null)
                 {
                     EventBus.Publish(new ActionSelectedEvent(player1, player2));
@@ -563,13 +615,15 @@ public class MainBattleViewModel : ViewModelBase
                     Debug.LogWarning("[MainBattleViewModel] ActionSelectedEvent skipped: player info not ready.");
                 }
                 
-                 //if attack is Success...
-                 Debug.LogWarning("match attackSuccess and match defendData   " + match.attackSuccess);
-                if (!match.attackSuccess)
+                 //if attack is Failed, Hp/Card event will be executed.
+                 if (!match.attackSuccess)
                 {
                     //await Task.Delay(GameSetting.DELAY_MAP[SceneDataBridge.playerCamera]);
-                    Debug.Log($"[디버그] match.defendData 상태: {match.defendData?.ToString() ?? "NULL 상태입니다!"}");                    if (match.defendData != null)
                     {
+                        // I think this code is very bad. But, I don't have time... So code is very dirty.
+                        
+                        //Server development give us defend data, When project Finished before one day.
+                        //Back then, it was very difficult to refact the code, so I wrote a very dirty code mapping defend data in the Damage class.
                         Damage damage = new Damage
                         {
                             attackType = "Both", 
@@ -582,12 +636,13 @@ public class MainBattleViewModel : ViewModelBase
                         if (!player1.attacking)
                         {
                             LeftHp.Value += match.defendData.recoveredHp;
-    
+                            RightHp.Value -= match.defendData.counterDamage;
                             EventBus.Publish(new HitDamageEvent(damage, false));
                         }
                         else
                         {
                             RightHp.Value += match.defendData.recoveredHp;
+                            LeftHp.Value -= match.defendData.counterDamage;
                             EventBus.Publish(new HitDamageEvent(damage, true));   
                         }
                         
@@ -616,6 +671,7 @@ public class MainBattleViewModel : ViewModelBase
                 await GetHPByFirebase();
             },
 
+            //When match is end.
             LobbyState.END_RESULT => async () =>
             {
                 player1 = await FirebaseClient.Instance.GetAsync<PlayerInfoModel>($"matches/{_lobbyId}/players/{_playerId}");
@@ -629,6 +685,7 @@ public class MainBattleViewModel : ViewModelBase
                 //return Task.CompletedTask;
             },
 
+            //Game Round start
             LobbyState.LOBBY_START_COUNTDOWN or LobbyState.GAME_ROUND_START_ANIMATION => async () => 
             {
                 await GetHPByFirebase();
@@ -655,6 +712,7 @@ public class MainBattleViewModel : ViewModelBase
                 }
             },
 
+            //When Round is End.
             LobbyState.GAME_ROUND_END_PLAYER_KO => async () =>
             {
                 EventBus.Publish(new RoundOver(true));
@@ -666,7 +724,6 @@ public class MainBattleViewModel : ViewModelBase
                 }
                 await Task.Delay( 5000);
                 
-                Debug.Log("이게 왜 안뜨지");
                 if (string.IsNullOrWhiteSpace(SceneDataBridge.playerId))
                 {
                     Debug.LogError("[MainBattleViewModel] endAck skipped: playerId is empty.");
@@ -715,7 +772,7 @@ public class MainBattleViewModel : ViewModelBase
                 return Task.CompletedTask;
             },
 
-            _ => () => Task.CompletedTask // 매칭되는 상태가 없을 때 기본 동작 (예외 처리 필요 시 throw 가능)
+            _ => () => Task.CompletedTask // if it don't have match.
         };
 
         // 매칭된 비동기/동기 액션 실행
@@ -887,6 +944,14 @@ public class MainBattleViewModel : ViewModelBase
         base.Dispose();
     }
 
+    /// <summary>
+    /// When Match is Started, This Method will be started.
+    /// </summary>
+    /// <param name="playerId"></param>
+    /// <param name="matchId"></param>
+    /// <param name="enemyId"></param>
+    /// <param name="playerCamera"></param>
+    /// <param name="enemyCamera"></param>
     public void SetPlayerAndMatchId(string playerId, string matchId, string enemyId, CameraType playerCamera,
         CameraType enemyCamera)
     {
@@ -897,6 +962,12 @@ public class MainBattleViewModel : ViewModelBase
         TryStartFirebaseSubscriptions();
     }
 
+    
+    /// <summary>
+    /// When player choose hand action while timer text will be 0, UI is shown by this function.
+    /// </summary>
+    /// <param name="actionIndex"></param>
+    /// <param name="actionText"></param>
     public void OnChangeActionIndex(HandActionType actionIndex, string actionText)
     {
         string waring = "";
@@ -909,6 +980,9 @@ public class MainBattleViewModel : ViewModelBase
     }
 
 
+    /// <summary>
+    /// When Round start, This Function will be executed.
+    /// </summary>
     public async void PutRoundStartAck()
     {
         Debug.Log("put round start ack 보내고 있음!");

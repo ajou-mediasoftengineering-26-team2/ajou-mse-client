@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+//202322158 이준상
+
+/// <summary>
+/// Define Round Repository
+/// </summary>
 public interface IRoundRepository
 {
     Task<ApiResponse<Object>> startAck(string playerId);
@@ -9,7 +14,9 @@ public interface IRoundRepository
 
 
 
-
+/// <summary>
+/// Implement IRoundRepository
+/// </summary>
 public class RoundRepository : BaseRepository, IRoundRepository
 {
     private string _endpointBase = "round";

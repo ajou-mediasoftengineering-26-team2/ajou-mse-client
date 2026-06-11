@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[RequireComponent(typeof(UIDocument))]
+//202322158 이준상
+
+/// <summary>
+/// UI view class responsible for playing sequential text animations when introducing a game station.
+/// Automatically handles UI Toolkit layout constraints and triggers the match start event upon completion.
+/// </summary>
 public class IntroduceStationView : MonoBehaviour
 {
     private UIDocument uiDocument;
@@ -26,6 +32,10 @@ public class IntroduceStationView : MonoBehaviour
     private const float FadeOutDurationSec = 0.5f;
     private const int LayoutRetryMs = 50;
 
+    /// <summary>
+    /// Unity lifecycle method triggered when the object becomes active.
+    /// Initializes the UIDocument reference, resets layout tracking flags, and caches UI components.
+    /// </summary>
     private void OnEnable()
     {
         Debug.Log("[IntroduceStationView] OnEnable");
@@ -35,6 +45,13 @@ public class IntroduceStationView : MonoBehaviour
         CacheElements(force: true);
     }
 
+    /// <summary>
+    /// Public entry point to trigger the station introduction screen sequence.
+    /// Refreshes the UIDocument context, injects station/event texts, and schedules the sequential animation.
+    /// </summary>
+    /// <param name="station">The name of the current station to display.</param>
+    /// <param name="evtTitle">The title text of the triggered event.</param>
+    /// <param name="evtDescription">The descriptive summary text of the event.</param>
     public void StartAnimation(string station, string evtTitle, string evtDescription)
     {
         if (uiDocument == null) uiDocument = GetComponent<UIDocument>();
@@ -86,6 +103,9 @@ public class IntroduceStationView : MonoBehaviour
         TryStartAnimation();
     }
 
+    /// <summary>
+    /// Flushes running UI schedules and unregisters panel event callbacks to ensure a clean state machine reset.
+    /// </summary>
     private void ResetLayoutState()
     {
         pendingStart = false;
@@ -102,6 +122,10 @@ public class IntroduceStationView : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Core execution logic for beginning the fade-in sequence. 
+    /// Postpones execution if the layout bounds or panel contexts are not fully computed by the engine.
+    /// </summary>
     private void TryStartAnimation()
     {
         if (!pendingStart || root == null) return;
@@ -125,7 +149,6 @@ public class IntroduceStationView : MonoBehaviour
         pendingStart = false;
         waitingForGeometry = false;
 
-        // [수정] 4번째, 5번째 글자도 최초 상태(숨김, 아래로 내려감) 강제 적용
         InitInitialState(first, "first");
         InitInitialState(second, "second");
         InitInitialState(third, "third");
@@ -136,6 +159,9 @@ public class IntroduceStationView : MonoBehaviour
         root.schedule.Execute(PlaySequenceAnimation).StartingIn(100);
     }
 
+    /// <summary>
+    /// Sets up a fallback ticking schedule to continuously check for geometry initialization in case events do not fire.
+    /// </summary>
     private void ScheduleLayoutRetry()
     {
         if (layoutRetryItem != null || root == null) return;
@@ -156,6 +182,10 @@ public class IntroduceStationView : MonoBehaviour
         }).Every(LayoutRetryMs);
     }
 
+    /// <summary>
+    /// Callback triggered when the visual element is attached to a live UI Toolkit panel context.
+    /// </summary>
+    /// <param name="evt">The attach event arguments payload.</param>
     private void OnAttachedToPanel(AttachToPanelEvent evt)
     {
         Debug.Log("[IntroduceStationView] OnAttachedToPanel");
@@ -174,6 +204,9 @@ public class IntroduceStationView : MonoBehaviour
         TryStartAnimation();
     }
 
+    /// <summary>
+    /// Subscribes to geometry recalculation events to capture exact layout bounds once processed by the engine.
+    /// </summary>
     private void RegisterGeometryWait()
     {
         if (root == null || waitingForGeometry) return;
@@ -182,6 +215,10 @@ public class IntroduceStationView : MonoBehaviour
         root.RegisterCallback<GeometryChangedEvent>(OnGeometryChanged);
     }
 
+    /// <summary>
+    /// Callback triggered when geometry bounds (width, height, position) change on the root canvas.
+    /// </summary>
+    /// <param name="evt">The geometry change event arguments payload.</param>
     private void OnGeometryChanged(GeometryChangedEvent evt)
     {
         if (!pendingStart) return;
@@ -192,6 +229,10 @@ public class IntroduceStationView : MonoBehaviour
         TryStartAnimation();
     }
 
+    /// <summary>
+    /// Validates if the root element's dimensions have been successfully calculated and are greater than zero.
+    /// </summary>
+    /// <returns>True if dimensions are valid numbers and layout computation is complete; otherwise, false.</returns>
     private bool IsLayoutReady()
     {
         if (root == null || root.panel == null) return false;
@@ -202,6 +243,9 @@ public class IntroduceStationView : MonoBehaviour
         return rootValid;
     }
 
+    /// <summary>
+    /// Safe internal wrapper to ensure the rootVisualElement reference is resolved from the active UIDocument.
+    /// </summary>
     private void EnsureRoot()
     {
         if (uiDocument == null) uiDocument = GetComponent<UIDocument>();
@@ -211,6 +255,10 @@ public class IntroduceStationView : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Queries and caches structural VisualElements and UXML text labels via style classes and entity IDs.
+    /// </summary>
+    /// <param name="force">If true, flushes previously cached references to force a hard re-query.</param>
     private void CacheElements(bool force = false)
     {
         if (root == null) return;
@@ -238,6 +286,11 @@ public class IntroduceStationView : MonoBehaviour
         fifth ??= root.Q<Label>("fifth");
     }
 
+    /// <summary>
+    /// Sets an item's startup opacity and position offset, then schedules standard UI transition rules.
+    /// </summary>
+    /// <param name="element">The target UI visual component.</param>
+    /// <param name="name">Debug identifier name assigned to the component.</param>
     private void InitInitialState(VisualElement element, string name)
     {
         if (element == null)
@@ -265,30 +318,32 @@ public class IntroduceStationView : MonoBehaviour
         }).StartingIn(10);
     }
 
+    /// <summary>
+    /// Coordinates the multi-tiered cascading delays that reveal the 5 distinct title and description text fields line-by-line.
+    /// </summary>
     private void PlaySequenceAnimation()
     {
-        // [수정] 4번째, 5번째 라벨 검증 추가
         if (first == null || second == null || third == null || fourth == null || fifth == null)
         {
             Debug.LogWarning("[IntroduceStationView] PlaySequenceAnimation missing labels.");
             return;
         }
         Debug.Log("[IntroduceStationView] PlaySequenceAnimation starting for 5 lines.");
-
-        // 1~3번째 줄 등장
         first.schedule.Execute(() => ShowElement(first)).StartingIn(0);
         second.schedule.Execute(() => ShowElement(second)).StartingIn(LineDelayMs);
         third.schedule.Execute(() => ShowElement(third)).StartingIn(LineDelayMs * 2);
 
-        // [추가] 4~5번째 줄 등장 시퀀스 확장
         fourth.schedule.Execute(() => ShowElement(fourth)).StartingIn(LineDelayMs * 3);
         fifth.schedule.Execute(() => ShowElement(fifth)).StartingIn(LineDelayMs * 4);
 
-        // [수정] 모든 글자가 다 뜨고 난 뒤(LineDelayMs * 4) + 대기 시간(FadeOutDelayMs) 후 페이드아웃
         (fadeTarget ?? root).schedule.Execute(FadeOutAnimation)
             .StartingIn((LineDelayMs * 4) + FadeOutDelayMs);
     }
 
+    /// <summary>
+    /// Interpolates an element's visibility parameters to smoothly fade it into the visible view stack.
+    /// </summary>
+    /// <param name="element">The visual UI asset targeted for interpolation.</param>
     private void ShowElement(VisualElement element)
     {
         if (element == null) return;
@@ -296,6 +351,9 @@ public class IntroduceStationView : MonoBehaviour
         element.style.translate = new StyleTranslate(new Translate(0, 0, 0));
     }
 
+    /// <summary>
+    /// Initiates a global canvas fade-out and multi-threads a MatchStartEvent message through the architecture EventBus framework.
+    /// </summary>
     private void FadeOutAnimation()
     {
         if (fadeTarget == null)
@@ -319,6 +377,4 @@ public class IntroduceStationView : MonoBehaviour
         
         EventBus.Publish(new MatchStartEvent());
     }
-
-    
 }

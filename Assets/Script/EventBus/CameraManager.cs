@@ -3,7 +3,7 @@ using UnityEngine;
 
 //202322158 이준상
 
-//Camera Manager
+//Camera Manager. The state of the camera varies for each Lobby State.
 public class CameraTurnManager : MonoBehaviour
 {
     public static CameraTurnManager Instance { get; private set; }
