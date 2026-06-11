@@ -2,20 +2,24 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+//202322158 이준상
 
+/// <summary>
+/// Camera action will be executed, When Lobby state is GAME_TURN_ANIMATION
+/// Animation Code created by AI.
+/// </summary>
 public class AnimationCameraController : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     [Header("camera settings")]
     public Camera animationCamera;
-    public float normalFOV = 60f;     // 기본 FOV (현재 인스펙터에 있던 60)
+    public float normalFOV = 60f;
     public float zoomedFOV = 35f;
     
 
     [Header("시간 설정 (초 단위)")]
-    public float zoomSpeed = 0.1f;      // 줌인/아웃되는 데 걸리는 시간
-    public float maintainTime = 1.5f; // 줌인된 상태를 유지할 시간
-
+    public float zoomSpeed = 0.1f;     
+    public float maintainTime = 1.5f; 
 
     private void OnEnable()
     {

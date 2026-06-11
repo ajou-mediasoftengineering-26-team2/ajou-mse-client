@@ -27,12 +27,16 @@ public class GameSetting
     public static string format = "yyyy-MM-dd'T'HH:mm:ss.fff"; // Use fff instead of SSS
 
 
+    //Delay map before server made mutex.
     public static readonly Dictionary<CameraType, int> DELAY_MAP = new Dictionary<CameraType, int>()
     {
         { CameraType.Camera1, 0 },
         { CameraType.Camera2, 500 }
     };
 
+    /// <summary>
+    /// Define Hand Action
+    /// </summary>
     private static readonly Dictionary<string, HandActionType> HandActionAliases =
         new Dictionary<string, HandActionType>(StringComparer.OrdinalIgnoreCase)
         {
@@ -48,6 +52,14 @@ public class GameSetting
             { "none", HandActionType.INSERT_BETWEEN_HANDS }
         };
 
+    /// <summary>
+    /// ParseHandAction Action Data.
+    /// Before this function I wroted. But It doesn't work...
+    /// So I submit this code to AI and How to fix null execpetion.
+    /// </summary>
+    /// <param name="raw"></param>
+    /// <param name="action"></param>
+    /// <returns></returns>
     public static bool TryParseHandAction(string raw, out HandActionType action)
     {
         action = default;

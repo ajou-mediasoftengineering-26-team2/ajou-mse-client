@@ -6,7 +6,7 @@ using UnityEngine.Serialization;
 //202322158 이준상
 
 /// <summary>
-/// Use EventBus few
+/// Use EventBus for 3D Animation
 /// </summary>
 public class EffectRouter : MonoBehaviour
 {
@@ -26,6 +26,10 @@ public class EffectRouter : MonoBehaviour
     
     private Dictionary<Player, Animator> _playerAnimatorMap;
     
+    
+    /// <summary>
+    /// Define Event Bus
+    /// </summary>
     private void OnEnable()
     {
         _playerAnimatorMap = new Dictionary<Player, Animator>
@@ -65,12 +69,22 @@ public class EffectRouter : MonoBehaviour
         EventBus.Unsubscribe<HitAnimation>(OnHitAnimation);
     }
 
+    
+    /// <summary>
+    /// Round won function
+    /// </summary>
+    /// <param name="evt"></param>
     private void OnRoundWon(RoundWonEvent evt)
     {
         if (player1Animator == null) return;
         player1Animator.SetTrigger(evt.IsPlayer ? "PlayerWin" : "EnemyWin");
     }
 
+    
+    /// <summary>
+    /// Hand Action Animation Execute.
+    /// </summary>
+    /// <param name="evt"></param>
     private void OnSelectFinished(ActionSelectedEvent evt)
     {
         if (evt.Player1 == null || evt.Player2 == null)
@@ -110,11 +124,16 @@ public class EffectRouter : MonoBehaviour
     
     
 
+    /// <summary>
+    /// A function that maps animations for each player
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="role"></param>
+    /// <returns></returns>
     private Animator GetAnimatorByPlayer(Player player, BattleRole role)
     {
         if (!_playerAnimatorMap.TryGetValue(player, out var baseAnimator))
         {
-            Debug.LogError($"[EffectRouter] 플레이어 {player}에 매핑된 애니메이터가 없습니다.");
             return null;
         }
 
@@ -128,6 +147,13 @@ public class EffectRouter : MonoBehaviour
         }
     }
 
+    
+    /// <summary>
+    /// Value must be different each of player role. so I define this function.
+    /// </summary>
+    /// <param name="role"></param>
+    /// <param name="actionCode"></param>
+    /// <returns></returns>
     private int GetHandActionValue(BattleRole role, HandActionType actionCode)
     {
         // Role offset lets you keep HandActionType as a shared key while separating attack/defense animations.
@@ -142,6 +168,10 @@ public class EffectRouter : MonoBehaviour
             targetAnimator.SetInteger(HandActionParameter, 0);
     }
     
+    /// <summary>
+    /// Hit Hand Animaiton Event
+    /// </summary>
+    /// <param name="evt"></param>
     private void OnHitAnimation(HitAnimation evt)
     {
         Animator targetAnimator = GetAnimatorByPlayer(evt.Player,  evt.Role);
@@ -170,6 +200,12 @@ public class EffectRouter : MonoBehaviour
     }
     
     
+    /// <summary>
+    /// 3d Animation
+    /// Code created by AI.
+    /// </summary>
+    /// <param name="targetObj"></param>
+    /// <param name="status"></param>
     public void PlayStatusAnimation(GameObject targetObj, string status)
     {
         // 0. 예외 처리 (오브젝트가 안 들어왔으면 실행 안 함)

@@ -21,6 +21,10 @@ public class MainBattleBindingRenderer
         _actionRenderer = actionRenderer;
     }
 
+    
+    /// <summary>
+    /// Manage Observable variables in data 
+    /// </summary>
     public void Bind()
     {
         BindSlotHover();
@@ -291,6 +295,10 @@ public class MainBattleBindingRenderer
         });
     }
 
+    
+    /// <summary>
+    /// Manage Hover slot event 
+    /// </summary>
     private void BindSlotHover()
     {
         if (_uiRefs.TooltipContainer == null)
@@ -415,14 +423,19 @@ public class MainBattleBindingRenderer
         });
     }
     
+    
+    /// <summary>
+    /// Apply Status Effect. In UI code case, I create code with AI. 
+    /// </summary>
+    /// <param name="effectIcon"></param>
+    /// <param name="effectName"></param>
+    /// <param name="isMy"></param>
     public void ApplyStatusEffect(Sprite effectIcon, string effectName, bool isMy)
     {
-        // 1.isMy 값에 따라 어떤 컨테이너를 쓸지 결정합니다.
         VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;
         
         if (targetContainer == null)
         {
-            Debug.LogWarning($"{(isMy ? "내" : "적")} 상태이상 컨테이너를 찾을 수 없습니다.");
             return;
         }
 
@@ -448,8 +461,10 @@ public class MainBattleBindingRenderer
     }
 
     /// <summary>
-    /// 상태이상이 해제되었을 때 제거하는 함수
+    /// I define this status effect. But I don't use this code. Because of firebase realtime database resolved all of UI case.
     /// </summary>
+    /// <param name="effectName"></param>
+    /// <param name="isMy"></param>
     public void RemoveStatusEffect(string effectName, bool isMy)
     {
         VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;
@@ -462,6 +477,8 @@ public class MainBattleBindingRenderer
         }
     }
     
+    
+    //ClearAllStatusEffects.
     public void ClearAllStatusEffects(bool isMy)
     {
         VisualElement targetContainer = isMy ? _uiRefs.MyEffectContainer : _uiRefs.EnemyEffectContainer;

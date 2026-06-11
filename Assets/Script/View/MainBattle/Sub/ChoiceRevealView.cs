@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+//202322158 이준상
+
+/// <summary>
+/// UI class showing the hand action you and the other person chose All animation codes are produced by AI.
+/// </summary>
 public class ChoiceRevealView : MonoBehaviour
 {
     private VisualElement _container;
@@ -19,19 +24,17 @@ public class ChoiceRevealView : MonoBehaviour
     private Label _leftActionLabel;
     private Label _rightActionLabel;
 
-    private Coroutine _animationCoroutine; // 실행 중인 코루틴을 제어하기 위한 변수
+    private Coroutine _animationCoroutine;
 
     void OnEnable()
     {
         TryCacheElements();
 
-        // 켜질 때 트랜지션을 끄고 "즉시" 투명 상태로 스냅 초기화
         SnapToInitialState();
     }
 
     void OnDisable()
     {
-        // 오브젝트가 꺼질 때 혹시 돌고 있을지 모를 코루틴을 확실히 정지
         if (_animationCoroutine != null)
         {
             StopCoroutine(_animationCoroutine);
@@ -58,9 +61,6 @@ public class ChoiceRevealView : MonoBehaviour
         RevealChoices(leftSprite, rightSprite);
     }
 
-    /// <summary>
-    /// 트랜지션 없이 부드러운 연출 준비 단계로 즉시 스냅(Snap)하는 메서드
-    /// </summary>
     private void SnapToInitialState()
     {
         if (_container != null)
@@ -105,13 +105,11 @@ public class ChoiceRevealView : MonoBehaviour
 
         ShowContainer();
 
-        // 1. 혹시 이미 돌고 있는 애니메이션이 있다면 중복 실행 방지를 위해 처단
         if (_animationCoroutine != null)
         {
             StopCoroutine(_animationCoroutine);
         }
 
-        // 2. 완벽하게 초기 상태로 클린 세팅
         SnapToInitialState();
 
         if (leftPlayerSprite != null && _leftChoiceImage != null)
@@ -120,23 +118,16 @@ public class ChoiceRevealView : MonoBehaviour
         if (rightPlayerSprite != null && _rightChoiceImage != null)
             _rightChoiceImage.style.backgroundImage = new StyleBackground(rightPlayerSprite);
 
-        // 3. 안정적인 유니티 코루틴 시퀀스 시작
         _animationCoroutine = StartCoroutine(PlaySequenceAnimationCoroutine());
     }
 
-    /// <summary>
-    /// schedule.Execute를 완벽하게 대체하는 타임라인 코루틴
-    /// </summary>
     private IEnumerator PlaySequenceAnimationCoroutine()
     {
-        // UI Toolkit 트랜지션 규칙을 안전하게 다시 심어줍니다.
         ApplyTransitionRules(_leftPlayerGroup);
         ApplyTransitionRules(_rightPlayerGroup);
 
-        // 한 프레임 쉬어서 UI Toolkit 엔진이 변경된 트랜지션 규칙을 인지하도록 보장합니다.
         yield return null; 
 
-        // --- 1. Player 1 등장 (2.0초 대기 후) ---
         yield return new WaitForSeconds(2.0f);
         if (_leftPlayerGroup != null)
         {
@@ -153,7 +144,6 @@ public class ChoiceRevealView : MonoBehaviour
             }
         }
 
-        // --- 2. Player 2 등장 (그로부터 1.5초 뒤, 총 3.5초 시점) ---
         yield return new WaitForSeconds(1.5f);
         if (_rightPlayerGroup != null)
         {
@@ -170,7 +160,6 @@ public class ChoiceRevealView : MonoBehaviour
             }
         }
 
-        // --- 3. 연출 종료 및 전체 UI 페이드아웃 시작 (그로부터 2.5초 뒤, 총 6.0초 시점) ---
         yield return new WaitForSeconds(2.5f);
         if (_container != null)
         {
@@ -179,7 +168,6 @@ public class ChoiceRevealView : MonoBehaviour
             _container.style.opacity = 0f;
         }
 
-        // --- 4. 페이드아웃 애니메이션 시간(0.5초)만큼 기다린 뒤 오브젝트 비활성화 ---
         yield return new WaitForSeconds(0.5f);
         if (_container != null)
         {

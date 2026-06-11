@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+//202322158
+
+
+/// <summary>
+/// When Match is stared, This UI will be enabled
+/// </summary>
 [RequireComponent(typeof(UIDocument))]
 public class IntroduceStationView : MonoBehaviour
 {
@@ -274,17 +280,13 @@ public class IntroduceStationView : MonoBehaviour
             return;
         }
         Debug.Log("[IntroduceStationView] PlaySequenceAnimation starting for 5 lines.");
-
-        // 1~3번째 줄 등장
         first.schedule.Execute(() => ShowElement(first)).StartingIn(0);
         second.schedule.Execute(() => ShowElement(second)).StartingIn(LineDelayMs);
         third.schedule.Execute(() => ShowElement(third)).StartingIn(LineDelayMs * 2);
 
-        // [추가] 4~5번째 줄 등장 시퀀스 확장
         fourth.schedule.Execute(() => ShowElement(fourth)).StartingIn(LineDelayMs * 3);
         fifth.schedule.Execute(() => ShowElement(fifth)).StartingIn(LineDelayMs * 4);
 
-        // [수정] 모든 글자가 다 뜨고 난 뒤(LineDelayMs * 4) + 대기 시간(FadeOutDelayMs) 후 페이드아웃
         (fadeTarget ?? root).schedule.Execute(FadeOutAnimation)
             .StartingIn((LineDelayMs * 4) + FadeOutDelayMs);
     }

@@ -3,6 +3,13 @@ using Microsoft.Win32.SafeHandles;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+
+
+//202322158 이준상
+
+/// <summary>
+/// UI animation event for EventBus.Publish
+/// </summary>
 public class UIManager : MonoBehaviour
 {
     //[SerializeField] UIDocument PerksAndShopUIDocument;
@@ -29,10 +36,13 @@ public class UIManager : MonoBehaviour
     private bool _gameEndShown = false;
     
     private HitAnimation current;
+    
+    /// <summary>
+    /// Define Event Bus
+    /// </summary>
     private void OnEnable()
     {
         _gameEndShown = false;
-        // 개별적으로 끄던 코드를 AllUIDown 하나로 대체
         AllUIDown();
         
         //EventBus.Subscribe<RoundOver>(RoundOverUI);
@@ -158,14 +168,14 @@ public class UIManager : MonoBehaviour
     
     private void MatchStartUI(MatchStartEvent evt)
     {
-        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
+        AllUIDown();
         MatchStart.enabled = true;
         MatchStart.GetComponent<MatchStartView>().StartAnimation(player1, player2);
     }
 
     public void ShowStationUI(IntroduceStationEvent evt)
     {
-        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
+        AllUIDown();
         IntroduceStation.enabled = true;
         var view = IntroduceStation.GetComponent<IntroduceStationView>();
         player1 = evt.player1;
@@ -210,7 +220,7 @@ public class UIManager : MonoBehaviour
 
     private void ChoiceAnimation(ChoiceAnimation evt)
     {
-        AllUIDown(); // UI 켜기 전에 모두 끄기 추가
+        AllUIDown(); 
         ChoiceReveal.enabled = true;
         ChoiceReveal.GetComponent<ChoiceRevealView>().StartChoiceReveal(evt.Player1, evt.Player2);
     }
@@ -244,28 +254,30 @@ public class UIManager : MonoBehaviour
         StartCoroutine(SpawnCardsSequential(e.damage, e.isLeft));
     }
     
+    
+    /// <summary>
+    /// Card Animation Event When Damage Event Publish.
+    /// </summary>
+    /// <param name="damageData"></param>
+    /// <param name="isLeft"></param>
+    /// <returns></returns>
     private IEnumerator SpawnCardsSequential(Damage damageData, bool isLeft)
     {
-        // 카드와 카드 사이의 등장 간격 (원하는 초 단위로 조절하세요)
         float delayTime = 0.8f; 
 
-        // 1. 사용된 퍽(Perk) 리스트 처리
         if (damageData.usedPerks != null)
         {
             foreach (string perkStr in damageData.usedPerks)
             {
                 if (System.Enum.TryParse(perkStr, out PerkType perkType))
                 {
-                    //아이템은 방어하는 쪽 퍽은 공격하는 쪽이 애니메이션을 반댓방향으로 띄워야됨.
                     SpawnNewCard(perkType, !isLeft);
                 
-                    //  카드를 하나 만들고 설정한 시간만큼 대기합니다.
                     yield return new WaitForSeconds(delayTime); 
                 }
             }
         }
 
-        // 2. 사용된 아이템(Item) 리스트 처리
         if (damageData.usedItems != null)
         {
             foreach (string itemStr in damageData.usedItems)
@@ -274,7 +286,6 @@ public class UIManager : MonoBehaviour
                 {
                     SpawnItemCard(itemType, isLeft);
                 
-                    // 아이템 카드를 하나 만들고 설정한 시간만큼 대기합니다.
                     yield return new WaitForSeconds(delayTime); 
                 }
                 else
@@ -306,9 +317,6 @@ public class UIManager : MonoBehaviour
         itemCardScript.SetUpAndAnimationCard(itemType, isLeft);
     }
     
-    /// <summary>
-    /// 상단에 선언된 모든 10개의 UIDocument를 안전하게 비활성화합니다.
-    /// </summary>
     private void AllUIDown()
     {
         //if (PerksAndShopUIDocument != null) PerksAndShopUIDocument.enabled = false;

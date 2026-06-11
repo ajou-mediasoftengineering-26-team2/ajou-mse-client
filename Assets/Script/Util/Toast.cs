@@ -153,15 +153,16 @@ public class Toast : MonoBehaviour
     }
 
     /// <summary>
-/// 오른쪽에서 왼쪽으로 슬라이드하면서 페이드인/아웃하는 피격 UI를 표시합니다.
-/// 사용처: 상대방이 내 왼쪽에 있을 때 (내가 공격당함) -> 우측 사이드에 표시
-/// </summary>
+    /// Displays a fade-in/out hit UI as it slides from right to left.
+    /// Usage: When the opponent is on my left (I'm attacked) -> Display on the right side
+    /// code created by AI
+    /// </summary>
 public static void ShowDamagePopupRight(int damage, float duration = 0.8f)
 {
     if (_root == null) return;
     EnsureToastLayer();
 
-    // 1. 라벨 생성 및 텍스트 반영
+    // 1. Create labels and reflect text
     Label toast = new Label(damage.ToString());
     toast.style.unityTextAlign = TextAnchor.MiddleCenter;
     toast.style.backgroundColor = new Color(0, 0, 0, 0.7f);
@@ -173,16 +174,16 @@ public static void ShowDamagePopupRight(int damage, float duration = 0.8f)
     toast.style.borderBottomLeftRadius = 15; toast.style.borderBottomRightRadius = 15;
     toast.pickingMode = PickingMode.Ignore;
 
-    // 2. 우측 레이아웃 위치 강제 고정 (Absolute)
+    // 2. Forced right layout position (Absolute)
     toast.style.position = Position.Absolute;
     toast.style.right = 100;       // 오른쪽 사이드 여백
     toast.style.bottom = 250;      // 일반 토스트와 겹치지 않게 위로 올림
     
-    // 3. 애니메이션 초기 상태 설정 (오른쪽으로 50px 치우친 상태 + 투명)
+    // 3. Set animation initial state (50px skewed to right + transparent)
     toast.style.opacity = 0;
     toast.style.marginRight = -50; 
 
-    // 4. 트랜지션 타겟을 margin-right로 변경
+    // 4. Change transition target to margin-right
     toast.style.transitionProperty = new List<StylePropertyName> { "opacity", "margin-right" };
     toast.style.transitionDuration = new List<TimeValue>
     {
@@ -193,14 +194,14 @@ public static void ShowDamagePopupRight(int damage, float duration = 0.8f)
     _toastLayer.Add(toast);
     VisualElement currentLayer = _toastLayer;
 
-    // 5. 등장 애니메이션: 왼쪽으로 스르륵 들어옴 (marginRight를 0으로)
+    // 5. Animation: Slipping in to the left (MarginRight to zero)
     toast.schedule.Execute(() =>
     {
         toast.style.opacity = 1;
         toast.style.marginRight = 0;
-    }).StartingIn(50); // 500ms는 너무 느려서 50ms로 조절했습니다.
+    }).StartingIn(50); 
 
-    // 6. 퇴장 애니메이션: 다시 오른쪽으로 빠지면서 사라짐
+    // 6. Exit animation: Gone as it falls back to the right
     toast.schedule.Execute(() => {
         toast.style.opacity = 0;
         toast.style.marginRight = -50;
@@ -208,16 +209,16 @@ public static void ShowDamagePopupRight(int damage, float duration = 0.8f)
     }).StartingIn((int)(duration * 1000));
 }
 
-/// <summary>
-/// 왼쪽에서 오른쪽으로 슬라이드하면서 페이드인/아웃하는 피격 UI를 표시합니다.
-/// 사용처: 상대방이 내 오른쪽에 있을 때 (내가 공격함) -> 좌측 사이드에 표시
-/// </summary>
+    /// <summary>
+    /// Displays a fade-in/out hit UI as it slides from left to right.
+    /// Usage: When the opponent is on my right (I attack) -> Display on the left side
+    /// code created by AI
+    /// </summary>
 public static void ShowDamagePopupLeft(int damage, float duration = 0.8f)
 {
     if (_root == null) return;
     EnsureToastLayer();
 
-    // 1. 라벨 생성 및 텍스트 반영
     Label toast = new Label(damage.ToString());
     toast.style.unityTextAlign = TextAnchor.MiddleCenter;
     toast.style.backgroundColor = new Color(0, 0, 0, 0.7f);
@@ -229,16 +230,13 @@ public static void ShowDamagePopupLeft(int damage, float duration = 0.8f)
     toast.style.borderBottomLeftRadius = 15; toast.style.borderBottomRightRadius = 15;
     toast.pickingMode = PickingMode.Ignore;
 
-    // 2. 좌측 레이아웃 위치 강제 고정 (Absolute)
     toast.style.position = Position.Absolute;
     toast.style.left = 100;        // 왼쪽 사이드 여백
     toast.style.bottom = 250;      // 일반 토스트와 겹치지 않게 위로 올림
 
-    // 3. 애니메이션 초기 상태 설정 (왼쪽으로 50px 치우친 상태 + 투명)
     toast.style.opacity = 0;
     toast.style.marginLeft = -50;
 
-    // 4. 트랜지션 타겟을 margin-left로 변경
     toast.style.transitionProperty = new List<StylePropertyName> { "opacity", "margin-left" };
     toast.style.transitionDuration = new List<TimeValue>
     {
@@ -249,14 +247,12 @@ public static void ShowDamagePopupLeft(int damage, float duration = 0.8f)
     _toastLayer.Add(toast);
     VisualElement currentLayer = _toastLayer;
 
-    // 5. 등장 애니메이션: 오른쪽으로 스르륵 들어옴 (marginLeft를 0으로)
     toast.schedule.Execute(() =>
     {
         toast.style.opacity = 1;
         toast.style.marginLeft = 0;
     }).StartingIn(50);
 
-    // 6. 퇴장 애니메이션: 다시 왼쪽으로 빠지면서 사라짐
     toast.schedule.Execute(() => {
         toast.style.opacity = 0;
         toast.style.marginLeft = -50;

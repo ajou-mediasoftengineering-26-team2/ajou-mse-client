@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 //202322158 이준상
+
+/// <summary>
+/// Get UI references.
+/// </summary>
 public class MainBattleUIRefs
 {
     public VisualElement MainBattleRoot { get; }
@@ -97,19 +101,16 @@ public class MainBattleUIRefs
         VisualElement infoGrid = MainBattleRoot.Q<VisualElement>("InfoGrid");
         if (infoGrid != null)
         {
-            // InfoGrid 내부에 있는 두 개의 'grid-row' 클래스를 순서대로 가져옵니다.
             List<VisualElement> rows = infoGrid.Query<VisualElement>(className: "grid-row").ToList();
 
             if (rows.Count >= 2)
             {
-                // 1. 첫 번째 줄 (위쪽 - 퍽) 내부의 slot 3개 파싱
                 List<VisualElement> perkElements = rows[0].Query<VisualElement>(className: "slot").ToList();
                 for (int i = 0; i < MyPerkSlots.Length && i < perkElements.Count; i++)
                 {
                     MyPerkSlots[i] = perkElements[i];
                 }
 
-                // 2. 두 번째 줄 (아래쪽 - 아이템) 내부의 slot 3개 파싱
                 List<VisualElement> itemElements = rows[1].Query<VisualElement>(className: "slot-item").ToList();
                 for (int i = 0; i < MyItemSlots.Length && i < itemElements.Count; i++)
                 {
@@ -118,22 +119,20 @@ public class MainBattleUIRefs
             }
         }
 
+        //enemy slot parsing.
         VisualElement enemyInfoGrid = MainBattleRoot.Q<VisualElement>("EnemyInfoGrid");
         if (enemyInfoGrid != null)
         {
-            // EnemyInfoGrid 내부에 있는 두 개의 'grid-row' 클래스를 순서대로 가져옵니다.
             List<VisualElement> enemyRows = enemyInfoGrid.Query<VisualElement>(className: "grid-row").ToList();
 
             if (enemyRows.Count >= 2)
             {
-                // 1. 첫 번째 줄 (위쪽 - 적 퍽) 내부의 slot 3개 파싱
                 List<VisualElement> enemyPerkElements = enemyRows[0].Query<VisualElement>(className: "slot").ToList();
                 for (int i = 0; i < EnemyPerkSlots.Length && i < enemyPerkElements.Count; i++)
                 {
                     EnemyPerkSlots[i] = enemyPerkElements[i];
                 }
 
-                // 2. 두 번째 줄 (아래쪽 - 적 아이템) 내부의 slot 3개 파싱
                 List<VisualElement> enemyItemElements =
                     enemyRows[1].Query<VisualElement>(className: "slot-item").ToList();
                 for (int i = 0; i < EnemyItemSlots.Length && i < enemyItemElements.Count; i++)
